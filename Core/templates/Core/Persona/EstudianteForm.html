@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load bootstrap5 %}
+
+    <div class="container contact-form">
+        <h1>Alta Estudiante</h1>
+        <hr>
+        <form class="form" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <hr>
+            <div class="form-group">
+                <input class="btn btn-primary" type="submit" value="Guardar">
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<!--<script>
+    $(document).ready(function (){
+        $('select[name=Localidad]').before(
+            '<a class="btn btn-primary float-right" style="align-self:center" href="{% url 'altaLocalidad'%}">Nueva localidad</a>')
+    })
+</script>-->
+{% endblock scripts %}

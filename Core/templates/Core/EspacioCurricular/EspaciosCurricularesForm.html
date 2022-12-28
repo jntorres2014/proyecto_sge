@@ -1,0 +1,19 @@
+{% extends 'FormBase.html' %}
+{% block form_container %}
+{% load bootstrap4 %}
+
+    <div class="container contact-form">
+        <h1>Alta Espacio Curricular</h1>
+        <hr>
+        <form class="form" method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <hr>
+            <div class="form-group">
+                <input class="btn btn-primary" type="submit" value="Guardar">
+                <a class="btn btn-primary" href="{% url 'verEspacios'%}">Listar Espacios </a></td>
+            </div>
+        </form>
+    </div>
+{% endblock form_container %}
+

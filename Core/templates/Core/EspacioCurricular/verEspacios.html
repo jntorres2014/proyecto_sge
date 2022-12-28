@@ -1,0 +1,45 @@
+{% extends 'VerBase.html' %}
+{% block container %}
+        <div class="contenedor-tabla">
+            <div><h1><a href="/">Lista Espacios Curriculares</a></h1></div>
+            <div class="hidden orden-listado">
+               <div class="flex-md-column-reverse" >
+                <table class="table-bordered table-hover  " id="table_id" >
+                   <thead class="hidden orden-listado">
+                   <tr class="table-hover">
+
+                            <th>Anio</th>
+                           <th>Codigo</th>
+                           <th>Nombre</th>
+                            <th>Cantidad de moludos</th>
+                            <th>contenido</th>
+                                 <th></th>
+                        </tr>
+                   </thead>
+                <tbody >
+                    {% block tabla %}
+                    {% if object_list %}
+                        {% for espacio in object_list %}
+                            <tr>
+                                <td rowspan="1">{{ espacio.anio.codigo}}</td>
+                                <td > {{ espacio.codigo}}</td>
+                                <td>{{ espacio.nombre }}</td>
+                                <td>{{ espacio.cantidadModulos}}</td>
+                                <td>{{ espacio.contenido }}</td>
+                                 <td><a  class="btn btn-primary" href="{% url 'modificarEspacio' espacio.id %}">Editar </a></td>
+                            </tr>
+                         {% endfor %}
+                    {% else %}
+                        <h1>NO HAY ESPACIOS CURRICULARES PARA LISTAR</h1>
+                    {% endif %}
+                  {% endblock tabla %}
+                </tbody>
+                </table>
+                </div>
+                <td><a  class="btn btn-primary" href="{% url 'verPlan' %}">Listar Planes</a></td>
+            </div>
+
+        </div>
+
+{% endblock container %}
+

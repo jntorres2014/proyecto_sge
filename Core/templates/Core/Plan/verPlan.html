@@ -1,0 +1,45 @@
+{% extends 'VerBase.html' %}
+{% block container %}
+        <div class="contenedor-tabla">
+            <div><h1><a href="/">Lista Plan</a></h1></div>
+            <div class="hidden orden-listado">
+               <div class="flex-md-column-reverse" >
+                 <table class="table-bordered table-hover  " id="table_id" >
+                   <thead class="hidden orden-listado">
+
+                        <tr class="table-hover">
+                            <th>Codigo</th>
+                            <th>Anio</th>
+                            <th>Orientacion</th>
+                            <th>Nivel</th>
+                            <th>Descricion</th>
+                            <th>Cantidad de Años</th>
+                             <th></th>
+                        </tr>
+                    </thead>
+                <tbody>
+                   {%block tabla%}
+                    {% if object_list %}
+                        {% for plan in object_list %}
+                            <tr>
+                                <td>{{ plan.codigo}}</td>
+                                <td>{{ plan.anio}}</td>
+                                <td>{{ plan.orientacion}}</td>
+                                <td>{{ plan.nivel}}</td>
+                                <td>{{ plan.descripcion}}</td>
+                                <td>{{ plan.cantidadAnios}}</td>
+                                <td><a  class="btn btn-primary" href="{% url 'modificarPlan' plan.id %}">Editar </a>
+                                <a class="btn btn-primary" href="{% url 'agregarEspacio' plan.id %}">+ Espacio </a></td>
+                            </tr>
+                         {% endfor %}
+                    {% else %}
+                        <h1>NO HAY DOCENTES PARA LISTAR</h1>
+                    {% endif %}
+                       {% endblock tabla %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            <ul class="pager"></ul>
+        </div>
+{%endblock container%}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+        <div class="contenedor-tabla">
+            <div><h1><a href="/">Lista Docentes</a></h1></div>
+            <div class="hidden orden-listado">
+               <div class="flex-md-column-reverse" >
+                 <table class="table table-bordered table-hover  " id="table_id" >
+                   <thead class="hidden orden-listado">
+
+                        <tr class="table-hover">
+                            <th>DNI</th>
+                            <th>Apellido</th>
+                            <th>Nombre</th>
+                            <th>Direccion</th>
+                            <th>Localidad</th>
+                            <th>Email</th>
+                            <th>Titulo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody >
+                        {% block tabla %}
+                        {% if object_list %}
+                            {% for docente in object_list %}
+                              <tr>
+                                  <td>{{ docente.Dni }}</td>
+                                  <td>{{ docente.Apellido }}</td>
+                                  <td>{{ docente.Nombre}}</td>
+                                  <td>{{ docente.Direccion }}</td>
+                                  <td>{{ docente.Localidad.NombreLocalidad}}</td>
+                                  <td>{{ docente.Email}}</td>
+                                  <td>{{ docente.tituloHabilitante}}</td>
+                                  <td><a  class="btn btn-primary" href="{% url 'modificarDocente' docente.id %}">Editar </a></td>
+                               </tr>
+                             {% endfor %}
+                        {% else %}
+                            <h1>NO HAY DOCENTES PARA LISTAR</h1>
+                        {% endif %}
+                       {% endblock tabla %}
+                    </tbody>
+                </table>
+                   <a  class="btn btn-primary" href="{% url 'altaDocente'%}">Nuevo </a>
+                </div>
+            </div>
+            <ul class="pager"></ul>
+        </div>
+{% endblock  %}
+
+

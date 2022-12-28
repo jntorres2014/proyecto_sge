@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="contenedor-tabla">
+            <div><h1><a href="/">Lista Localidad</a></h1></div>
+            <div class="hidden orden-listado">
+               <div class="flex-md-column-reverse" >
+                 <table class="table-bordered table-hover  " id="table_id" >
+                   <thead class="hidden orden-listado">
+                        <tr class="table-hover">
+                            <th>Codigo Postal</th>
+                            <th>Nombre</th>
+                            <th></th>
+                        </tr>
+                   </thead>
+                <tbody >
+                    {% block tabla %}
+                    {% if object_list %}
+                        {% for localidad in object_list %}
+                            <tr>
+                              <td>{{ localidad.CodigoPosta}}</td>
+                              <td>{{ localidad.NombreLocalidad }}</td>
+                              <td><a  class="btn btn-primary" href="{% url 'modificarLocalidad' localidad.id %}"
+                                   >Editar </a></td>
+                            </tr>
+                         {% endfor %}
+                    {% else %}
+                        <h1>NO HAY LOCALIDAD PARA LISTAR</h1>
+                        {% endif %}
+                       {% endblock tabla %}
+                    </tbody>
+                </table>
+                </div>
+        <a  class="btn btn-primary" href="{% url 'altaLocalidad' %}">Agregar</a>
+            </div>
+        </div>
+{%endblock %}
+

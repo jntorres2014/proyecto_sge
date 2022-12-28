@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="contenedor-tabla">
+            <div><h1><a href="/">Lista Estudiantes</a></h1></div>
+            <div class="hidden orden-listado">
+               <div class="flex-md-column-reverse" >
+                 <table class=" table table-bordered table-hover  " id="table_id" >
+                   <thead class="hidden orden-listado">
+                        <tr class="table-hover">
+                            <th>DNI</th>
+                            <th>Apellido</th>
+                            <th>Nombre</th>
+                            <th>Direccion</th>
+                            <th>Localidad</th>
+                            <th>Email</th>
+                            <th>legajo</th>
+                            <th>fecha Inscripcion</th>
+                            <th></th>
+                        </tr>
+                   </thead>
+                <tbody >
+                    {% block tabla %}
+                    {% if object_list %}
+                        {% for estudiante in object_list %}
+                            <tr>
+                              <td>{{ estudiante.Dni }}</td>
+                              <td>{{ estudiante.Apellido }}</td>
+                              <td>{{ estudiante.Nombre}}</td>
+                              <td>{{ estudiante.Direccion }}</td>
+                              <td>{{ estudiante.Localidad.NombreLocalidad}}</td>
+                              <td>{{ estudiante.Email}}</td>
+                              <td>{{ estudiante.legajo}}</td>
+                              <td>{{ estudiante.fechaInscripcion}}</td>
+                              <td><a  class="btn btn-primary" href="{% url 'modificarEstudiante' estudiante.id %}"
+                                   >Editar </a>
+                              <a  class="btn btn-primary" href="{% url 'modificarEstudiante' estudiante.id %}"
+                                   >Editar </a></td>
+                            </tr>
+                         {% endfor %}
+                    {% else %}
+                        <h1>NO HAY DOCENTES PARA LISTAR</h1>
+                        {% endif %}
+                       {% endblock tabla %}
+                    </tbody>
+                </table>
+                </div>
+        <a  class="btn btn-primary" href="{% url 'altaEstudiante' %}">Editar </a>
+            </div>
+        </div>
+{%endblock %}
+

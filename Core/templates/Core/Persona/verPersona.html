@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+        <div><h1><a href="/">Lista de Docente</a></h1></div>
+               {% block  th %}
+                        <th>Dni</th><th>Apellido</th><th>Nombre</th><th>Direccion</th><th>Localidad</th><th>Email</th><th>Titulo</th><th>Editar</th>
+                {% endblock %}
+                {% block tr %}
+                    {% if object_list %}
+                        {% for docente in object_list %}
+                              <td>{{ docente.Dni }}</td>
+                              <td>{{ docente.Apellido }}</td>
+                              <td>{{ docente.Nombre}}</td>
+                              <td>{{ docente.Direccion }}</td>
+                              <td>{{ docente.Localidad.NombreLocalidad}}</td>
+                              <td>{{ docente.Email}}</td>
+                              <td>{{ docente.tituloHabilitante}}</td>
+
+                         {% endfor %}
+                     {% else %}
+                        <h1>NO HAY DOCENTES</h1>
+                    {% endif %}
+                {% endblock %}
+         </div>
+{%endblock %}
