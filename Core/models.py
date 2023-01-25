@@ -1,9 +1,8 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.timezone import now
-from _datetime import date
+from datetime import date
 from django.core.exceptions import ValidationError
-
 
 
 class Localidad (models.Model):
@@ -213,6 +212,8 @@ class Persona(models.Model):
     def __str__(self):
         return "{0}, {1}, {2}".format(self.Dni, self.Apellido, self.Nombre)
 
+
+
 class Estudiante(Persona):
 
     def dia_futuro(value):
@@ -326,3 +327,13 @@ class Calificacion(models.Model):
         blank= False,
         on_delete= models.CASCADE
     )
+class inscripcionEstudianteCiclo(models.Model):
+    alumno = models.ForeignKey(
+        Estudiante,
+        null= True,
+        on_delete=models.CASCADE,
+    )
+
+    # ciclo = models.models.ForeignKey(
+    #     Ciclo,
+    #     on_delete=models.CASCADE)

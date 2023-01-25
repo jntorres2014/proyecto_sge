@@ -32,7 +32,7 @@ urlpatterns = [
     path('signin/', views.signin, name= 'login'),
     path('task/create', views.create_task, name= 'create_task'),
     re_path(r'^Core/', include('Core.urls')),
-    
+    re_path(r'^Clases/', include('Clases.urls')),
     
     # path('altaLocalidad/', views.localidad_view, name='altaLocalidad'),
     # path(r'^verLocalidad$', views.localidad_list.as_view(), name='verLocalidad'),

@@ -1,0 +1,40 @@
+{% extends 'VerBase.html' %}
+{% block container %}
+<div class="contenedor-tabla">
+            <div><h1><a href="/">Inasistencias</a></h1></div>
+            <div class="hidden orden-listado">
+               <div class="flex-md-column-reverse" >
+                <table class="table-bordered table-hover  " id="table_id" >
+                   <thead class="hidden orden-listado">
+
+                        <tr class="table-hover">
+                            <th>Estudiante</th>
+                            <th>fecha</th>
+                            <th>Justificacion</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody >
+                        {% block tabla %}
+                            {% if object_list %}
+                                {% for inasistencia in object_list %}
+                                    <tr>
+                                        <td>{{ inasistencia.estudiante}}</td>
+                                        <td>{{ inasistencia.dia}}</td>
+                                        <td>{{ inasistencia.justificacion}}</td>
+                                        <td><a  class="btn btn-primary" href="{% url 'modificarInasistencia' inasistencia.id %}">Editar </a></td>
+
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <h1>NO HAY ALUMNOS CON FALTAS</h1>
+                            {% endif %}
+                         {%endblock tabla%}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            <ul class="pager"></ul>
+        </div>
+{% endblock container %}
+
