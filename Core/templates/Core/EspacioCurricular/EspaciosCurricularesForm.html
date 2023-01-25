@@ -1,11 +1,13 @@
-{% extends 'FormBase.html' %}
-{% block form_container %}
-{% load bootstrap4 %}
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+{% block content %}
 
     <div class="container contact-form">
-        <h1>Alta Espacio Curricular</h1>
+        <h1>Alta Espacio Curricular para</h1>
+        <h1>{{ idPlan }} </h1>        
         <hr>
         <form class="form" method="post">
+            
             {% csrf_token %}
             {% bootstrap_form form %}
             <hr>
@@ -15,5 +17,5 @@
             </div>
         </form>
     </div>
-{% endblock form_container %}
+{% endblock %}
 

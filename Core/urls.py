@@ -18,7 +18,7 @@ urlpatterns = [
     re_path(r'^modificarEstudiante/(?P<id_estudiante>\d+)/$', views.estudiante_edit, name='modificarEstudiante'),
 
     re_path(r'^altaPlan$', views.plan_de_estudios_view,name='altaPlan'),
-    re_path(r'^verPlan$', views.plan_list.as_view(), name= 'verPlan'),
+    re_path(r'^verPlan$', views.plan_list, name= 'verPlan'),
     re_path(r'^modificarPlan/(?P<id_plan>\d+)/$', views.plan_edit, name='modificarPlan'),
 
     re_path(r'agregarEspacio/(?P<id_plan>\d+)/$', views.Espacio_view,name= 'agregarEspacio'),

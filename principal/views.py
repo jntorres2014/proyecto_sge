@@ -11,6 +11,10 @@ from django.contrib.auth.decorators import login_required
 
 def home(request):
     return render(request, 'home.html')
+
+def inscripciones(request):
+       return render(request, 'inscripciones.html')
+
 @login_required
 def create_task(request):
     if request.method == 'GET':      
@@ -104,6 +108,7 @@ def delete(request,id):
         task.delete()        
         return redirect('principal')
     
+
 
 def signout(request):
     logout(request)

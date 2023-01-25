@@ -1,10 +1,10 @@
-{% extends 'VerBase.html' %}
-{% block container %}
+{% extends 'base.html' %}
+{% block content %}
         <div class="contenedor-tabla">
             <div><h1><a href="/">Lista Plan</a></h1></div>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
-                 <table class="table-bordered table-hover  " id="table_id" >
+                 <table class="table-bordered table-hover"  >
                    <thead class="hidden orden-listado">
 
                         <tr class="table-hover">
@@ -14,13 +14,12 @@
                             <th>Nivel</th>
                             <th>Descricion</th>
                             <th>Cantidad de Años</th>
-                             <th></th>
+                             <th>#</th>
                         </tr>
                     </thead>
                 <tbody>
-                   {%block tabla%}
-                    {% if object_list %}
-                        {% for plan in object_list %}
+                    {% if planes %}
+                        {% for plan in planes %}
                             <tr>
                                 <td>{{ plan.codigo}}</td>
                                 <td>{{ plan.anio}}</td>
@@ -33,13 +32,12 @@
                             </tr>
                          {% endfor %}
                     {% else %}
-                        <h1>NO HAY DOCENTES PARA LISTAR</h1>
+                        <h1>NO HAY PLANES PARA LISTAR</h1>
                     {% endif %}
-                       {% endblock tabla %}
                     </tbody>
                 </table>
                 </div>
             </div>
             <ul class="pager"></ul>
         </div>
-{%endblock container%}
+{%endblock content%}

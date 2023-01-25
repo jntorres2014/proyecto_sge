@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from Core import forms
-from Core import models
+from .models import PlanDeEstudios, Localidad, Docente,Estudiante, EspacioCurricular
 from django.views.generic import ListView,TemplateView
 
 
@@ -23,11 +23,11 @@ def localidad_view(request):
     return render(request, 'Core/LocalidadForm.html', {'form': form})
 
 class localidad_list(ListView):
-    model = models.Localidad
+    model = Localidad
     template_name = 'Core/verLocalidad.html'
 
 def localidad_edit(request, id_localidad):
-    localidad = models.Localidad.objects.get(id=id_localidad)
+    localidad = Localidad.objects.get(id=id_localidad)
     if request.method == 'GET':
         form = forms.LocalidadForm(instance= localidad)
     else:
@@ -67,11 +67,11 @@ def docente_view(request):
 
 
 class docente_list(ListView):
-    model = models.Docente
+    model = Docente
     template_name = 'Core/Persona/verDocente.html'
 
 def docente_edit(request, id_docente):
-    docente = models.Docente.objects.get(id=id_docente)
+    docente = Docente.objects.get(id=id_docente)
     if request.method == 'GET':
         form = forms.DocenteForm(instance= docente)
     else:
@@ -84,7 +84,7 @@ def docente_edit(request, id_docente):
 
 
 def estudiante_edit(request, id_estudiante):
-    estudiante = models.Estudiante.objects.get(id=id_estudiante)
+    estudiante = Estudiante.objects.get(id=id_estudiante)
     if request.method == 'GET':
         form = forms.EstudianteForm(instance= estudiante)
     else:
@@ -96,7 +96,7 @@ def estudiante_edit(request, id_estudiante):
 
 
 class estudiante_list(ListView):
-    model = models.Estudiante
+    model = Estudiante
     template_name = 'Core/Persona/verEstudiante.html'
 
 
@@ -109,19 +109,23 @@ def plan_de_estudios_view(request):
         form = forms.PlanDeEstudiosForm(request.POST)
         if form.is_valid():
            plan= form.save()
-           plan.crear_anios_plan(plan)
-           return HttpResponseRedirect("/Core/verPlan")
+           #plan.crear_anios_plan(plan)
+           return HttpResponseRedirect("verPlan")
     else:
         form = forms.PlanDeEstudiosForm()
     return render(request, 'Core/Plan/PlanDeEstudios.html', {'form': form})
 
-class plan_list(ListView):
-    model = models.PlanDeEstudios
-    template_name = 'Core/Plan/verPlan.html'
+    
+def plan_list(request):
+    planes=PlanDeEstudios.objects.order_by('id')
+    print(planes)
+    return render(request, 'Core/Plan/verPlan.html', {
+        'planes': planes,
+    })    
 
 
 def plan_edit(request, id_plan):
-    plan = models.PlanDeEstudios.objects.get(id=id_plan)
+    plan = PlanDeEstudios.objects.get(id=id_plan)
     if request.method == 'GET':
         form = forms.PlanDeEstudiosForm(instance=plan)
     else:
@@ -138,11 +142,13 @@ def Espacio_view(request, id_plan):
             form.save()
     else:
         form = forms.EspacioCurricularForm(id_plan=id_plan)
-    return render(request, 'Core/EspacioCurricular/EspaciosCurricularesForm.html', {'form': form})
+    return render(request, 'Core/EspacioCurricular/EspaciosCurricularesForm.html', {
+        'form': form,
+        'idPlan': id_plan,})
 
 
 def espacio_edit(request, id_espacio):
-    espacio = models.EspacioCurricular.objects.get(id=id_espacio)
+    espacio = EspacioCurricular.objects.get(id=id_espacio)
     if request.method == 'GET':
         form = forms.EspacioCurricularEditForm(instance= espacio)
     else:
@@ -154,11 +160,11 @@ def espacio_edit(request, id_espacio):
 
 
 class Espacio_list(ListView):
-    model = models.EspacioCurricular
+    model = EspacioCurricular
     template_name = 'Core/EspacioCurricular/verEspacios.html'
 
 def cargar_espacios(request):
     anioPlan = request.GET.get('anio')
-    espacios = models.EspacioCurricular.objects.filter(anio_id=anioPlan)
+    espacios = EspacioCurricular.objects.filter(anio_id=anioPlan)
     print(anioPlan,espacios)
     return render(request, 'Cursada/opciones_espacios.html', {'espacios': espacios})

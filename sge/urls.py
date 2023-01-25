@@ -21,12 +21,13 @@ from principal import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home' ),
+    path('', views.signin, name= 'login' ),
     path('signup/', views.signup, name= 'signup' ),
     path('principal/', views.principal, name= 'principal'),
     path('principal/<int:id>', views.principal_detail, name= 'principal_detail'),
     path('principal/<int:id>/complete', views.complete, name= 'complete'),
     path('principal/<int:id>/delete', views.delete, name= 'delete'),
+    path('inscripciones/', views.inscripciones, name= "inscripciones"),
 
     path('logout/', views.signout, name= 'logout'),
     path('signin/', views.signin, name= 'login'),
