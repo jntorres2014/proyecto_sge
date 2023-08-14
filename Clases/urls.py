@@ -11,4 +11,7 @@ urlpatterns  = [
     re_path(r'^altaInasistencia$', views.inasistencia_view),
     re_path(r'^verInasistencia$', views.inasistencia_list.as_view(), name='verInasistencia'),
     re_path(r'^modificarInasistencia/(?P<id_inasistencia>\d+)/$', views.calificacion_edit, name='modificarInasistencia'),
+    
+    
+    
 ]

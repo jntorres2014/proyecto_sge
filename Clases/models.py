@@ -17,3 +17,5 @@ class Inasistencias(models.Model):
     falta= models.BooleanField(default=True)
 
     justificacion= models.CharField(max_length=50)
+
+

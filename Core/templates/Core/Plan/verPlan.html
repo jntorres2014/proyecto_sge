@@ -1,10 +1,50 @@
 {% extends 'base.html' %}
+{% load bootstrap5 %}
+
+
 {% block content %}
+
+<h1>Listado de PLANES DE ESTUDIO</h1>
         <div class="contenedor-tabla">
-            <div><h1><a href="/">Lista Plan</a></h1></div>
+            <div class="container-fluid p-5 text-center">
+                <div class="row container-fluid">
+                {% if planes %}
+                {% for plan in planes %}
+                <div class="col-sm-4">
+                        <div class="card" style="width: 18rem;">
+                            {% if plan.esActual %}
+                            <h2> Plan actual</h2>
+                            {% endif %}
+                            <h1> {{ plan.codigo}} </h1>
+                            <h3> {{ plan.descripcion}} </h3>
+                            <h4> {{ plan.anio}} </h4>
+                            <h5> {{ plan.orientacion}} </h5>
+                            <div class="card-body">
+                                <td><a  class="btn btn-primary" href="{% url 'modificarPlan' plan.id %}">Editar </a>
+                                <td><a  class="btn btn-primary" href="{% url 'verCicloEnPlan' plan.id %}">Implementar Plan </a></td>
+                                <!-- <td><a  class="btn btn-primary" href="{% url 'verAnio' plan.id %}">Años </a></td> -->
+                                <td><a  class="btn btn-primary" href="{% url 'verEspacioCurricularEnPlan' plan.id %}"> Espacios curriculares </a></td>   
+
+                            </div>
+                        </div>          
+                    </div>
+                    
+                    {% endfor %}
+                    {% else %}
+                        <h1>NO HAY PLANES PARA LISTAR</h1>
+                {% endif %}
+                </div>        
+                </div>
+            <div class="container-fluid p-5 bg-secondary text-center">
+                <a  class="btn btn-primary" href="{% url 'altaPlan' %}">Alta Plan de Estudio </a>
+            </div>
+            
+            
+            
+            <!-- <div><h1><a href="/">Lista Plan</a></h1></div>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
-                 <table class="table-bordered table-hover"  >
+                 <table class="table table-bordered table-hover"  >
                    <thead class="hidden orden-listado">
 
                         <tr class="table-hover">
@@ -28,6 +68,9 @@
                                 <td>{{ plan.descripcion}}</td>
                                 <td>{{ plan.cantidadAnios}}</td>
                                 <td><a  class="btn btn-primary" href="{% url 'modificarPlan' plan.id %}">Editar </a>
+                                <td><a  class="btn btn-primary" href="{% url 'verCiclo' plan.id %}">Ciclos </a></td>
+                                <td><a  class="btn btn-primary" href="{% url 'verAnio' plan.id %}">Anios </a></td>                                
+
                                 <a class="btn btn-primary" href="{% url 'agregarEspacio' plan.id %}">+ Espacio </a></td>
                             </tr>
                          {% endfor %}
@@ -39,5 +82,5 @@
                 </div>
             </div>
             <ul class="pager"></ul>
-        </div>
+        </div> -->
 {%endblock content%}

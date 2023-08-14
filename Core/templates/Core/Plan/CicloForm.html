@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load bootstrap5 %}
+
+    <div class="container contact-form">
+        <h1>Alta Ciclo</h1>
+        <form class="form " method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <div class="form-group">
+                <input class="btn btn-primary" type="submit" value="Guardar">
+            </div>
+        </form>
+    </div>
+{% endblock content %}

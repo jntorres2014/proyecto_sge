@@ -3,6 +3,9 @@ from django.core.validators import RegexValidator
 from django.utils.timezone import now
 from datetime import date
 from django.core.exceptions import ValidationError
+from faker import Faker
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Localidad (models.Model):
@@ -40,12 +43,22 @@ class Localidad (models.Model):
 
     def __str__(self):
         return "{0}".format( self.NombreLocalidad)
+    
+
+    @classmethod
+    def seed_db(n):
+        faker = Faker()
+        for  n in range(0,n):
+            Localidad.objects.create(
+                CodigoPosta = n,
+                NombreLocalidad = faker.name()
+            )
 
 class PlanDeEstudios(models.Model):
-    MAXCODIGO=7
+    MAXCODIGO=20
     MAXANIO=4
-    MAXORIENTACION= 20
-    MAXNIVEL= 20
+    MAXORIENTACION= 50
+    MAXNIVEL= 50
     MAXDESCRIPCION=50
     #REGEX_CODIGO= 1
 
@@ -101,7 +114,13 @@ class PlanDeEstudios(models.Model):
         blank=True,
     )
 
+    esActual = models.BooleanField(
+        default= True
+    )
+    
     cantidadAnios = models.PositiveIntegerField()
+    
+    
 
     def __str__(self):
         return "{0}, {1}".format(self.anio, self.orientacion)
@@ -110,10 +129,14 @@ class PlanDeEstudios(models.Model):
     def crear_anios_plan(self):
         anio= 1
         while anio <= self.cantidadAnios:
-            Anio=AnioPlan.objects.create(codigo=anio, descripcion="anio", plan=self)
+            Anio = AnioPlan.objects.create(codigo=anio, descripcion="anio", plan=self)
             Anio.save()
             anio= anio +1
         return Anio
+@receiver(post_save, sender=PlanDeEstudios)
+def ajustar_actual(sender, instance, **kwargs):
+   if instance.esActual:
+        PlanDeEstudios.objects.exclude(pk=instance.pk).update(esActual=False)
 
 class Persona(models.Model):
     MAXNOMBRE = 50
@@ -237,7 +260,7 @@ class Preceptor(Persona):
     pass
 
 class AnioPlan(models.Model):
-    MAXCODIGO= 20
+    MAXCODIGO= 50
     CANTMAXPORANIO= 50
     MAXDESCRIPCION = 50
 
@@ -266,11 +289,6 @@ class AnioPlan(models.Model):
         unique_together = [['codigo', 'plan']]
 
 
-    def crear_inscripcion_alumno(self):
-
-        pass
-
-
     def __str__(self):
         return "{0}, {1}".format(self.codigo, self.descripcion)
 
@@ -288,6 +306,8 @@ class EspacioCurricular(models.Model):
     nombre = models.CharField(max_length= 50)
 
     contenido = models.CharField(max_length=50)
+    
+    plan = models.ForeignKey(PlanDeEstudios, on_delete=models.CASCADE)
 
     '''estudiantes = models.ManyToManyField(Estudiante, through="Calificacion")
     '''
@@ -327,13 +347,181 @@ class Calificacion(models.Model):
         blank= False,
         on_delete= models.CASCADE
     )
+    
+#__________________-------------------------________________________-----------------------__________
+
+class Ciclo (models.Model):
+
+
+    # def tope(inicio):
+
+    #     if inicio >= inicio:
+    #         raise ValidationError('La fecha ingresada es mayor a la actual')
+    #     return
+    
+    anioCalendario = models.CharField(max_length=4,unique= True)
+
+    fechaInicio = models.DateField(default=now)
+
+    plan = models.ForeignKey(PlanDeEstudios, blank=False, on_delete=models.CASCADE)
+
+    fechaFin = models.DateField()
+    
+    esActual = models.BooleanField(
+        default= True
+    )
+
+    def __str__(self):
+        return "{0}".format(self.anioCalendario)
+
+    
+    @staticmethod
+    def crear_division_para_plan(ciclo,plan):
+        for a in plan.anios.all():
+            print('entro')
+            division=Division.objects.create(ciclo=ciclo,
+                                             codigo=Division.PRIMERA,
+                                             descripcion="{} {}".format(a, Division.PRIMERA),
+                                             anio=a)
+        return division
+@receiver(post_save, sender=Ciclo)
+def ajustarCicloactual(sender, instance, **kwargs):
+   if instance.esActual:
+        Ciclo.objects.exclude(pk=instance.pk).update(esActual=False)
+    
+    
+#--------------------------------------------------------------------------
+
+
+class Division (models.Model):
+    PRIMERA = '1ra'
+    SEGUNDA = '2da'
+    TERCERA = '3ra'
+    CUARTA = '4ta'
+    QUINTA = '5ta'
+    CHOICES_DIV = (
+        (PRIMERA, 'Primera'),
+        (SEGUNDA, 'Segunda'),
+        (TERCERA, 'Tercera'),
+        (CUARTA, 'Cuarta'),
+        (QUINTA, 'Quinta'))
+
+    class Meta:
+        unique_together = (('codigo', 'anio','ciclo'))
+
+    ciclo = models.ForeignKey(Ciclo, models.CASCADE, related_name="divisiones")
+
+    codigo = models.CharField(max_length=50, choices=CHOICES_DIV, default=PRIMERA)
+
+    descripcion = models.CharField(max_length=50)
+
+    anio = models.ForeignKey(AnioPlan, on_delete= models.CASCADE)
+    
+    alumnos = models.ManyToManyField(Estudiante)
+
+    #espacios = models.ManyToManyField(EspacioCurricular, through="Horario", related_name="divisiones")
+
+    def __str__(self):
+        return "{0},{1}".format(self.anio.codigo, self.codigo)
+
+    def generarCodigoDiv(self):
+        print(Division.objects.filter(anio=self.anio).count)
+
+        self.codigo= Division.objects.filter().count
+
+
+    def agregar_materia(self, materia, dia, hora, modulos):
+        return Horario.objects.create(division=self,
+            espacioCurricular=materia,
+            dia=dia,
+            hora=hora,
+            cantidad_modulo=modulos)
+
+
+    def asigar_estudiante_a_division(self):
+        pass
+
+class Horario(models.Model):
+    LUNES= 1
+    MARTES= 2
+    MIERCOLES= 3
+    JUEVES = 4
+    VIERNES = 5
+    SABADO = 6
+    DOMINGO = 7
+    CHOICES_DIA = (
+        (LUNES, 'lunes'),
+        (MARTES, 'martes'),
+        (MIERCOLES, 'miercoles'),
+        (JUEVES, 'jueves'),
+        (VIERNES, 'viernes'))
+
+
+    MODUNO= 1
+    MODDOS= 2
+    MODTRES= 3
+    MODCUATRO = 4
+    MODCINCO = 5
+    MODSEIS= 6
+    MODSIETE = 7
+    MODOCHO = 8
+    CHOICES_HORA = (
+        (MODUNO, '7:30'),
+        (MODDOS, '8:10'),
+        (MODTRES, '8:50'),
+        (MODCUATRO, '9:10'),
+        (MODCINCO, '9:50'),
+        (MODSEIS,'10:20'),
+        (MODOCHO, '11:00'))
+
+    class Meta:
+        unique_together = (('dia','hora','division', 'espacioCurricular'),)
+
+    division = models.ForeignKey(Division, on_delete=models.CASCADE, related_name='horarios')
+
+    espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
+
+    #dia = MultiSelectField(unique=True, null= False)
+    dia= models.CharField(max_length=4)
+    #hora = MultiSelectField(unique=True, null= False)
+    hora = models.CharField(max_length=4)
+    cantidad_modulo = models.PositiveSmallIntegerField(null=True, blank=True, default=1)
+
+    docente = models.ForeignKey(
+        Docente,
+        null = True,
+        blank = True,
+        on_delete = models.CASCADE
+        )
+
+
+    def control_modulos(self,modulo):
+        self.cantidad_modulo= self.cantidad_modulo - modulo
+        return self
+
+    def asignar_a_modulos(self,cant):
+        print(cant)
+        i=1
+        while cant > 1:
+            cant = cant -1
+            Horario.objects.create(division=self.division, espacioCurricular=self.espacioCurricular,cantidad_modulo= cant[1], dia= self.dia,hora= self.hora+i)
+            i=i+1
+
+
 class inscripcionEstudianteCiclo(models.Model):
-    alumno = models.ForeignKey(
+    estudiante = models.ForeignKey(
         Estudiante,
         null= True,
         on_delete=models.CASCADE,
     )
+    
+    ciclo = models.ForeignKey(
+        Ciclo,
+        on_delete=models.CASCADE)
 
-    # ciclo = models.models.ForeignKey(
-    #     Ciclo,
-    #     on_delete=models.CASCADE)
+    anio = models.ForeignKey(
+        AnioPlan,
+        on_delete= models.CASCADE
+    )
+    fecha = models.DateTimeField(default=now)
+    

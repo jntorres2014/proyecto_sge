@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+ <div class="contenedor-tabla">
+
+           <h1> Lista de Ciclos que implementan el plan </h1>
+
+            <div class="container-fluid p-5 bg-primary text-center">
+                <div class="row container-fluid">
+                    <h1> id {{id}} {{plan.orientacion}} </h1>
+                {% for ciclo in ciclo %}
+                
+                <div class="col-sm-3">
+                        <div class="card" style="width: 18rem;">
+                            {% if ciclo.esActual %}
+                            <h2> Ciclo actual</h2>
+                            {% endif %}
+                            <h1>{{ ciclo.anioCalendario }}</h1>
+                            <h3>{{ ciclo.fechaInicio}}</h3>
+                            <h4>{{ ciclo.plan }}</h4>
+                            <h5>{{ ciclo.fechaFin}}</h5>
+                            <div class="card-body">
+                                <a  class="btn btn-primary" href="{% url 'modificarCiclo' ciclo.id %}">Editar </a>
+                                <a  class="btn btn-primary" href="{% url 'modificarCiclo' ciclo.id %}">Eliminar </a>
+                                <a  class="btn btn-primary" href="{% url 'inscribir_Ciclo' ciclo.id %}">Inscripciones </a>
+                                <a  class="btn btn-primary" href="{% url 'alumno_division' ciclo.id %}">Asignar Alumno Division </a>
+
+                                </div>
+                            </div>          
+                    </div>
+                    
+                    {% endfor %}
+                </div>        
+                </div>
+                <div class="container-fluid p-5 bg-secondary text-center">
+                    <a  class="btn btn-primary" href="{% url 'altaCiclo' id %}">Alta Ciclo Lectivo en Plan </a>
+                </div>
+            
+
+            <!-- <div class="hidden orden-listado">
+               <div class="flex-md-column-reverse" >
+                    <button type="button" class="btn btn-success">Nuevo ciclo </button> 
+                
+                <table class="table-bordered table-hover  " id="table_id" >
+                   <thead class="hidden orden-listado">
+
+                    <tr class="table-hover">
+                        <th>Anio</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Plan</th>
+                        <th>Fecha de Finalizacion</th>
+                            <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                {% if ciclo %}
+                    {% for ciclo in ciclo %}
+                        <tr>
+                            <td>{{ ciclo.anioCalendario }}</td>
+                            <td>{{ ciclo.fechaInicio}}</td>
+                            <td>{{ ciclo.plan }}</td>
+                            <td>{{ ciclo.fechaFin}}</td>
+                            
+                            <td><a  class="btn btn-primary" href="{% url 'modificarCiclo' ciclo.id %}">Editar </a></td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <h1>NO HAY CICLO PARA LISTAR</h1>
+                        {% endif %}
+                    </tbody>
+                </table>
+                
+            </div>
+            <ul class="pager"></ul>
+        </div> -->
+{% endblock %}

@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load bootstrap5 %}
+
         <div class="contenedor-tabla">
             <div><h1><a href="/">Lista Espacios Curriculares</a></h1></div>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
-                <table class="table-bordered table-hover  " id="table_id" >
+                <table class="table table-bordered table-hover  " id="table_id" >
                    <thead class="hidden orden-listado">
                    <tr class="table-hover">
 
@@ -26,7 +28,7 @@
                                 <td>{{ espacio.nombre }}</td>
                                 <td>{{ espacio.cantidadModulos}}</td>
                                 <td>{{ espacio.contenido }}</td>
-                                 <td><a  class="btn btn-primary" href="{% url 'modificarEspacio' espacio.id %}">Editar </a></td>
+                                <td><a  class="btn btn-primary" href="{% url 'modificarEspacio' espacio.id %}">Editar </a></td>
                             </tr>
                          {% endfor %}
                     {% else %}

@@ -1,69 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Inscripciones</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-  <style>
-  body {
-      position: relative; 
-  }
-  </style>
-</head>
-<body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="50">
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg4 col-xl-4">
+        <h2> Inscripciones</h2>
+        <div class="card">
+            <div class="card-body">
+                <form action="" method="POST">
+                    <div class="form-group">
+                        <input type="text" name="cicloLectivo" id="cicloLectivo" class="form-control" placeholder="Ciclo lectivo" minlength="6" 
+                        required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="anio" id="anio" class="form-control" placeholder="anio" minlength="6" 
+                        required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="estudiante" id="estudiante" class="form-control" placeholder="estudiante" minlength="6" 
+                        required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="otro" id="otro" class="form-control" placeholder="Otro" minlength="6" 
+                        required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-block text-white">Inscribir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
-  <div class="container-fluid">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="#section1">Section 1</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#section2">Section 2</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#section3">Section 3</a>
-      </li>
-    </ul>
-  </div>
-</nav>
+    </div>
 
-<div id="section1" class="container-fluid bg-success text-white" style="padding:300px 20px;">
-  <h1>Section 1</h1>
-  <a href="/Core/">
-    <button type="button" class="btn btn-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16">
-          <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"></path>
-      </svg>
-      Inscribir Alumno a Curso
-  </button>
-  </a>
+
 </div>
 
-<div id="section2" class="container-fluid bg-warning" style="padding:300px 20px;">
-  <h1>Section 2</h1>
-  <a href="altaAlumno/">
-  <button type="button" class="btn btn-primary">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16">
-        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"></path>
-    </svg>
-    Inscribir Alumno a Curso
-</button>
-</a>  
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg4 col-xl-4">
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Enviar</button>
+    </form>
+    </div>
 </div>
+    {% endblock %}
 
-<div id="section3" class="container-fluid bg-secondary text-white" style="padding:300px 20px;">
-  <h1>Section 3</h1>
-  <a href="altaAlumno/">
-    <button type="button" class="btn btn-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-square-fill" viewBox="0 0 16 16">
-          <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z"></path>
-      </svg>
-      Inscribir Alumno a Curso
-  </button>
-  </a>
 
-</body>
-</html>
+    <script src="{% static 'autocomplete_light/autocomplete.js' %}"></script>
+<link rel="stylesheet" href="{% static 'autocomplete_light/style.css' %}" type="text/css" media="all" />
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('input[name="my_field"]').autocomplete({
+            serviceUrl: '{% url "my_autocomplete" %}',
+            onSelect: function(suggestion) {
+                console.log('Seleccionaste ' + suggestion.value);
+            }
+        });
+    });
+</script>

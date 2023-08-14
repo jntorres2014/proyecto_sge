@@ -1,6 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<h1>Bienvenido, {{ request.user.username }}</h1>
+
+    <p>Correo electrónico: {{ request.user}}</p>
+    <!-- Otros detalles del perfil del usuario -->
+        
+<div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card">
+        <img class="card-img-top" src="imagen1.jpg" alt="Imagen 1">
+        <div class="card-body">
+          <a class="card-title" href="/Core/menuPlanDeEstudio" >Gestion de Plan de estudios</a>
+          <p class="card-text">Una descripcion de lo que se hace</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <img class="card-img-top" src="imagen2.jpg" alt="Imagen 2">
+        <div class="card-body">
+          <a class="card-title" href="Core/menuCiclo">Gestion de Ciclos</a>
+          <p class="card-text">Gestionar los ciclos</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <img class="card-img-top" src="imagen3.jpg" alt="Imagen 3">
+        <div class="card-body">
+          <a class="card-title" href="#" >Gestion de Cursada</a>
+          <p class="card-text">Gestionar Ciclo Actual</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 {% endblock %}

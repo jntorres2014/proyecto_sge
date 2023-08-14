@@ -2,6 +2,7 @@ from django import forms
 from Core.models import Calificacion
 from Clases.models import Inasistencias
 
+
 class CalificacionForm(forms.ModelForm):
 
     class Meta:

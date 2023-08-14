@@ -64,3 +64,5 @@ def Inasistencia_edit(request, id_inasistencia):
 class inasistencia_list(ListView):
     model = Inasistencias
     template_name = 'Inasistencia/verInasistencias.html'
+    
+

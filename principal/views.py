@@ -9,11 +9,11 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 
-def home(request):
+def home2(request):
     return render(request, 'home.html')
 
 def inscripciones(request):
-       return render(request, 'inscripciones.html')
+       return render(request, ' inscripciones.html')
 
 @login_required
 def create_task(request):
@@ -61,6 +61,7 @@ def signup(request):
 
         # print(request.POST)
         # print('obteniendo datos')
+
 @login_required
 def principal(request):
     tareas=Task.objects.all()
@@ -69,6 +70,7 @@ def principal(request):
     return render(request, 'principal.html', {
         'tareas': tareas
     })
+    
 @login_required
 def principal_detail(request,id):
     #task = Task.objects.get(pk= id)
@@ -128,4 +130,4 @@ def signin(request):
         })
     else:
         login(request, user)
-        return redirect('home')
+        return redirect('home2')

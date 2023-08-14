@@ -1,0 +1,42 @@
+{% extends 'FormBase.html' %}
+{% block form_container %}
+{% load bootstrap4 %}
+
+    <div class="container contact-form">
+        <h1>Alta Division</h1>
+        <hr>
+        <form class="form" method="post" id="formulario" cargar-anioPlan-url="{% url 'ajax_cargar_anioPlan' %}" novalidate>
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <hr>
+            <div class="form-group">
+                <input class="btn btn-primary" type="submit" value="Guardar">
+            </div>
+        </form>
+    </div>
+{% endblock form_container %}
+
+
+{%block scripts%}
+<script>
+    $(document).ready(function (){
+        $("#id_ciclo").change(function () {
+            var url = $("#formulario").attr("cargar-anioPlan-url");  // get the url of the `load_cities` view
+            var ciclo = $(this).val();  // get the selected country ID from the HTML input
+
+            $.ajax({                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+                data: {
+                    'plan': $('#id_ciclo option:selected').val() // add the country id to the GET parameters
+                },
+                success: function (data) {   // `data` is the return of the `load_cities` view function
+                    $("#id_anio").html(data);  // replace the contents of the city input with the data that came from the server
+
+                }
+             });
+
+        })
+    })
+</script>
+
+{%endblock scripts%}

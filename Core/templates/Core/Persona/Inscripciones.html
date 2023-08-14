@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
+<script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
+<script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script> -->
+<script src="js/mi_script.js"></script>
+
+{% block content %}
+
+{% load bootstrap5 %}
+
+{{form.media}}
+
+{{ cantAlumnos }}
+{{ inscriptos }}
+<div class="row">
+    <h2> Inscripciones</h2>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-black text-white form-label">Inscribir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
+        <div class="row">
+            <h2> Inscriptos a {{ ciclos.nombre }}</h2>
+            <input type="text" id="busqueda" placeholder="Buscar por nombre">
+            <table id="tabla-elementos">
+                <thead>
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Ciclo lectivo</th>
+                        <th>Ciclo Año</th>
+                        <th>Fecha de inscripcion</th>
+
+                    </tr>
+                </thead>
+                <tbody> 
+                    
+                    {% for insc in inscriptos %}
+                  
+                        <tr>
+                            <td>{{ insc.estudiante }}</td>
+                            <td>{{ insc.ciclo }}</td>
+                            <td>{{ insc.anio }}</td>
+                            <td>{{ insc.fecha }}</td>
+ 
+                        </tr>
+                    {% endfor %} 
+               
+                </tbody>
+            </table>        
+        </div>
+        <div id="paginacion">
+            <!-- Elementos de paginación serán generados dinámicamente mediante JavaScript -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% load static %}
+
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
+<script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
+<script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/mi_script.js' %}"></script> -->
+
+<!-- // mi_script.js -->
+<script id="inscriptos-data" type="application/json">
+    console.log("acaaa")
+    {{ inscriptos | safe }}
+</script>
+
+<script>
+$(document).ready(function() {
+    // Obtener los datos pasados desde Django
+    const elementos = JSON.parse(document.getElementById('inscriptos-data').textContent);
+
+    // const elementos = JSON.parse('{{ inscriptos | safe }}');
+    console.log("algooo")
+
+    // Obtener elementos HTML
+    const tablaElementos = document.getElementById('tabla-elementos');
+    const cuerpoTabla = tablaElementos.getElementsByTagName('tbody')[0];
+    const paginacion = document.getElementById('paginacion');
+    const busqueda = document.getElementById('busqueda');
+
+    // Función para mostrar los datos en la tabla
+    function mostrarDatos(datos) {
+        cuerpoTabla.innerHTML = '';
+        for (const elemento of datos) {
+            const fila = `
+                <tr>
+                    <td>${elemento.id}</td>
+                    <td>${elemento.estudiante}</td>
+                    <td>${elemento.ciclo}</td>
+                </tr>
+            `;
+            cuerpoTabla.insertAdjacentHTML('beforeend', fila);
+        }
+    }
+
+    // Mostrar todos los datos al cargar la página
+    mostrarDatos(elementos);
+
+    // Función para filtrar los datos por nombre
+    function filtrarPorNombre(nombre) {
+        const datosFiltrados = elementos.filter(elemento => elemento.ciclo.includes(nombre));
+        mostrarDatos(datosFiltrados);
+    }
+
+    // Evento para filtrar al escribir en el campo de búsqueda
+    busqueda.addEventListener('input', function() {
+        console.log("algooo")
+        filtrarPorNombre(busqueda.value);
+    });
+});
+</script>
