@@ -46,8 +46,8 @@
 </div>
     {% endblock %}
 
-
-    <script src="{% static 'autocomplete_light/autocomplete.js' %}"></script>
+{% block scripts %}
+    {% comment %} <!--script src="{% static 'autocomplete_light/autocomplete.js' %}"></script--> {% endcomment %}
 <link rel="stylesheet" href="{% static 'autocomplete_light/style.css' %}" type="text/css" media="all" />
 <script type="text/javascript">
     $(document).ready(function() {
@@ -58,4 +58,5 @@
             }
         });
     });
+{% endblock %}
 </script>

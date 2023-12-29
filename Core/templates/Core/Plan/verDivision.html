@@ -1,13 +1,16 @@
-{% extends 'verBase.html' %}
+{% extends 'base.html' %}
 
-{% block container %}
-           <div class="contenedor-tabla">
-            <div><h1><a href="/">Lista Division</a></h1></div>
-            <div class="hidden orden-listado">
-               <div class="flex-md-column-reverse" >
-                 <table class="table-bordered table-hover  " id="table_id" >
-                   <thead class="hidden orden-listado">
+{% block content %}
+{% load bootstrap5 %}
 
+<div class="contenedor-tabla">
+    <div>
+        <h1><a href="/">Lista Division</a></h1>
+    </div>
+    <div class="hidden orden-listado">
+        <div class="flex-md-column-reverse">
+            <table class="table table-bordered table-hover" id="table_id">
+                <thead class="hidden orden-listado">
                     <tr class="table-hover">
                         <th>Anio</th>
                         <th>Division</th>
@@ -16,25 +19,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                {%block tabla%}
-                {% if object_list %}
-                    {% for division in object_list %}
-                            <tr>
-                                <td>{{ division.anio.codigo }}</td>
-                                <td>{{ division.codigo}}</td>
-                                <td>{{ division.descripcion }}</td>
-                                <td><a  class="btn btn-primary" href="{% url 'modificarDivision' division.id %}">Editar </a></td>
-                            </tr>
+                    {% for division in divisiones %}
+                    <tr>
+                        <td>{{ division.anio.codigo }}</td>
+                        <td>{{ division.codigo }}</td>
+                        <td>{{ division.descripcion }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">NO HAY DIVISION PARA LISTAR</td>
+                    </tr>
                     {% endfor %}
-                {% else %}
-                    <h1>NO HAY DIVISION PARA LISTAR</h1>
-                {% endif %}
-                {% endblock tabla %}
                 </tbody>
-                </table>
-                    <a  class="btn btn-primary" href="{% url 'altaDivision'%}">Nuevo </a>
-                </div>
-            </div>
-
+            </table>
+            <form action="/Core/altaDivision/{{ id }}/{{ anio}}/" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Nuevo</button>
+            </form>
         </div>
-{%endblock container %}
+    </div>
+</div>
+
+{% endblock content %}

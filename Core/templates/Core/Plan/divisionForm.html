@@ -1,11 +1,11 @@
-{% extends 'FormBase.html' %}
-{% block form_container %}
-{% load bootstrap4 %}
+{% extends 'base.html' %}
+{% block content %}
+{% load bootstrap5 %}
 
     <div class="container contact-form">
         <h1>Alta Division</h1>
         <hr>
-        <form class="form" method="post" id="formulario" cargar-anioPlan-url="{% url 'ajax_cargar_anioPlan' %}" novalidate>
+        <form class="form" method="post" id="formulario" >
             {% csrf_token %}
             {% bootstrap_form form %}
             <hr>
@@ -14,7 +14,7 @@
             </div>
         </form>
     </div>
-{% endblock form_container %}
+{% endblock content %}
 
 
 {%block scripts%}

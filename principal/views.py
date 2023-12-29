@@ -8,10 +8,10 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
-
+@login_required
 def home2(request):
     return render(request, 'home.html')
-
+@login_required
 def inscripciones(request):
        return render(request, ' inscripciones.html')
 
@@ -33,7 +33,7 @@ def create_task(request):
             'form': TaskForm,
             'error': 'Ingresar datos validos',
         })
-    
+@login_required
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {
@@ -115,7 +115,6 @@ def delete(request,id):
 def signout(request):
     logout(request)
     return redirect('login')
-
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html',{

@@ -392,8 +392,7 @@ def ajustarCicloactual(sender, instance, **kwargs):
     
 #--------------------------------------------------------------------------
 
-
-class Division (models.Model):
+class Division(models.Model):
     PRIMERA = '1ra'
     SEGUNDA = '2da'
     TERCERA = '3ra'
@@ -406,20 +405,19 @@ class Division (models.Model):
         (CUARTA, 'Cuarta'),
         (QUINTA, 'Quinta'))
 
-    class Meta:
-        unique_together = (('codigo', 'anio','ciclo'))
+    #class Meta:
+    #   unique_together = (('codigo', 'anio', 'ciclo'))
 
-    ciclo = models.ForeignKey(Ciclo, models.CASCADE, related_name="divisiones")
-
+    ciclo = models.ForeignKey(Ciclo, on_delete=models.CASCADE, related_name="divisiones")
+    
     codigo = models.CharField(max_length=50, choices=CHOICES_DIV, default=PRIMERA)
-
+    
     descripcion = models.CharField(max_length=50)
-
-    anio = models.ForeignKey(AnioPlan, on_delete= models.CASCADE)
+    
+    anio = models.ForeignKey(AnioPlan, on_delete=models.CASCADE)
     
     alumnos = models.ManyToManyField(Estudiante)
 
-    #espacios = models.ManyToManyField(EspacioCurricular, through="Horario", related_name="divisiones")
 
     def __str__(self):
         return "{0},{1}".format(self.anio.codigo, self.codigo)
@@ -428,7 +426,7 @@ class Division (models.Model):
         print(Division.objects.filter(anio=self.anio).count)
 
         self.codigo= Division.objects.filter().count
-
+    
 
     def agregar_materia(self, materia, dia, hora, modulos):
         return Horario.objects.create(division=self,
@@ -509,9 +507,10 @@ class Horario(models.Model):
 
 
 class inscripcionEstudianteCiclo(models.Model):
-    estudiante = models.ForeignKey(
+    estudiante = models.OneToOneField(
         Estudiante,
-        null= True,
+        null=True,
+        unique=True,
         on_delete=models.CASCADE,
     )
     
@@ -521,7 +520,8 @@ class inscripcionEstudianteCiclo(models.Model):
 
     anio = models.ForeignKey(
         AnioPlan,
-        on_delete= models.CASCADE
+        on_delete=models.CASCADE
     )
     fecha = models.DateTimeField(default=now)
+
     

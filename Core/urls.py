@@ -1,10 +1,9 @@
-from django.urls import re_path
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
-
+app_name = "Core"
 urlpatterns = [
-    path('estudiante-autocomplete/', views.EstudianteAutocomplete.as_view(), name='estudiante-autocomplete'),
+    path('estudiante-autocomplete', views.EstudianteAutocomplete.as_view(), name='estudiante-autocomplete'),
     
     re_path(r'^altaLocalidad$', views.localidad_view, name='altaLocalidad'),
     re_path(r'^verLocalidad$', views.localidad_list.as_view(), name='verLocalidad'),
@@ -22,6 +21,7 @@ urlpatterns = [
     re_path(r'^menuPlanDeEstudio$', views.menuPlan,name='menuPlanDeEstudio'),
     re_path(r'^menuCiclo$', views.menuCiclo,name='menuCiclo'),
     
+    re_path(r'^menuCursada$', views.menuCursada,name='menuCursada'),
     
     re_path(r'^verPlan$', views.plan_list, name= 'verPlan'),
     re_path(r'^modificarPlan/(?P<id_plan>\d+)/$', views.plan_edit, name='modificarPlan'),
@@ -56,6 +56,10 @@ urlpatterns = [
     path('ajax/cargar-espacios/', views.cargar_espacios, name='ajax_cargar_espacios'),
     
     
+    re_path(r'^verDivision/(?P<id>\d+)/$', views.division_list, name='verDivision'),
+    #path('altaDivision/<int:id>/', views.division_new, name='altaDivision'),
+    re_path(r'^altaDivision/(?P<anio_id>\d+)/(?P<id>\d+)/$', views.division_new,name='altaDivision'),
+ 
     re_path(r'^inscripcion$', views.inscripciones_alumnnos_ciclo,name='inscripcion'),
     
  #   re_path(r'^altaInscripcion$', views.crearInscripcion,name='Altainscripcion'),

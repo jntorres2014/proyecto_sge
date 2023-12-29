@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %} 
+<link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
+<!-- CSS de DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+
+{% load bootstrap5 %}
+
+<form method="post" action="{% url 'cargarInasistencia' %/3}">
+    {% csrf_token %}
+    {% if estudiantes %}
+    <ul>        
+      {% for estudiante in estudiantes %}
+        <li>
+          <label>
+            <input type="checkbox" name="inasistencias_seleccionadas" value="{{ estudiante.id }}">
+            {{ estudiante.estudiante.nombre }}
+          </label>
+        </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+        <p>No hay alumnos disponibles.</p>
+        {% endif %}
+    {% endblock %}
+    
+
+    {% comment %} {% load static %} {% endcomment %}

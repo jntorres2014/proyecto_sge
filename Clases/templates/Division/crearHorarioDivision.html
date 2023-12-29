@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+    <title>Crear y Mostrar Horario</title>
+</head>
+<body>
+    <h1>Crear Horario</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ horario_form.as_p }}
+
+        <button type="submit">Guardar Horario</button>
+    </form>
+
+    <h1>Mostrar Horario</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Día</th>
+                <th>Hora</th>
+                <th>Cantidad de Módulos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for horario in horarios %}
+            <tr>
+                <td>{{ horario.dia }}</td>
+                <td>{{ horario.hora }}</td>
+                <td>{{ horario.cantidad_modulo }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+{% endblock %}

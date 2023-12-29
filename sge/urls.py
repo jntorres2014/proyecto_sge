@@ -17,8 +17,6 @@ from django.contrib import admin
 from django.urls import path,include, re_path
 from principal import views
 
-from django.urls import path
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.signin, name= 'login' ),
@@ -34,8 +32,8 @@ urlpatterns = [
     path('logout/', views.signout, name= 'logout'),
     path('signin/', views.signin, name= 'login'),
     path('task/create', views.create_task, name= 'create_task'),
-    re_path(r'^Core/', include('Core.urls')),
-    re_path(r'^Clases/', include('Clases.urls')),
+    re_path(r'^Core/', include('Core.urls', namespace="core")),
+    re_path(r'^Clases/', include('Clases.urls', namespace="clases")),
     # path('autocomplete/', views.inscripciones.as_view(), name='my_autocomplete'),
     
     # path('altaLocalidad/', views.localidad_view, name='altaLocalidad'),

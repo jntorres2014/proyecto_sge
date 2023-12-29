@@ -1,4 +1,5 @@
 from django import forms
+from django.urls import reverse
 from Core.models import PlanDeEstudios, EspacioCurricular
 from Core.models import AnioPlan
 from Core.models import Localidad
@@ -240,27 +241,26 @@ anio = forms.DateField(
     validators=[],
 
 )
-
 class DivisionForm(forms.ModelForm):
-
     class Meta:
         model = Division
-        fields= [
-            'ciclo',
-            'codigo',
-            'anio',
-            'descripcion',
-        ]
+        fields = ['ciclo', 'codigo', 'anio', 'descripcion', 'alumnos']
+        widgets = {
+            'ciclo': forms.Select(attrs={'class': 'custom-select'}),
+            'anio': forms.Select(attrs={'class': 'custom-select'}),
+            'estudiante': forms.SelectMultiple(attrs={'class': 'custom-select'}),
+        }
+        labels = {
+            'ciclo': 'Ciclo Lectivo',
+            'anio': 'Año',
+            'estudiante': 'Estudiantes',
+        }
+        help_texts = {
+            'ciclo': 'Seleccione el ciclo lectivo',
+            'anio': 'Seleccione el año académico',
+            'estudiante': 'Seleccione los estudiantes',
+        }
 
-ciclo = forms.DateField(
-    required=True,
-    label='ciclo',
-    widget=forms.CharField,
-    help_text='ciclo lectivo',
-    error_messages={
-        'invalid_choice': "La opcion no es valida",
-        'required': "El ciclo lectivo es obligatorio"
-    })
 
 
 estudiante = forms.DateField(
@@ -275,15 +275,26 @@ estudiante = forms.DateField(
     validators=[],
 )
 class inscripcionAlumnoForm(forms.ModelForm):
+
     class Meta:
         model = inscripcionEstudianteCiclo
         fields= '__all__'
-        widgets_estudiante = autocomplete.ModelSelect2(url='estudiante-autocomplete')
+        widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete')
+        #import ipdb; ipdb.set_trace() 
+        # print(widgets_estudiante)
         widgets = {
-            'fecha': forms.DateInput(attrs={'disabled': True}),
-           # 'estudiante': widgets_estudiante
+            'estudiante': widgets_estudiante
+            
         }
 
+    def __init__(self, *args, **kwargs):
+        super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)
+        # Obtener la fecha del sistema
+        current_date = datetime.now().date()
+        # Establecer la fecha del sistema en el campo de fecha del formulario
+        self.fields['fecha'].initial = current_date
+
+    print(f"{estudiante=}")
     if estudiante:
         #widget_cliente = forms.TextInput(attrs={'value': cliente})
-        widget_estudiante = autocomplete.ModelSelect2(url='/estudiante-autocomplete/?q={}')
+        widget_estudiante = autocomplete.ModelSelect2(url= 'estudiante-autocomplete' + '/?q={}')

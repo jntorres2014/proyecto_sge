@@ -1,7 +1,7 @@
 from django.urls import re_path
 from . import views
 
-
+app_name = "clases"
 urlpatterns  = [
     
     re_path(r'^altaCalificacion$', views.calificacion_view),
@@ -12,6 +12,8 @@ urlpatterns  = [
     re_path(r'^verInasistencia$', views.inasistencia_list.as_view(), name='verInasistencia'),
     re_path(r'^modificarInasistencia/(?P<id_inasistencia>\d+)/$', views.calificacion_edit, name='modificarInasistencia'),
     
-    
-    
+    re_path(r'^altaHorario$', views.crear_horario),
+
+    re_path(r'^cargarInasistencia/(?P<idAnio>\d+)/$', views.registrarInasistencia, name= 'registrarInasistencia'),
+
 ]

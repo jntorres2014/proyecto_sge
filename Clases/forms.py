@@ -1,5 +1,5 @@
 from django import forms
-from Core.models import Calificacion
+from Core.models import Calificacion, Horario
 from Clases.models import Inasistencias
 
 
@@ -27,5 +27,16 @@ class InasistenciasForm(forms.ModelForm):
             'dia',
             'falta',
             'justificacion',
+
+        }
+
+class HorarioForm(forms.ModelForm):
+    class Meta:
+        model= Horario
+        fields={
+            'espacioCurricular',
+            'division',
+            'hora',
+            'dia',
 
         }

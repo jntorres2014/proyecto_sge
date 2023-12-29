@@ -19,10 +19,11 @@
                             <h4>{{ ciclo.plan }}</h4>
                             <h5>{{ ciclo.fechaFin}}</h5>
                             <div class="card-body">
-                                <a  class="btn btn-primary" href="{% url 'modificarCiclo' ciclo.id %}">Editar </a>
-                                <a  class="btn btn-primary" href="{% url 'modificarCiclo' ciclo.id %}">Eliminar </a>
-                                <a  class="btn btn-primary" href="{% url 'inscribir_Ciclo' ciclo.id %}">Inscripciones </a>
-                                <a  class="btn btn-primary" href="{% url 'alumno_division' ciclo.id %}">Asignar Alumno Division </a>
+                                <a  class="btn btn-primary" href="/Core/modificarCiclo/{{ciclo.id }}">Editar </a>
+                                <a  class="btn btn-primary" href="/Core/modificarCiclo/{{ciclo.id }}">Eliminar </a>
+                                <a  class="btn btn-primary" href="/Core/inscribir_Ciclo/{{ciclo.id }}">Inscripciones </a>
+                                <a  class="btn btn-primary" href="/Core/verAnio/{{ciclo.id }}">Años </a>
+                                <a  class="btn btn-primary" href="/Core/inscribir_Ciclo/{{ciclo.id }}"> inscribir alumno a Ciclo</a>
 
                                 </div>
                             </div>          
@@ -32,7 +33,7 @@
                 </div>        
                 </div>
                 <div class="container-fluid p-5 bg-secondary text-center">
-                    <a  class="btn btn-primary" href="{% url 'altaCiclo' id %}">Alta Ciclo Lectivo en Plan </a>
+                    <a  class="btn btn-primary" href="/Core/altaCiclo/{{id }}"">Alta Ciclo Lectivo en Plan </a>
                 </div>
             
 
@@ -61,7 +62,7 @@
                             <td>{{ ciclo.plan }}</td>
                             <td>{{ ciclo.fechaFin}}</td>
                             
-                            <td><a  class="btn btn-primary" href="{% url 'modificarCiclo' ciclo.id %}">Editar </a></td>
+                            <td><a  class="btn btn-primary" href="/Core/modificarCiclo/{{ciclo.id }}">Editar </a></td>
                         </tr>
                     {% endfor %}
                 {% else %}
