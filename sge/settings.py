@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'Clases',
     'bootstrap5',
+    'import_export',  
     
 ]
 
@@ -82,6 +83,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'sge.wsgi.application'
+IMPORT_EXPORT_USE_TRANSACTIONS = True  
 
 
 # Database

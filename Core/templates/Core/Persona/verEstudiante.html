@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container">
+
+
 <div class="contenedor-tabla">
-            <div><h1><a href="/">Lista Estudiantes</a></h1></div>
+            <div><h1><a href='#'>Lista Estudiantes</a></h1></div>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
                  <table class=" table table-bordered table-hover  " id="table_id" >
@@ -15,7 +18,7 @@
                             <th>Email</th>
                             <th>legajo</th>
                             <th>fecha Inscripcion</th>
-                            <th></th>
+                            <th>Acciones</th>
                         </tr>
                    </thead>
                 <tbody >
@@ -31,21 +34,25 @@
                               <td>{{ estudiante.Email}}</td>
                               <td>{{ estudiante.legajo}}</td>
                               <td>{{ estudiante.fechaInscripcion}}</td>
-                              <td><a  class="btn btn-primary" href="{% url 'modificarEstudiante' estudiante.id %}"
-                                   >Editar </a>
-                              <a  class="btn btn-primary" href="{% url 'modificarEstudiante' estudiante.id %}"
-                                   >Editar </a></td>
+                              <td> <a class="btn btn-primary" href="/Core/modificarEstudiante/{{ estudiante.id }}/">
+                                Editar
+                            </a>
+                        </a>
+                        <a class="btn btn-danger" href="/Core/eliminarEstudiante/{{ estudiante.id }}/">
+                            Eliminar
+                        </a></td>
                             </tr>
                          {% endfor %}
                     {% else %}
-                        <h1>NO HAY DOCENTES PARA LISTAR</h1>
+                        <h1>NO HAY ESTUDIANTES PARA LISTAR</h1>
                         {% endif %}
                        {% endblock tabla %}
                     </tbody>
                 </table>
                 </div>
-        <a  class="btn btn-primary" href="{% url 'altaEstudiante' %}">Editar </a>
+      
             </div>
         </div>
+    </div>
 {%endblock %}
 

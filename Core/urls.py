@@ -7,16 +7,18 @@ urlpatterns = [
     
     re_path(r'^altaLocalidad$', views.localidad_view, name='altaLocalidad'),
     re_path(r'^verLocalidad$', views.localidad_list.as_view(), name='verLocalidad'),
+    re_path(r'^importar/$', views.importar, name='importar'),
     re_path(r'^modificarLocalidad/(?P<id_localidad>\d+)/$', views.localidad_edit, name='modificarLocalidad'),
 
     re_path(r'^altaDocente$', views.docente_view, name='altaDocente'),
     re_path(r'^verDocentes$', views.docente_list.as_view(), name='verDocentes'),
     re_path(r'^modificarDocente/(?P<id_docente>\d+)/$', views.docente_edit, name='modificarDocente'),
-
+    
     re_path(r'^altaEstudiante$', views.Estudiante_view, name='altaEstudiante'),
     re_path(r'^verEstudiantes$', views.estudiante_list.as_view(),name='verEstudiantes'),
     re_path(r'^modificarEstudiante/(?P<id_estudiante>\d+)/$', views.estudiante_edit, name='modificarEstudiante'),
-
+    re_path(r'^eliminarEstudiante/(?P<id_estudiante>\d+)/$', views.eliminar_estudiante, name='eliminarEstudiante'),
+    
     re_path(r'^altaPlan$', views.plan_de_estudios_view,name='altaPlan'),
     re_path(r'^menuPlanDeEstudio$', views.menuPlan,name='menuPlanDeEstudio'),
     re_path(r'^menuCiclo$', views.menuCiclo,name='menuCiclo'),

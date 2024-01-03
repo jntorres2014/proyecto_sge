@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
+    <div class="container">
+
+
         <div class="contenedor-tabla">
             <div><h1><a href="/">Lista Docentes</a></h1></div>
             <div class="hidden orden-listado">
@@ -30,7 +33,10 @@
                                   <td>{{ docente.Localidad.NombreLocalidad}}</td>
                                   <td>{{ docente.Email}}</td>
                                   <td>{{ docente.tituloHabilitante}}</td>
-                                  <td><a  class="btn btn-primary" href="{% url 'modificarDocente' docente.id %}">Editar </a></td>
+                                  <td>
+                                    <a  class="btn btn-primary" href="/Core/modificarDocente/{{ docente.id }}/">Editar </a>
+                                    <a  class="btn btn-danger" href="/Core/eliminarDocente/{{ docente.id }}/">Eliminar </a>
+                                    </td>
                                </tr>
                              {% endfor %}
                         {% else %}
@@ -39,11 +45,12 @@
                        {% endblock tabla %}
                     </tbody>
                 </table>
-                   <a  class="btn btn-primary" href="{% url 'altaDocente'%}">Nuevo </a>
+                   <a  class="btn btn-primary" href="/Core/altaDocente">Nuevo </a>
                 </div>
             </div>
             <ul class="pager"></ul>
         </div>
+    </div>
 {% endblock  %}
 
 

@@ -13,7 +13,7 @@
 
 {{form.media}}
 
-<div class="conteiner">
+<div class="container">
     <h2> Inscripciones</h2>
     <div class="container">
         <div class="card">
@@ -29,7 +29,8 @@
         </div>
     </div>
         <div class="container">
-            <h2> Inscriptos a as{{ ciclos.nombre }}</h2>
+            <h2> Inscriptos Ciclo lectivo{{ ciclo.anioCalendario }}</h2>
+
             <!-- <input type="text" id="busqueda" placeholder="Buscar por nombre"> -->
             <table class="table table-striped" id="table_id">
                 <thead>
@@ -53,8 +54,8 @@
                             <td>{{ insc.ciclo }}</td>
                             <td>{{ insc.anio }}</td>
                             <td>{{ insc.fecha }}</td>
-                            <td> <button >Eliminar </button>  
-                                <button>Modificar </button>
+                            <td> <a class="btn btn-danger">Eliminar </a>  
+                                <a class="btn btn-primary">Modificar </a>
                             </td> 
                         </tr>
                     {% endfor %} 

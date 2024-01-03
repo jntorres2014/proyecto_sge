@@ -1,11 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from Core import forms
+from Core.resource import LocalidadResource
 from .models import PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,inscripcionEstudianteCiclo, Division
 from django.views.generic import ListView,TemplateView
 from django.db.models import Q
+from tablib import Dataset 
+from django.contrib import messages
+from tablib import Dataset
+
 
 from dal import autocomplete
 
@@ -20,6 +25,39 @@ class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 
 
+##################################################################
+def importar(request):
+    print("llegue a importar")
+    result = None  # Inicializa result a None
+    localidades = Localidad.objects.all()
+    print(localidades)
+
+    if request.method == 'POST':
+        localidad_resource = LocalidadResource()
+        dataset = Dataset()
+        print(dataset)
+        nuevas_localidades = request.FILES['xlsfile']
+        print(nuevas_localidades)
+        imported_data = dataset.load(nuevas_localidades.read())
+        try:
+            result = localidad_resource.import_data(dataset, dry_run=True)
+            
+            if not result.has_errors():
+                result = localidad_resource.import_data(dataset, dry_run=False)
+                messages.success(request, 'La importación se realizó correctamente.')
+            else:
+                messages.error(request, 'Error durante la importación. Verifica el formato del archivo.')
+
+        except Exception as e:
+            messages.error(request, f'Error durante la importación: {str(e)}')
+
+        print(imported_data.headers)  # Imprime los nombres de columna
+        print(imported_data.dict)     # Imprime los datos del archivo
+
+
+    print("Result:", result)
+
+    return render(request, 'Core/importar.html', {'result': result})
 ##################################################################
 @login_required
 def localidad_view(request):
@@ -91,6 +129,19 @@ def docente_edit(request, id_docente):
             return HttpResponseRedirect("/Core/verDocentes")
     return render(request, 'Core/Persona/DocenteForm.html',{'form': form})
 
+
+@login_required
+def eliminar_estudiante(request, id_estudiante):
+    print("entro aca")    
+    estudiante = Estudiante.objects.get(id=id_estudiante)
+    estudiante.delete()
+    return HttpResponseRedirect("/Core/verEstudiantes")
+    if request.method == 'POST':
+        print("Entro a eliminar el estudiante")
+        estudiante.delete()
+        return HttpResponseRedirect("/Core/verEstudiantes")
+
+    return render(request, 'Core/Persona/verEstudiante.html',)
 
 @login_required
 def estudiante_edit(request, id_estudiante):
@@ -284,7 +335,7 @@ def division_new(request, anio_id, id):
     anio = AnioPlan.objects.get(id=anio_id)
     ciclo = Ciclo.objects.get(id=id)
     print("Estoy en division New", request.method)
-    if request.method == 'POST':
+    if request.method == 'GET':
         print("etre al post")
         # Obtén los datos del formulario y crea la nueva división
         codigo = '6'
@@ -292,14 +343,22 @@ def division_new(request, anio_id, id):
         nueva_division = Division(ciclo=ciclo, codigo=codigo, descripcion=descripcion, anio=anio)
         nueva_division.save()
         # Redirige al usuario a la página de listado de divisiones
+        print("ingrese al post")
+        return redirect('verDivision/', anio_id=anio_id)
+        return render(request, 'Core/Plan/divisionForm.html', {
+        'form': form,
+        'division': nueva_division,  # Puedes incluir la nueva división si es necesario
+        'id': id,
+        'anio': anio,
+    })
         return redirect('altaDivision', anio_id=anio_id,id=id)
     # Renderiza el formulario para agregar divisiones
     form = forms.DivisionForm()
     return render(request, 'Core/Plan/divisionForm.html', {
         'form': form,
-        'division': nueva_division,  # Puedes incluir la nueva división si es necesario
-        'id': id,
-        'anio': anio,
+        #'division': nueva_division,  # Puedes incluir la nueva división si es necesario
+        #'id': id,
+        #'anio': anio,
     })
 
 
@@ -341,10 +400,11 @@ def division_new(request, anio_id, id):
 
 ################################################
 @login_required
-def inscripciones_alumnnos_ciclo(request, id_ciclo=None):
+def inscripciones_alumnnos_ciclo(request, id_ciclo=1):
     print("Llegue aca!!!!")
     
     inscriptos = [] if not id_ciclo else inscripcionEstudianteCiclo.objects.filter(ciclo = id_ciclo)
+    print("Los inscriptos", inscriptos)
     if request.method == 'GET':
         form = forms.inscripcionAlumnoForm()
     else:
@@ -352,16 +412,20 @@ def inscripciones_alumnnos_ciclo(request, id_ciclo=None):
         form = forms.inscripcionAlumnoForm(request.POST)
         estudiante = form.data.get('estudiante')  # Acceder a los datos sin importar si el formulario es válido
         fecha = form.data.get('fecha')
-        print(fecha,estudiante)
-        
+        cicloid = form.data.get('ciclo')
+        #print(ciclo,fecha,estudiante)
+        ciclo = Ciclo.objects.get(id= cicloid)
+        return render(request, 'Core/Persona/Inscripciones.html',{'form': form, 
+                                                              #'estudiantes': estudiante,
+                                                              'ciclo': ciclo,
+                                                              #'anios': anios,
+                                                              'inscriptos': inscriptos})
+
         if form.is_valid():
             print("era valido")
             form.save()
             #return HttpResponseRedirect("/Core/Personas/Inscripciones.html")
-    return render(request, 'Core/Persona/Inscripciones.html',{'form': form, 
-                                                              #'estudiantes': estudiantes,
-                                                              #'ciclos': ciclos,
-                                                              #'anios': anios,
+    return render(request, 'Core/Persona/Inscripciones.html',{'form': form,
                                                               'inscriptos': inscriptos})
 
 # class Inscripciones(forms.Form):
