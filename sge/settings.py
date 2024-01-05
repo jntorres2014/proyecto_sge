@@ -91,15 +91,15 @@ IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 DATABASES = {
     
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'sge.db'),
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'sge.db'),
+    # }
 
-    # 'default': dj_database_url.config(
-    #         default= 'postgresql://postgres:postgres@localhost/postgres',
-    #         conn_max_age=600
-    #     )
+    'default': dj_database_url.config(
+            default= 'postgresql://postgres:postgres@localhost/postgres',
+            conn_max_age=600
+        )
     
 }
 
