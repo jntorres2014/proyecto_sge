@@ -1,16 +1,13 @@
 {% extends 'Core/Plan/menuCiclo.html' %}
 {% block content %}
- <div class="contenedor-tabla">
-
-           <h1> Lista de Ciclos que implementan el plan </h1>
-
-            <div class="container-fluid p-5 bg-primary text-center">
-                <div class="row container-fluid">
-                    <h1> id {{id}} {{plan.orientacion}} </h1>
-                {% for ciclo in ciclo %}
-                
-                <div class="col-sm-3">
-                        <div class="card" style="width: 18rem;">
+ <div class="container container-table">
+     <h1> Lista de Ciclos que implementan el plan </h1>
+            <div class="container-fluid p-5 text-center">
+                <div class="row ">
+                    <h1> Plan de estudio {{id}} {{plan.orientacion}} </h1>
+                {% for ciclo in ciclo %} 
+                <div class="col-sm-4 mb-4 plan" >
+                    <div class="card" style="width: 18rem; height: 100%;">
                             {% if ciclo.esActual %}
                             <h2> Ciclo actual</h2>
                             {% endif %}
@@ -18,24 +15,24 @@
                             <h3>{{ ciclo.fechaInicio}}</h3>
                             <h4>{{ ciclo.plan }}</h4>
                             <h5>{{ ciclo.fechaFin}}</h5>
-                            <div class="card-body">
-                                <a  class="btn btn-primary" href="/Core/modificarCiclo/{{ciclo.id }}">Editar </a>
-                                <a  class="btn btn-primary" href="/Core/modificarCiclo/{{ciclo.id }}">Eliminar </a>
-                                <a  class="btn btn-primary" href="/Core/inscribir_Ciclo/{{ciclo.id }}">Inscripciones </a>
-                                <a  class="btn btn-primary" href="/Core/verAnio/{{ciclo.id }}">Años </a>
-                                <a  class="btn btn-primary" href="/Core/inscribir_Ciclo/{{ciclo.id }}"> inscribir alumno a Ciclo</a>
+                            <div class="card-body ">
+                                <a  class="btn btn-primary m-2" href="/Core/modificarCiclo/{{ciclo.id }}">Editar </a>
+                                <a  class="btn btn-primary m-2" href="/Core/modificarCiclo/{{ciclo.id }}">Eliminar </a>
+                                <a  class="btn btn-primary m-2" href="/Core/inscribir_Ciclo/{{ciclo.id }}">Inscripciones </a>
+                                <a  class="btn btn-primary m-2" href="/Core/verAnio/{{ciclo.id }}">Años </a>
+                                <a  class="btn btn-primary m-2" href="/Core/inscribir_Ciclo/{{ciclo.id }}"> inscribir alumno a Ciclo</a>
 
-                                </div>
+                            </div>
                             </div>          
                     </div>
                     
                     {% endfor %}
                 </div>        
-                </div>
+                
                 <div class="container-fluid p-5 bg-secondary text-center">
                     <a  class="btn btn-primary" href="/Core/altaCiclo/{{id }}"">Alta Ciclo Lectivo en Plan </a>
                 </div>
-            
+            </div>
 
             <!-- <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >

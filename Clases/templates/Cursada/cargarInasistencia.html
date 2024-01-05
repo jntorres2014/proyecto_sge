@@ -10,24 +10,29 @@
 {% block content %}
 
 {% load bootstrap5 %}
+<div class="container container-fluid">
 
-<form method="post" action="{% url 'cargarInasistencia' %/3}">
+  <form method="post" action="{% url 'cargarInasistencia' id %}">
     {% csrf_token %}
-    {% if estudiantes %}
+    {% if inscriptos %}
+    <h1> Alumnos</h1>
     <ul>        
-      {% for estudiante in estudiantes %}
-        <li>
-          <label>
+      {% for estudiante in inscriptos %}
+      <li>
+        <label>
             <input type="checkbox" name="inasistencias_seleccionadas" value="{{ estudiante.id }}">
-            {{ estudiante.estudiante.nombre }}
+            {{ estudiante.estudiante.Nombre }}
           </label>
         </li>
-      {% endfor %}
+        {% endfor %}
     </ul>
+    <button type="submit" class="btn btn-primary">Cargar Inasistencias</button>
     {% else %}
         <p>No hay alumnos disponibles.</p>
         {% endif %}
+  </form>
     {% endblock %}
     
+  </div>
 
     {% comment %} {% load static %} {% endcomment %}

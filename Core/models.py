@@ -370,10 +370,20 @@ class Ciclo (models.Model):
     esActual = models.BooleanField(
         default= True
     )
+    
 
     def __str__(self):
         return "{0}".format(self.anioCalendario)
-
+    @staticmethod
+    def crear_division_para_anio_ciclo(self,anios):
+        print("Entre a diviones para anios ciclos")
+        for a in anios.all():
+            print('entro')
+            division=Division.objects.create(ciclo=self,
+                                             codigo=Division.PRIMERA,
+                                             descripcion="{} {}".format(a, Division.PRIMERA),
+                                             anio=a)
+        return division
     
     @staticmethod
     def crear_division_para_plan(ciclo,plan):

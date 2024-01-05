@@ -178,7 +178,7 @@ def plan_de_estudios_view(request):
 
 @login_required    
 def plan_list(request):
-    planes=PlanDeEstudios.objects.order_by('id')
+    planes=PlanDeEstudios.objects.order_by('esActual')
     print(planes)
     return render(request, 'Core/Plan/verPlan.html', {
         'planes': planes,
@@ -240,6 +240,16 @@ def menuCiclo(request):
 def menuCursada(request):
     return render(request, 'Cursada/menuCursada.html')
 
+def aniosDePlanActual(request):
+    ciclo = Ciclo.objects.get(esActual=True)
+    print("ciclo", ciclo)
+    plan = PlanDeEstudios.objects.get(id=ciclo.plan.id)
+    print("plan",plan)
+    anios = AnioPlan.objects.filter(plan = plan.id)
+    return render(request, 'Core/Plan/aniosActuales.html',{'anios':anios,
+                                                            'ciclo':ciclo})
+
+
 class Espacio_list(ListView):
     model = EspacioCurricular
     template_name = 'Core/EspacioCurricular/verEspacios.html'
@@ -289,6 +299,7 @@ def ciclo_view(request,id):
     plan = PlanDeEstudios.objects.get(id=id)
     print("******************")
     print(plan)
+    anios = AnioPlan.objects.filter(plan = plan.id)
     #print(request.method)
     if request.method == 'POST':
         # form = forms.PlanDeEstudiosForm(request.POST, instance=plan)
@@ -296,7 +307,8 @@ def ciclo_view(request,id):
         print("entre al post")
         if form.is_valid():
             print("era valido")
-            form.save()
+            ciclo = form.save()
+            ciclo.crear_division_para_anio_ciclo(ciclo,anios)
             pagina = "/Core/verCiclo/" + id
             #print("la pagina",pagina)
         return HttpResponseRedirect("/Core/verCiclo/" + id)
@@ -321,15 +333,27 @@ def ciclo_edit(request, ciclo):
 
 ################################################
 @login_required
-def division_list(request, id):
+def division_list(request, id,idCiclo):
+    division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     print(id)
     print("VER Division")
-    division= list(Division.objects.filter(anio = id))
+    #division= list(Division.objects.filter(anio = id))
     print("VER Division2")
     print (division)
     return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,
                                                       'id':id,
-                                                      'anio':division[0].anio.id})    
+                                                      'anio':division[0].anio.id})  
+
+@login_required
+def verDivisionInasistencia(request, id,idCiclo):
+    print(id)
+    print("VER Division")
+    division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
+    print("VER Division2")
+    print (division)
+    return render(request, 'Core/Plan/verDivisionInasistencia.html',{'divisiones': division,
+                                                      'id':id,
+                                                      'anio':division[0].anio.id})  
 @login_required
 def division_new(request, anio_id, id):
     anio = AnioPlan.objects.get(id=anio_id)
@@ -440,9 +464,10 @@ def estudiantesDeAnioEnCiclo(request, idCiclo):
 @login_required
 def AsignarAlumno_Division(request, idAnio, idCiclo):
     inscriptos = inscripcionEstudianteCiclo.objects.filter(anio = idAnio, ciclo = idCiclo)
-    division = Division.objects.all()
+    division = Division.objects.filter(anio = idAnio, ciclo = idCiclo)
+    print(division)
     cantidadAlumnosInscriptos = inscriptos.count()
-    print("cantidad alumnos")
+    print("cantidad alumnos", inscriptos)
     print(cantidadAlumnosInscriptos)
     if request.method == 'POST':
         form = Division(request.POST)
@@ -456,6 +481,6 @@ def AsignarAlumno_Division(request, idAnio, idCiclo):
     else:
         form = forms.DivisionForm()
 
-    return render(request, 'Inasistencia/inasistenciaForm.html',{'form':form, 
+    return render(request, 'Cursada/cargarInasistencia.html',{'form':form, 
                                                                  'inscriptos': inscriptos,
                                                                  'cantAlumnos': cantidadAlumnosInscriptos})

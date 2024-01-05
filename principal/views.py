@@ -33,7 +33,7 @@ def create_task(request):
             'form': TaskForm,
             'error': 'Ingresar datos validos',
         })
-@login_required
+
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {
@@ -48,7 +48,7 @@ def signup(request):
                                                 password=request.POST['password1'])
                 user.save()
                 login(request,user)
-                return redirect('principal')
+                return redirect('/signin')
                 #return HttpResponse('Usuario guardado correctamente')
             except:
                 return render(request, 'signup.html', {
@@ -115,6 +115,7 @@ def delete(request,id):
 def signout(request):
     logout(request)
     return redirect('login')
+
 def signin(request):
     if request.method == 'GET':
         return render(request, 'signin.html',{

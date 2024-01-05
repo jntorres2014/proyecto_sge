@@ -24,6 +24,7 @@ urlpatterns = [
     re_path(r'^menuCiclo$', views.menuCiclo,name='menuCiclo'),
     
     re_path(r'^menuCursada$', views.menuCursada,name='menuCursada'),
+    re_path(r'^aniosDePlanActual$', views.aniosDePlanActual,name='aniosDePlanActual'),
     
     re_path(r'^verPlan$', views.plan_list, name= 'verPlan'),
     re_path(r'^modificarPlan/(?P<id_plan>\d+)/$', views.plan_edit, name='modificarPlan'),
@@ -44,7 +45,7 @@ urlpatterns = [
 
     re_path(r'^inscribir_Ciclo/(?P<id_ciclo>\d+)/$', views.inscripciones_alumnnos_ciclo, name='inscribir_Ciclo'),
     
-    re_path(r'^alumno_division/(?P<idCiclo>\d+)/$', views.AsignarAlumno_Division, name='alumno_division'),    
+    re_path(r'^alumno_division/(?P<idAnio>\d+)/(?P<idCiclo>\d+)/$', views.AsignarAlumno_Division, name='alumno_division'),    
     
     
     re_path(r'^verEspacioCurricularEnPlan/(?P<id>\d+)/$', views.Espacio_view, name='verEspacioCurricularEnPlan'),
@@ -58,7 +59,9 @@ urlpatterns = [
     path('ajax/cargar-espacios/', views.cargar_espacios, name='ajax_cargar_espacios'),
     
     
-    re_path(r'^verDivision/(?P<id>\d+)/$', views.division_list, name='verDivision'),
+    re_path(r'^verDivision/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.division_list, name='verDivision'),
+    re_path(r'^verDivisionInasistencia/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.verDivisionInasistencia, name='verDivisionInasistencia'),
+    
     #path('altaDivision/<int:id>/', views.division_new, name='altaDivision'),
     re_path(r'^altaDivision/(?P<anio_id>\d+)/(?P<id>\d+)/$', views.division_new,name='altaDivision'),
  

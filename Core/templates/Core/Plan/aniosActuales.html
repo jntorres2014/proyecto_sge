@@ -4,14 +4,12 @@
 
 <div class="container container-fluid p-5 bg-primary text-center">
     <div class="row container-fluid">
-    {% for anio in anioPlan %}
+    {% for anio in anios %}
     <div class="col-sm-3">
             <div class="card" style="width: 18rem;">
                 <h1> {{ anio.codigo}}</h1>
                    <div class="card-body">
-                      <a href="/Core/altaDivision/{{anio.id }}/{{id}}/" class="card-link">Alta division</a>
-                      <a href="/Core/verDivision/{{anio.id }}/{{id}}/" class="card-link">Ver Divisiones</a>
-                      <a href="/Core/alumno_division/{{anio.id}}/{{id}}">Agregar Alumnos a division</a>
+                      <a href="/Core/verDivisionInasistencia/{{anio.id }}/{{ciclo.id}}" class="card-link">Ver Divisiones</a>
                     </div>
                 </div>          
         </div>

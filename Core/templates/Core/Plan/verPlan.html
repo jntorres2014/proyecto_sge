@@ -2,84 +2,81 @@
 {% load bootstrap5 %}
 
 {% block content %}
-
-<h1>Listado de PLANES DE ESTUDIO</h1>
-        <div class="contenedor-tabla">
-            <div class="container-fluid p-5 text-center">
-                <div class="row container-fluid">
-                {% if planes %}
+  <div class="container contenedor-tabla">
+    <h1>Listado de PLANES DE ESTUDIO</h1>
+    <div class="form-inline mt-3">
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="inputAnio" class="sr-only">Año</label>
+            <input type="text" class="form-control" id="inputAnio" placeholder="Ingrese el año">
+        </div>
+    </div>
+    <div class="p-5 text-center" id="resultadoBusqueda">
+        <div class="row">
+            {% if planes %}
                 {% for plan in planes %}
-                <div class="col-sm-4">
-                        <div class="card" style="width: 18rem;">
+                    <div class="col-sm-4 mb-4 plan" data-anio="{{ plan.anio }}">
+                        <div class="card" style="width: 18rem; height: 100%;">
                             {% if plan.esActual %}
-                            <h2> Plan actual</h2>
+                                <h2>Plan actual</h2>
                             {% endif %}
-                            <h1> {{ plan.codigo}} </h1>
-                            <h3> {{ plan.descripcion}} </h3>
-                            <h4> {{ plan.anio}} </h4>
-                            <h5> {{ plan.orientacion}} </h5>
-                            <div class="card-body">
-                                <td><a class="btn btn-primary" href="/Core/modificarPlan/{{ plan.id }}">Editar</a>
-                                <td><a  class="btn btn-primary" href="/Core/verCicloEnPlan/{{ plan.id }}">Implementar Plan </a></td>
-                                <td><a  class="btn btn-primary" href="/Core/verAnio/{{ plan.id }}">Años </a></td>
-                                <td><a  class="btn btn-primary" href="/Core/verEspacioCurricularEnPlan/{{ plan.id }}"> Espacios curriculares </a></td>   
-
+                            <h1>{{ plan.codigo }}</h1>
+                            <h3>{{ plan.descripcion }}</h3>
+                            <h4>{{ plan.anio }}</h4>
+                            <h5>{{ plan.orientacion }}</h5>
+                            <div class="card-body d-flex flex-column">
+                                <a class="btn btn-primary m-2" href="/Core/verAnio/{{ plan.id }}">Años</a>
+                                <a class="btn btn-primary m-2" href="/Core/modificarPlan/{{ plan.id }}">Editar</a>
+                                <a class="btn btn-primary m-2" href="/Core/verCicloEnPlan/{{ plan.id }}">Implementar Plan</a>
+                                <a class="btn btn-primary m-2" href="/Core/verEspacioCurricularEnPlan/{{ plan.id }}">Espacios curriculares</a>
+                                <!-- Agrega el siguiente estilo para que los botones siempre se muestren -->
+                                <div style="margin-top: auto;"></div>
                             </div>
-                        </div>          
+                        </div>
                     </div>
-                    
-                    {% endfor %}
-                    {% else %}
-                        <h1>NO HAY PLANES PARA LISTAR</h1>
-                {% endif %}
-                </div>        
-                </div>
-            <div class="container-fluid p-5 bg-secondary text-center">
-                <a  class="btn btn-primary" href="/Core/altaPlan">Alta Plan de Estudio </a>
-            </div>
-            
-            
-            
-            <!-- <div><h1><a href="/">Lista Plan</a></h1></div>
-            <div class="hidden orden-listado">
-               <div class="flex-md-column-reverse" >
-                 <table class="table table-bordered table-hover"  >
-                   <thead class="hidden orden-listado">
+                {% endfor %}
+            {% else %}
+                <h1>NO HAY PLANES PARA LISTAR</h1>
+            {% endif %}
+        </div>
+        <div class="container-fluid p-5 bg-secondary text-center">
+            <a class="btn btn-primary" href="/Core/altaPlan">Alta Plan de Estudio</a>
+        </div>
+    </div>
+  </div>
 
-                        <tr class="table-hover">
-                            <th>Codigo</th>
-                            <th>Anio</th>
-                            <th>Orientacion</th>
-                            <th>Nivel</th>
-                            <th>Descricion</th>
-                            <th>Cantidad de Años</th>
-                             <th>#</th>
-                        </tr>
-                    </thead>
-                <tbody>
-                    {% if planes %}
-                        {% for plan in planes %}
-                            <tr>
-                                <td>{{ plan.codigo}}</td>
-                                <td>{{ plan.anio}}</td>
-                                <td>{{ plan.orientacion}}</td>
-                                <td>{{ plan.nivel}}</td>
-                                <td>{{ plan.descripcion}}</td>
-                                <td>{{ plan.cantidadAnios}}</td>
-                                <td><a  class="btn btn-primary" href=" url 'modificarPlan' {{ plan.id }}">Editar </a>
-                                <td><a  class="btn btn-primary" href=" url 'verCiclo' {{ plan.id }}">Ciclos </a></td>
-                                <td><a  class="btn btn-primary" href=" url 'verAnio' {{ plan.id }}">Anios </a></td>                                
+  {% block scripts %}
+  <!-- Script JavaScript -->
+  <script>
+      // Asociar la función buscarPlanesPorAnio al evento input del campo de año
+      document.getElementById('inputAnio').addEventListener('input', buscarPlanesPorAnio);
 
-                                <a class="btn btn-primary" href="url 'agregarEspacio' {{ plan.id }}">+ Espacio </a></td>
-                            </tr>
-                         {% endfor %}
-                    {% else %}
-                        <h1>NO HAY PLANES PARA LISTAR</h1>
-                    {% endif %}
-                    </tbody>
-                </table>
-                </div>
-            </div>
-            <ul class="pager"></ul>
-        </div> -->
-{%endblock content%}
+      function buscarPlanesPorAnio() {
+          // Obtener el valor del campo de entrada
+          var anio = document.getElementById('inputAnio').value.toLowerCase();
+
+          // Obtener todos los planes de la vista
+          var planes = document.querySelectorAll('.plan');
+
+          // Mostrar todos los planes si el campo de año está vacío
+          if (anio === '') {
+              document.getElementById('resultadoBusqueda').innerHTML = '';
+              planes.forEach(function(plan) {
+                  document.getElementById('resultadoBusqueda').appendChild(plan);
+              });
+          } else {
+              // Filtrar los planes por año
+              var planesFiltrados = Array.from(planes).filter(function(plan) {
+                  var planAnio = plan.dataset.anio.toLowerCase();  // Acceder al atributo data-anio
+                  return planAnio === anio;
+              });
+
+              // Mostrar los planes filtrados en el elemento con id "resultadoBusqueda"
+              document.getElementById('resultadoBusqueda').innerHTML = '';
+              planesFiltrados.forEach(function(plan) {
+                  document.getElementById('resultadoBusqueda').appendChild(plan.cloneNode(true));
+              });
+          }
+      }
+  </script>
+    {% endblock scripts %}
+{% endblock content %}
