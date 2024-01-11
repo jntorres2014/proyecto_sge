@@ -46,7 +46,7 @@ class Localidad (models.Model):
     
 
     @classmethod
-    def seed_db(n):
+    def seed_db(this,n):
         faker = Faker()
         for  n in range(0,n):
             Localidad.objects.create(
@@ -133,6 +133,7 @@ class PlanDeEstudios(models.Model):
             Anio.save()
             anio= anio +1
         return Anio
+    
 @receiver(post_save, sender=PlanDeEstudios)
 def ajustar_actual(sender, instance, **kwargs):
    if instance.esActual:
@@ -198,7 +199,7 @@ class Persona(models.Model):
     Direccion=models.CharField(
         help_text= "Direccion",
         max_length = MAXDNI,
-        unique= True,
+        unique= False,
         null= False,
         blank= False,
         error_messages= {
@@ -241,14 +242,29 @@ class Estudiante(Persona):
 
     def dia_futuro(value):
         hoy = date.today()
-        if hoy <= value:
+        if hoy <  value:
             raise ValidationError('La fecha ingresada es mayor a la actual')
         return value
 
     legajo = models.CharField(max_length= 50,unique= True)
     fechaInscripcion = models.DateField(validators=[dia_futuro])
 
-
+    @classmethod
+    def seed_db(this,n):
+        fake = Faker()
+        localidad = Localidad.objects.get_or_create(id=1)[0]
+        for  n in range(0,n):
+            Estudiante.objects.create(
+                Nombre= fake.first_name(),
+                Apellido= fake.last_name(),
+                Dni= fake.unique.random_number(digits=8),
+                Localidad = localidad,
+                Email = fake.email(),
+                Telefono = 123345,
+                Direccion = fake.address(),
+                legajo=fake.unique.random_number(digits=5),
+                fechaInscripcion=fake.date_between(start_date='-365d', end_date='today'),  # fecha aleatoria en el último año
+            )
 
 '''calificacion = models.ForeignKey(Calificacion, on_delete= models.CASCADE, related_name= "estudiante")
 '''
@@ -534,4 +550,19 @@ class inscripcionEstudianteCiclo(models.Model):
     )
     fecha = models.DateTimeField(default=now)
 
+class Aula(models.Model):
+    
+    estudiante = models.ForeignKey(
+        Estudiante,
+        null=True,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name="estudiante")   
+    
+    division = models.ForeignKey(
+        Division,
+        null=True,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name="division")
     

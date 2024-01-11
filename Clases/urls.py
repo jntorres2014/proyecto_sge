@@ -1,7 +1,7 @@
 from django.urls import re_path, path
 from . import views
 
-app_name = "clases"
+app_name = "Clases"
 urlpatterns  = [
     
     re_path(r'^altaCalificacion$', views.calificacion_view),

@@ -12,7 +12,8 @@
 {% load bootstrap5 %}
 <div class="container container-fluid">
 
-  <form method="post" action="{% url 'cargarInasistencia' id %}">
+  <!-- <form method="post" action="{/% url 'cargarInasistencia' %/ id}"> -->
+  <form method="post" action="/Clases/cargarInasistencia/{{2}}/">
     {% csrf_token %}
     {% if inscriptos %}
     <h1> Alumnos</h1>
@@ -26,7 +27,7 @@
         </li>
         {% endfor %}
     </ul>
-    <button type="submit" class="btn btn-primary">Cargar Inasistencias</button>
+    <button type="submit" class="btn btn-primary">Cargar Inasistencia</button>
     {% else %}
         <p>No hay alumnos disponibles.</p>
         {% endif %}

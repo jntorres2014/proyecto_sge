@@ -276,25 +276,42 @@ estudiante = forms.DateField(
 )
 class inscripcionAlumnoForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        print("acaaaaaaaaaaaaaa")
+        # Obtener el plan de estudios y los ciclos desde los kwargs
+        #plan_estudio = kwargs.pop('plan_estudio', None)
+        
+        super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)
+
+
+
     class Meta:
         model = inscripcionEstudianteCiclo
         fields= '__all__'
-        widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete')
+        widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'class': 'input-group mb-3'})
         #import ipdb; ipdb.set_trace() 
         # print(widgets_estudiante)
+        fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+        
+     
         widgets = {
-            'estudiante': widgets_estudiante
+            'estudiante': widgets_estudiante,
+            'fecha': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
+            #'fecha': forms.TextInput(attrs={'class': 'datepicker input-group mb-3''form="date"'},),
+            'ciclo': forms.Select(attrs={'class': 'input-group mb-3'}),
+            'anio': forms.Select(attrs={'class': 'form-label input-group mb-3 '}),
             
         }
 
     def __init__(self, *args, **kwargs):
         super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)
         # Obtener la fecha del sistema
-        current_date = datetime.now().date()
+        current_date = datetime.now().strftime("%d de %B del %Y")
         # Establecer la fecha del sistema en el campo de fecha del formulario
-        self.fields['fecha'].initial = current_date
+        #self.fields['fecha'].initial = current_date
+        anios_plan_estudio = AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual= 'True'))
+        self.fields['ciclo'].queryset = Ciclo.objects.filter(esActual = 'True')
+        self.fields['anio'].queryset = anios_plan_estudio
+        
 
-    print(f"{estudiante=}")
-    if estudiante:
-        #widget_cliente = forms.TextInput(attrs={'value': cliente})
-        widget_estudiante = autocomplete.ModelSelect2(url= 'estudiante-autocomplete' + '/?q={}')
+   

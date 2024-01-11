@@ -101,6 +101,9 @@ def registrarInasistencia(request, idAnio):
     #ACa deberia trer los alumnos de un anio especifico de un ciclo especifico
     estudiantes = inscripcionEstudianteCiclo.objects.all()
     print(estudiantes)
+    if request.method == 'POST':
+        print(request.POST)
+        
 
     return render(request, 'Cursada/cargarInasistencia.html', {'estudiantes': estudiantes})
     

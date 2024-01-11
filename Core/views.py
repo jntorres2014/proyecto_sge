@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -425,11 +426,13 @@ def division_new(request, anio_id, id):
 ################################################
 @login_required
 def inscripciones_alumnnos_ciclo(request, id_ciclo=1):
-    print("Llegue aca!!!!")
-    
+    id_ciclo = Ciclo.objects.get(esActual = 'True')
+    print("pisado",id_ciclo)
     inscriptos = [] if not id_ciclo else inscripcionEstudianteCiclo.objects.filter(ciclo = id_ciclo)
+    cant_inscriptos = inscriptos.count()
     print("Los inscriptos", inscriptos)
     if request.method == 'GET':
+        print(id_ciclo.plan)
         form = forms.inscripcionAlumnoForm()
     else:
         print("entre al post")
@@ -437,13 +440,22 @@ def inscripciones_alumnnos_ciclo(request, id_ciclo=1):
         estudiante = form.data.get('estudiante')  # Acceder a los datos sin importar si el formulario es válido
         fecha = form.data.get('fecha')
         cicloid = form.data.get('ciclo')
+        anio = form.data.get('anio')
         #print(ciclo,fecha,estudiante)
-        ciclo = Ciclo.objects.get(id= cicloid)
+        # inscripcionEstudianteCiclo(id_ciclo= cicloid,
+        #                               estudiante = estudiante,
+        #                               fecha = fecha,
+        #                               anio= anio)
+        #ciclo = Ciclo.objects.get(id= cicloid)
+        if form.is_valid():
+            print("era valido")
+            form.save()
         return render(request, 'Core/Persona/Inscripciones.html',{'form': form, 
                                                               #'estudiantes': estudiante,
-                                                              'ciclo': ciclo,
+                                                              'ciclo': id_ciclo,
                                                               #'anios': anios,
-                                                              'inscriptos': inscriptos})
+                                                              'inscriptos': inscriptos,
+                                                              'cant_inscriptos' : cant_inscriptos})
 
         if form.is_valid():
             print("era valido")
@@ -472,6 +484,8 @@ def AsignarAlumno_Division(request, idAnio, idCiclo):
     if request.method == 'POST':
         form = Division(request.POST)
         if form.is_valid():
+            print("estoy en el Post")
+            print(form)
             alumno = form.save()
             #division.estudiates.add(estudiante).
             #aula.alumnos.add(alumno)
@@ -484,3 +498,12 @@ def AsignarAlumno_Division(request, idAnio, idCiclo):
     return render(request, 'Cursada/cargarInasistencia.html',{'form':form, 
                                                                  'inscriptos': inscriptos,
                                                                  'cantAlumnos': cantidadAlumnosInscriptos})
+
+def asigar_estudiante_a_aula(request,id_anio):
+    divisiones = Division.objects.get(anio = id_anio, ciclo = Ciclo.objects.get(esActual = 'True'))
+    estudiantes = inscripcionEstudianteCiclo.objects.filter(anio = id_anio)
+    cantidadInscriptos =estudiantes.count()
+    cantidadDivisiones = divisiones.count()
+
+
+
