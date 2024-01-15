@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 {% block css %} 
 <link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
 <!-- CSS de DataTables -->
@@ -28,11 +28,11 @@
             </div>
         </div>
     </div>
-        <div class="container">
+        <div class="container container-fluid">
             <h2> Inscriptos Ciclo lectivo{{ ciclo.anioCalendario }}</h2>
 
             <!-- <input type="text" id="busqueda" placeholder="Buscar por nombre"> -->
-            <table class="table table-striped" id="table_id">
+            <table class="table container-sm container-fluid" id="table_id">
                 <thead>
                     <tr>
                         <th>Dni</th>
@@ -73,14 +73,78 @@
 
 {% comment %} <!--script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script--> {% endcomment %}
 <!-- JavaScript de DataTables -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<link href="https://cdn.datatables.net/v/dt/dt-1.13.8/af-2.6.0/cr-1.7.0/fc-4.3.0/sc-2.3.0/datatables.min.css" rel="stylesheet">
+ 
+<script src="https://cdn.datatables.net/v/dt/dt-1.13.8/af-2.6.0/cr-1.7.0/fc-4.3.0/sc-2.3.0/datatables.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"></script>
 
 <script>
-    $(document).ready(function() {
-        $('#table_id').DataTable();
+    $(document).ready(function () {
+    // Setup - add a text input to each footer cell
+    $('#table_id thead tr')
+        .clone(true)
+        .addClass('filters')
+        .appendTo('#table_id thead');
+ 
+    var table = $('#table_id').DataTable({
+        orderCellsTop: true,
+        fixedHeader: true,
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+            },
+        initComplete: function () {
+            var api = this.api();
+ 
+            // For each column
+            api
+                .columns()
+                .eq(0)
+                .each(function (colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq(
+                        $(api.column(colIdx).header()).index()
+                    );
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" class="container-fluid small" placeholder="' + title + '" />');
+ 
+                    // On every keypress in this input
+                    $(
+                        'input',
+                        $('.filters th').eq($(api.column(colIdx).header()).index())
+                    )
+                        .off('keyup change')
+                        .on('change', function (e) {
+                            // Get the search value
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})'; //$(this).parents('th').find('select').val();
+ 
+                            var cursorPosition = this.selectionStart;
+                            // Search the column for that value
+                            api
+                                .column(colIdx)
+                                .search(
+                                    this.value != ''
+                                        ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                        : '',
+                                    this.value != '',
+                                    this.value == ''
+                                )
+                                .draw();
+                        })
+                        .on('keyup', function (e) {
+                            e.stopPropagation();
+ 
+                            $(this).trigger('change');
+                            $(this)
+                                .focus()[0]
+                                .setSelectionRange(cursorPosition, cursorPosition);
+                        });
+                });
+        },
     });
+});
 </script>
+
 
 
 <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>

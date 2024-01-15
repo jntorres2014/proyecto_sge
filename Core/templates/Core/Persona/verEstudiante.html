@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="container">
-
-
-<div class="contenedor-tabla">
-            <div><h1><a href='#'>Lista Estudiantes</a></h1></div>
-            <div class="hidden orden-listado">
-               <div class="flex-md-column-reverse" >
-                 <table class=" table table-bordered table-hover  " id="table_id" >
-                   <thead class="hidden orden-listado">
+    <div class="contenedor-tabla">
+        <div>
+            <h1><a href='#'>Lista Estudiantes</a></h1>
+        </div>
+        <div class="hidden orden-listado">
+            <div class="flex-md-column-reverse">
+                <table class="table table-bordered table-hover table-sm" id="table_id">
+                    <thead class="hidden orden-listado">
                         <tr class="table-hover">
                             <th>DNI</th>
                             <th>Apellido</th>
@@ -16,43 +17,138 @@
                             <th>Direccion</th>
                             <th>Localidad</th>
                             <th>Email</th>
-                            <th>legajo</th>
-                            <th>fecha Inscripcion</th>
+                            <th>Legajo</th>
+                            <th>Fecha Inscripcion</th>
                             <th>Acciones</th>
                         </tr>
-                   </thead>
-                <tbody >
-                    {% block tabla %}
-                    {% if object_list %}
-                        {% for estudiante in object_list %}
-                            <tr>
-                              <td>{{ estudiante.Dni }}</td>
-                              <td>{{ estudiante.Apellido }}</td>
-                              <td>{{ estudiante.Nombre}}</td>
-                              <td>{{ estudiante.Direccion }}</td>
-                              <td>{{ estudiante.Localidad.NombreLocalidad}}</td>
-                              <td>{{ estudiante.Email}}</td>
-                              <td>{{ estudiante.legajo}}</td>
-                              <td>{{ estudiante.fechaInscripcion}}</td>
-                              <td> <a class="btn btn-primary" href="/Core/modificarEstudiante/{{ estudiante.id }}/">
-                                Editar
-                            </a>
-                        </a>
-                        <a class="btn btn-danger" href="/Core/eliminarEstudiante/{{ estudiante.id }}/">
-                            Eliminar
-                        </a></td>
-                            </tr>
-                         {% endfor %}
-                    {% else %}
-                        <h1>NO HAY ESTUDIANTES PARA LISTAR</h1>
-                        {% endif %}
-                       {% endblock tabla %}
+                    </thead>
+                    <tbody>
+                        {% block tabla %}
+                            {% if object_list %}
+                                {% for estudiante in object_list %}
+                                    <tr>
+                                        <td>{{ estudiante.Dni }}</td>
+                                        <td>{{ estudiante.Apellido }}</td>
+                                        <td>{{ estudiante.Nombre}}</td>
+                                        <td>{{ estudiante.Direccion }}</td>
+                                        <td>{{ estudiante.Localidad.NombreLocalidad}}</td>
+                                        <td>{{ estudiante.Email}}</td>
+                                        <td>{{ estudiante.legajo}}</td>
+                                        <td>{{ estudiante.fechaInscripcion}}</td>
+                                        <td>
+                                            <a class="btn btn-primary btn-sm" href="/Core/modificarEstudiante/{{ estudiante.id }}/">
+                                                Editar
+                                            </a>
+                                            <a class="btn btn-danger btn-sm" href="/Core/eliminarEstudiante/{{ estudiante.id }}/">
+                                                Eliminar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="9"><h1>NO HAY ESTUDIANTES PARA LISTAR</h1></td>
+                                </tr>
+                            {% endif %}
+                        {% endblock tabla %}
                     </tbody>
                 </table>
-                </div>
-      
             </div>
         </div>
     </div>
-{%endblock %}
+</div>
+{% endblock %}
 
+{% block scripts %}
+<!-- JavaScript de DataTables -->
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Agrega el archivo de idioma español -->
+<script src="https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"></script>
+<style>
+    /* Ajustar el tamaño de las celdas de DataTable */
+    #table_id td {
+        font-size: 10px; /* Tamaño de texto */
+        padding: 3px;    /* Espaciado interno */
+    }
+</style>
+<style>
+#table_id td {
+    font-size: 10px; /* Tamaño de texto de las celdas */
+    padding: 3px;    /* Espaciado interno de las celdas */
+}
+
+/* Ajustar el tamaño de los campos de búsqueda */
+.dataTables_wrapper .dataTables_filter input {
+    font-size: 10px; /* Tamaño de texto del campo de búsqueda */
+    padding: 5px;    /* Espaciado interno del campo de búsqueda */
+}
+</style>
+<script>
+    $(document).ready(function () {
+    // Setup - add a text input to each footer cell
+    $('#table_id thead tr')
+        .clone(true)
+        .addClass('filters')
+        .appendTo('#table_id thead');
+ 
+    var table = $('#table_id').DataTable({
+        orderCellsTop: true,
+        fixedHeader: true,
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+            },
+        initComplete: function () {
+            var api = this.api();
+ 
+            // For each column
+            api
+                .columns()
+                .eq(0)
+                .each(function (colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq(
+                        $(api.column(colIdx).header()).index()
+                    );
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" class="container-fluid small"  placeholder="' + title + '" />');
+ 
+                    // On every keypress in this input
+                    $(
+                        'input',
+                        $('.filters th').eq($(api.column(colIdx).header()).index())
+                    )
+                        .off('keyup change')
+                        .on('change', function (e) {
+                            // Get the search value
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})'; //$(this).parents('th').find('select').val();
+ 
+                            var cursorPosition = this.selectionStart;
+                            // Search the column for that value
+                            api
+                                .column(colIdx)
+                                .search(
+                                    this.value != ''
+                                        ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                        : '',
+                                    this.value != '',
+                                    this.value == ''
+                                )
+                                .draw();
+                        })
+                        .on('keyup', function (e) {
+                            e.stopPropagation();
+ 
+                            $(this).trigger('change');
+                            $(this)
+                                .focus()[0]
+                                .setSelectionRange(cursorPosition, cursorPosition);
+                        });
+                });
+        },
+    });
+});
+</script>
+{% endblock %}

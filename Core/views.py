@@ -198,10 +198,11 @@ def plan_edit(request, id_plan):
     return render(request, 'Core/Plan/PlanDeEstudios.html',{'form':form})
 
 @login_required
-def Espacio_view(request, id):
+def Espacio_view(request,id):
+    id = 1
     print(id)
-    plan = PlanDeEstudios.objects.get(id=id)
-    espacios = EspacioCurricular.objects.filter(plan = id)
+    plan = PlanDeEstudios.objects.get(esActual = 'True')
+    espacios = EspacioCurricular.objects.filter(plan = plan.id)
     if request.method == 'POST':
         form = forms.EspacioCurricularForm(request.POST, id_plan=id)
         if form.is_valid():
@@ -500,10 +501,20 @@ def AsignarAlumno_Division(request, idAnio, idCiclo):
                                                                  'cantAlumnos': cantidadAlumnosInscriptos})
 
 def asigar_estudiante_a_aula(request,id_anio):
-    divisiones = Division.objects.get(anio = id_anio, ciclo = Ciclo.objects.get(esActual = 'True'))
-    estudiantes = inscripcionEstudianteCiclo.objects.filter(anio = id_anio)
+    ciclo_actual = Ciclo.objects.get(esActual=True)
+    # Obtener las divisiones del año y ciclo actual
+    divisiones = Division.objects.filter(anio=id_anio, ciclo=ciclo_actual)
+
+    # Obtener los estudiantes inscritos al año y ciclo actual
+    estudiantes = inscripcionEstudianteCiclo.objects.filter(anio=id_anio, ciclo=ciclo_actual)
+    #divisiones = Division.objects.filter(anio = id_anio,ciclo=1)
+    #estudiantes = inscripcionEstudianteCiclo.objects.filter(anio = id_anio)
+    print(estudiantes)
     cantidadInscriptos =estudiantes.count()
     cantidadDivisiones = divisiones.count()
+    return render(request,'Cursada/Aula.html',{'inscriptos': estudiantes,
+                                                                 'cantAlumnos': cantidadInscriptos,
+                                                                 'cantDivisiones': cantidadDivisiones})
 
 
 

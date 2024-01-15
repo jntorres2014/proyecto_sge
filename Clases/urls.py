@@ -16,4 +16,5 @@ urlpatterns  = [
 
     re_path(r'^cargarInasistencia/(?P<idAnio>\d+)/$', views.registrarInasistencia, name= 'registrarInasistencia'),
     #path('cargar-inasistencia/<int:anio>/', views.registrarInasistencia, name='registrarInasistencia'),
+    path('crear_horario/', views.crear_horario, name='crear_horario'),
 ]

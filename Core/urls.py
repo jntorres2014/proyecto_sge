@@ -76,5 +76,6 @@ urlpatterns = [
         
     re_path(r'^asignarAlumno_Division/(?P<idAnio>\d+)(?P<idCiclo>\d+)/$', views.AsignarAlumno_Division,name='asignarAlumno_Division'),
 
+    re_path(r'^asigar_estudiante_a_aula/(?P<id_anio>\d+)/$', views.asigar_estudiante_a_aula,name='asigar_estudiante_a_aula'),
 
 ]

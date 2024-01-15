@@ -49,4 +49,17 @@
             </div>
         </div>
 {%endblock %}
+{% block scripts %}
+
+{% comment %} <!--script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script--> {% endcomment %}
+<!-- JavaScript de DataTables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#table_id').DataTable();
+    });
+</script>
+{% endblock %}
 

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load bootstrap5 %}
+<h1>Cantidad de Divisiones {{cantDivisiones}}</h1>
+<div class="container"> 
+    <table class="table-bordered table-hover  " id="table_id">
+        <thead>
+            <tr>
+                <th>DNI</th>
+                <th>Apellido</th>
+                <th>Nombre</th>
+                <th>Direccion</th>
+                <th>Email</th>
+                 </tr>
+                </thead>
+                <tbody>
+                    {% for estudiante in inscriptos %}
+                    <tr>
+                        <td>{{ estudiante.estudiante.Dni }}</td>
+                        <td>{{ estudiante.estudiante.Apellido }}</td>
+                        <td>{{ estudiante.estudiante.Nombre}}</td>
+                        <td>{{ estudiante.estudiante.Direccion }}</td>
+                        <td>{{ estudiante.estudiante.Email}}</td>
+
+
+                    </tr>
+                    {% endfor %}
+                </tbody>        
+            </table>
+            <h1>Cantidad de alumnos inscriptos {{cantAlumnos}}</h1>
+            </div>
+        </div>          
+        <button>asignar alumnos a aula</button>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %} {% load static %} {% endcomment %}
+
+{% block scripts %}
+
+{% comment %} <!--script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script--> {% endcomment %}
+<!-- JavaScript de DataTables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#table_id').DataTable();
+    });
+</script>
+{% endblock %}

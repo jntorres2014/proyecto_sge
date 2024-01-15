@@ -22,7 +22,7 @@
                             {% for division in divisiones %}
                                 <tr>
                                     <td>{{ division.anio.codigo }}</td>
-                                    <td>{{ division.nombre }}</td>
+                                    <td>{{ division.codigo }}</td>
                                     <td>{{ division.descripcion }}</td>
                                     <td>
                                         <a type="button" class="btn btn-success" href="/Core/alumno_division/{{division.anio.codigo}}/{{id}}">

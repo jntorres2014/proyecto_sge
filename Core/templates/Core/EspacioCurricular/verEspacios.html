@@ -9,21 +9,19 @@
                 <table class="table table-bordered table-hover  " id="table_id" >
                    <thead class="hidden orden-listado">
                    <tr class="table-hover">
-
-                            <th>Anio</th>
-                           <th>Codigo</th>
-                           <th>Nombre</th>
-                            <th>Cantidad de moludos</th>
-                            <th>contenido</th>
-                                 <th></th>
+                        <th>Anio</th>
+                        <th>Codigo</th>
+                        <th>Nombre</th>
+                        <th>Cantidad de moludos</th>
+                        <th>contenido</th>
+                        <th></th>
                         </tr>
                    </thead>
                 <tbody >
-                    {% block tabla %}
                     {% if object_list %}
                         {% for espacio in object_list %}
                             <tr>
-                                <td rowspan="1">{{ espacio.anio.codigo}}</td>
+                                <td rowspan="1">{{ espacio.anio.codigo}}</td>123
                                 <td > {{ espacio.codigo}}</td>
                                 <td>{{ espacio.nombre }}</td>
                                 <td>{{ espacio.cantidadModulos}}</td>
@@ -34,7 +32,7 @@
                     {% else %}
                         <h1>NO HAY ESPACIOS CURRICULARES PARA LISTAR</h1>
                     {% endif %}
-                  {% endblock tabla %}
+
                 </tbody>
                 </table>
                 </div>

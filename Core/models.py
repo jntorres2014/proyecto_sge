@@ -566,3 +566,4 @@ class Aula(models.Model):
         on_delete=models.CASCADE,
         related_name="division")
     
+    

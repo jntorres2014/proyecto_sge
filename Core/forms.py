@@ -9,17 +9,6 @@ from dal import autocomplete
 
 from datetime import datetime
 
-#   from Cursada.forms import plan
-
-# ciclo = forms.DateField(
-#     required=True,
-#     label='ciclo',
-#     widget=forms.CharField,
-#     help_text='ciclo lectivo',
-#     error_messages={
-#         'invalid_choice': "La opcion no es valida",
-#         'required': "El ciclo lectivo es obligatorio"
-#     })
 
 class AnioForm(forms.ModelForm):
 
@@ -145,29 +134,33 @@ class EspacioCurricularForm(forms.ModelForm):
     class Meta:
         model= EspacioCurricular
         fields= [
+            'plan',
             'anio',
             'codigo',
             'cantidadModulos',
             'nombre',
             'contenido',
-            'plan'
-        ]
-        widgets = {
-           # 'estudiante': widgets_estudiante
-        }
 
-        
+        ]
+        widgets = { 
+            'plan': forms.Select(attrs={'class': 'input-group mb-3'}),
+            'anio': forms.Select(attrs={'class': 'input-group mb-3'}),
+            
+        }
 
     def __init__(self, *args, **kwargs):
         id_plan = kwargs.pop('id_plan', None)
         super(EspacioCurricularForm, self).__init__(*args, **kwargs)
-        instance = getattr(self, 'instance', None)
+        # Obtener la fecha del sistema
+        # Establecer la fecha del sistema en el campo de fecha del formulario
+        #self.fields['fecha'].initial = current_date
 
-        if instance and instance.id:
-             self.fields['contenido'].required = False
-             self.fields['contenido'].widget.attrs['disabled'] = True
+        anios_plan_estudio = AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual= 'True'))
+        
+        self.fields['plan'].queryset = PlanDeEstudios.objects.filter(esActual= 'True')
+        self.fields['anio'].queryset = anios_plan_estudio
 
-        self.fields['anio'].queryset = AnioPlan.objects.filter(plan__id=id_plan)
+   
 
 
 class CicloEditForm(forms.ModelForm):
