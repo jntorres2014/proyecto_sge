@@ -29,6 +29,7 @@ urlpatterns = [
     
     re_path(r'^verPlan$', views.plan_list, name= 'verPlan'),
     re_path(r'^modificarPlan/(?P<id_plan>\d+)/$', views.plan_edit, name='modificarPlan'),
+    re_path(r'^cambiar_actual/(?P<id_plan>\d+)/$', views.cambiar_actual, name='cambiar_actual'),
 
     #re_path(r'^altaAnio$', views.,name='altaAnio'),
     #re_path(r'^menuPlanDeEstudio$', views.menuPlan,name='menuPlanDeEstudio'),

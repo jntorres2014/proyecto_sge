@@ -150,12 +150,28 @@ class PlanDeEstudios(models.Model):
             Anio.save()
             anio= anio +1
         return Anio
-    
+   
+    @classmethod
+    def actualizar_actual(cls):
+        # Establecer todos los planes como no actuales
+        cls.objects.all().update(esActual=False)
+
+    @classmethod
+    def cambiar_actual(cls, request, id_plan):
+        # Actualizar el estado de todos los planes
+        cls.actualizar_actual()
+
+        # Establecer el plan específico como actual
+        plan = cls.objects.get(id=id_plan)
+        plan.esActual = True
+        plan.save()
+
+        
 @receiver(post_save, sender=PlanDeEstudios)
 def ajustar_actual(sender, instance, **kwargs):
    if instance.esActual:
         PlanDeEstudios.objects.exclude(pk=instance.pk).update(esActual=False)
-
+    
 class Persona(models.Model):
     MAXNOMBRE = 50
     MAXAPELLIDO = 50
@@ -417,7 +433,21 @@ class Ciclo (models.Model):
                                              descripcion="{} {}".format(a, Division.PRIMERA),
                                              anio=a)
         return division
-    
+    @classmethod
+    def actualizar_actual(cls):
+        # Establecer todos los planes como no actuales
+        cls.objects.all().update(esActual=False)
+
+    @classmethod
+    def cambiar_actual(cls, request, id_ciclo):
+        # Actualizar el estado de todos los ciclos
+        cls.actualizar_actual()
+
+        # Establecer el ciclo específico como actual
+        ciclo = cls.objects.get(id=id_ciclo)
+        ciclo.esActual = True
+        ciclo.save()
+
     @staticmethod
     def crear_division_para_plan(ciclo,plan):
         for a in plan.anios.all():

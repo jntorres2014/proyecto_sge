@@ -208,6 +208,14 @@ def plan_edit(request, id_plan):
             return HttpResponseRedirect("/Core/verPlan")
     return render(request, 'Core/Plan/PlanDeEstudios.html',{'form':form})
 
+def cambiar_actual(request, id_plan):
+    # Llama al método cambiar_actual de la clase PlanDeEstudios
+    PlanDeEstudios.cambiar_actual(request, id_plan)
+
+    # Redirige a la página deseada después de realizar el cambio
+    return HttpResponseRedirect("/Core/verPlan")
+#########################################################################
+
 @login_required
 def Espacio_view(request,id):
     id = 1
@@ -322,6 +330,7 @@ def ciclo_view(request,id):
             print("era valido")
             ciclo = form.save()
             ciclo.crear_division_para_anio_ciclo(ciclo,anios)
+            Ciclo.cambiar_actual(request, ciclo.id_ciclo)
             pagina = "/Core/verCiclo/" + id
             #print("la pagina",pagina)
         return HttpResponseRedirect("/Core/verCiclo/" + id)
@@ -331,6 +340,12 @@ def ciclo_view(request,id):
         'form': form,
         'plan': plan,
         'id':id})
+def cambiar_actual(request, id_plan):
+    # Llama al método cambiar_actual de la clase PlanDeEstudios
+    PlanDeEstudios.cambiar_actual(request, id_plan)
+
+    # Redirige a la página deseada después de realizar el cambio
+    return HttpResponseRedirect("/Core/verPlan")
     
 @login_required
 def ciclo_edit(request, ciclo):
