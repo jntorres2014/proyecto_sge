@@ -2,7 +2,7 @@
 {% block content %}
 {% load bootstrap5 %}
 
-        <div class="contenedor-tabla">
+        <div class="container">
             <div><h1><a href="/">Lista Espacios Curriculares</a></h1></div>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
@@ -21,12 +21,12 @@
                     {% if object_list %}
                         {% for espacio in object_list %}
                             <tr>
-                                <td rowspan="1">{{ espacio.anio.codigo}}</td>123
+                                <td rowspan="1">{{ espacio.anio.codigo}}</td>
                                 <td > {{ espacio.codigo}}</td>
                                 <td>{{ espacio.nombre }}</td>
                                 <td>{{ espacio.cantidadModulos}}</td>
                                 <td>{{ espacio.contenido }}</td>
-                                <td><a  class="btn btn-primary" href="{% url 'modificarEspacio' espacio.id %}">Editar </a></td>
+                                <td><a  class="btn btn-primary" href="/Core/modificarEspacio/{{espacio.id }}">Editar </a></td>
                             </tr>
                          {% endfor %}
                     {% else %}
@@ -36,7 +36,7 @@
                 </tbody>
                 </table>
                 </div>
-                <td><a  class="btn btn-primary" href="{% url 'verPlan' %}">Listar Planes</a></td>
+                <td><a  class="btn btn-primary" href="/Core/verPlan">Listar Planes</a></td>
             </div>
 
         </div>

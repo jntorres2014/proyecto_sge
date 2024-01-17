@@ -12,18 +12,29 @@ from tablib import Dataset
 from django.contrib import messages
 from tablib import Dataset
 
-
 from dal import autocomplete
-
-class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
+class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
+    print("Entro a localidad11!!")
     def get_queryset(self):
-        qs = Estudiante.objects.all()
+        print("Entro a localidad!22!")
+        qs = Localidad.objects.all()
         print(qs)
+        if self.q:
+            qs = qs.filter( Q(NombreLocalidad__icontains=self.q) |    # Buscar en el atributo "nombre"
+                Q(CodigoPosta__icontains=self.q) )           # Buscar en el atributo "Dni"
+        return qs
+class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
+    print("estyduanioa")
+    def get_queryset(self):
+        print("estyduanioaasdasd")
+        qs = Estudiante.objects.all()
+        print("Entreee",qs)
         if self.q:
             qs = qs.filter( Q(Nombre__icontains=self.q) |    # Buscar en el atributo "nombre"
                 Q(Apellido__icontains=self.q) |       # Buscar en el atributo "apellido"
                 Q(Dni__icontains=self.q))           # Buscar en el atributo "Dni"
         return qs
+    
 
 
 ##################################################################

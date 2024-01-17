@@ -4,6 +4,7 @@ from . import views
 app_name = "Core"
 urlpatterns = [
     path('estudiante-autocomplete', views.EstudianteAutocomplete.as_view(), name='estudiante-autocomplete'),
+    path('localidad-autocomplete', views.LocalidadAutocomplete.as_view(), name='localidad-autocomplete'),
     
     re_path(r'^altaLocalidad$', views.localidad_view, name='altaLocalidad'),
     re_path(r'^verLocalidad$', views.localidad_list.as_view(), name='verLocalidad'),

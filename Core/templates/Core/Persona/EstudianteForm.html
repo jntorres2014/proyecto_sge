@@ -1,21 +1,31 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load bootstrap5 %}
 
-    <div class="container contact-form">
-        <h1>Alta Estudiante</h1>
-        <hr>
-        <form class="form" method="post">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            <hr>
-            <div class="form-group">
-                <input class="btn btn-primary" type="submit" value="Guardar">
-            </div>
-        </form>
-    </div>
+{% load static %}
+{% block css %} 
+<link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
 {% endblock %}
+{% block content %}
 
-{% block scripts %}
+{{form.media}}
 
-{% endblock scripts %}
+    <div class="container ">
+        <h1>Alta Estudiante</h1>
+        <div class="container">
+            <form class="form" method="post">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <hr>
+                <div class="form-group">
+                    <input class="btn btn-primary" type="submit" value="Guardar">
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% comment %} {% load static %} {% endcomment %}
+{% load static %} 
+
+<script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
+
+{% endblock %}

@@ -60,15 +60,15 @@ class LocalidadForm(forms.ModelForm):
         ]
 
 
-Localidad = forms.DateField(
-    required=True,
-    label='Localidad',
-    widget=forms.CharField,
-    help_text='Localidad',
-    error_messages={
-        'invalid_choice': "La opcion no es valida",
-        'required': "La localidad es obligatorio"
-    })
+# Localidad = forms.DateField(
+#     required=True,
+#     label='Localidad',
+#     widget=forms.CharField,
+#     help_text='Localidad',
+#     error_messages={
+#         'invalid_choice': "La opcion no es valida",
+#         'required': "La localidad es obligatorio"
+#     })
 
 
 class PersonaForm(forms.ModelForm):
@@ -101,26 +101,36 @@ class DocenteForm(forms.ModelForm):
 
 
 class EstudianteForm(forms.ModelForm):
-    #os = autocomplete_light.ChoiceField('OsAutocomplete')    
+    def __init__(self, *args, **kwargs):
+        print("acaaaaaaaaaaaaaa")
+        # Obtener el plan de estudios y los ciclos desde los kwargs
+        #plan_estudio = kwargs.pop('plan_estudio', None)
+        
+        super(EstudianteForm, self).__init__(*args, **kwargs)
+    
     class Meta:
         model = Estudiante
-        fields = [
-            'Dni',
-            'Nombre',
-            'Apellido',
-            'Direccion',
-            'Localidad',
-            'Email',
-            'Telefono',
-            'legajo',
-            'fechaInscripcion',
-        ]
+        fields = '__all__'
+        print("acaaaaaaaaaaaaaaasdasdas")
+        widgets_localidad = autocomplete.ModelSelect2(url='core:localidad-autocomplete',attrs={'class': 'input-group'})
+        print(widgets_localidad)
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+        
         widgets = {
+            'Localidad': widgets_localidad,
             'fechaInscripcion': forms.TextInput(attrs={'type': 'date', 'value': fecha})
         }
+    
+    def __init__(self, *args, **kwargs):
+        print("acaaaaaaaaaaaaaa")
+        # Obtener el plan de estudios y los ciclos desde los kwargs
+        #plan_estudio = kwargs.pop('plan_estudio', None)
+        
+        super(EstudianteForm, self).__init__(*args, **kwargs)
+
 
 class EspacioCurricularEditForm(forms.ModelForm):
+    
     class Meta:
         model= EspacioCurricular
         fields= [
@@ -131,6 +141,13 @@ class EspacioCurricularEditForm(forms.ModelForm):
         ]
 
 class EspacioCurricularForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        print("acaaaaaaaaaaaaaa")
+        # Obtener el plan de estudios y los ciclos desde los kwargs
+        #plan_estudio = kwargs.pop('plan_estudio', None)
+        
+        super(EspacioCurricularForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model= EspacioCurricular
         fields= [
@@ -145,8 +162,13 @@ class EspacioCurricularForm(forms.ModelForm):
         widgets = { 
             'plan': forms.Select(attrs={'class': 'input-group mb-3'}),
             'anio': forms.Select(attrs={'class': 'input-group mb-3'}),
+            'codigo': forms.TextInput(attrs={'class': 'input-group mb-3'}),
+            'cantidadModulos': forms.TextInput(attrs={'class': 'input-group mb-3', 'type': 'number', 'min':'1'}),
+            'nombre': forms.TextInput(attrs={'class': 'input-group mb-3'}),
+            'contenido': forms.TextInput(attrs={'class': 'input-group mb-3'}),
             
         }
+        cantidadModulos = forms.IntegerField(widget=forms.NumberInput(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         id_plan = kwargs.pop('id_plan', None)
@@ -290,7 +312,6 @@ class inscripcionAlumnoForm(forms.ModelForm):
         widgets = {
             'estudiante': widgets_estudiante,
             'fecha': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
-            #'fecha': forms.TextInput(attrs={'class': 'datepicker input-group mb-3''form="date"'},),
             'ciclo': forms.Select(attrs={'class': 'input-group mb-3'}),
             'anio': forms.Select(attrs={'class': 'form-label input-group mb-3 '}),
             

@@ -8,8 +8,10 @@
 {% block content %}
 
 {{form.media}}
+<div class="container">
+
     <div class="row">
-        <h2> Alta</h2>
+        <h2> Alta Espacios Curriculares</h2>
         <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
             <div class="card">
                 <div class="card-body">
@@ -23,7 +25,7 @@
                 </div>
             </div>
         </div>
-
+        
         <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
             <div class="row">
                 <h2> Espacios curriculares</h2>
@@ -31,7 +33,7 @@
                     <thead>
                         <tr>
                             <th>Codigo</th>
-                            <th>Espacio Curricular</th>
+                            <th>Nombre</th>
                             <th>Año</th>
                             <th>Modulos</th>
                             <th colspan="2">Acciones</th>
@@ -40,49 +42,23 @@
                     </thead>
                     <tbody>
                         {% for insc in espacios %}
-                            <tr>
-                                <td>{{ insc.codigo }}</td>
-                                <td>{{ insc.nombre }}</td>
-                                <td>{{ insc.anio }}</td>
-                                <td>{{ insc.cantidadModulos }}</td>
-                                <td>{{ insc.fecha }}</td>
-                                <td><a href="/Core/modificarEspacio/{{insc.id }}" class="btn btn-info"> Editar</a>
-                                    <a href="eliminar_edit/{{insc.codigo }}" class="btn btn-danger"> Eliminar</a></td>
+                        <tr>
+                            <td>{{ insc.codigo }}</td>
+                            <td>{{ insc.nombre }}</td>
+                            <td>{{ insc.anio }}</td>
+                            <td>{{ insc.cantidadModulos }}</td>
+                            <td>{{ insc.fecha }}</td>
+                            <td><a href="/Core/modificarEspacio/{{insc.id }}" class="btn btn-info"> Editar</a>
+                                <a href="eliminar_edit/{{insc.codigo }}" class="btn btn-danger"> Eliminar</a></td>
                                 <!-- Agrega más celdas según los campos que quieras mostrar -->
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>        
+                            {% endfor %}
+                        </tbody>
+                    </table>        
+                </div>
             </div>
         </div>
+        {% endblock %}
     </div>
-{% endblock %}
-{% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
-<!--script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script>
-<script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script-->
-
-
-
-
-<!-- <div class="container contact-form">
-        <h1>Alta Espacio Curricular para</h1>
-        <h1>{{ plan }} </h1>        
-        <hr>
-        <form class="form" method="post">
-            
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            <hr>
-            <div class="form-group">
-                <input class="btn btn-primary" type="submit" value="Guardar">
-                
-                <a class="btn btn-primary" href="{% url 'verEspacios'%}">Listar Espacios </a></td>
-            </div>
-        </form>
-    </div>
--->
-
-
-
-
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />

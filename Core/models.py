@@ -6,7 +6,8 @@ from django.core.exceptions import ValidationError
 from faker import Faker
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+import pandas as pd
+from django.db import IntegrityError
 
 class Localidad (models.Model):
 
@@ -18,7 +19,7 @@ class Localidad (models.Model):
     CodigoPosta = models.CharField(
         help_text="cp",
         max_length=MAXNUMEROPOSTAL,
-        unique=True,
+        unique=False,
         null=False,
         blank=False,
         error_messages={
@@ -42,8 +43,24 @@ class Localidad (models.Model):
     )
 
     def __str__(self):
-        return "{0}".format( self.NombreLocalidad)
+        return "{1} - {0}".format( self.NombreLocalidad,self.CodigoPosta)
     
+    
+    def altaLocalidadExcel():
+        print("entre")
+         # Cargar datos desde el archivo Excel
+        df = pd.read_excel("prueba.xls")
+        for index, row in df.iterrows():
+        # Iterar sobre filas y crear instancias de Localidad
+            try:
+                localidad = Localidad(
+                    CodigoPosta=row['Codigo Postal'],
+                    NombreLocalidad=row['Localidad'],
+                )
+                localidad.save()
+            except IntegrityError:
+                print(f"La localidad con Codigo Postal {row['Codigo Postal']} ya existe. Continuando con la siguiente.")
+
 
     @classmethod
     def seed_db(this,n):
