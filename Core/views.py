@@ -1,4 +1,5 @@
 import datetime
+import string
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -310,7 +311,7 @@ def cicloPlan_list(request, id):
     plan = PlanDeEstudios.objects.get(id=id)
     print("VER CICLO estoy aca", plan.id)
     
-    anioCicloPlan= Ciclo.objects.filter(plan=id)
+    anioCicloPlan= Ciclo.objects.filter(plan=plan)
 
     print (anioCicloPlan)
     return render(request, 'Core/Plan/verCiclo.html',{'ciclo': anioCicloPlan, 'id':id, 'plan':plan })    
@@ -330,16 +331,20 @@ def ciclo_view(request,id):
             print("era valido")
             ciclo = form.save()
             ciclo.crear_division_para_anio_ciclo(ciclo,anios)
-            Ciclo.cambiar_actual(request, ciclo.id_ciclo)
+            print('Cree las divisiones')
+            Ciclo.cambiar_actual(request, ciclo.id)
+            print('Cambie el ciclo actual')
             pagina = "/Core/verCiclo/" + id
             #print("la pagina",pagina)
         return HttpResponseRedirect("/Core/verCiclo/" + id)
     else:
+        print("no era valido")
         form = forms.CicloForm()
     return render(request, 'Core/Plan/CicloForm.html', {
         'form': form,
         'plan': plan,
         'id':id})
+
 def cambiar_actual(request, id_plan):
     # Llama al método cambiar_actual de la clase PlanDeEstudios
     PlanDeEstudios.cambiar_actual(request, id_plan)
@@ -363,14 +368,25 @@ def ciclo_edit(request, ciclo):
 @login_required
 def division_list(request, id,idCiclo):
     division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
-    print(id)
+    anio = AnioPlan.objects.get(id=id)
+    alumnos= inscripcionEstudianteCiclo.objects.filter(anio = anio,ciclo=idCiclo)
+    print('cantidad de alumnos',alumnos.count())
     print("VER Division")
     #division= list(Division.objects.filter(anio = id))
     print("VER Division2")
-    print (division)
+    print(list(string.ascii_uppercase)[((len(division)))])
+    if request.method == 'POST':
+        print("etre al post")
+        # Obtén los datos del formulario y crea la nueva división
+        codigo = list(string.ascii_uppercase)[((len(division)))]
+        descripcion = 'Descripción de la división'
+        nueva_division = Division(ciclo=Ciclo.objects.get(esActual= 'True'), codigo=codigo, descripcion=descripcion, anio=anio)
+        nueva_division.save()
     return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,
-                                                      'id':id,
-                                                      'anio':division[0].anio.id})  
+                                                      'id':idCiclo,
+                                                      'anio':id,
+                                                      'cant_alumnos':len(alumnos),
+                                                      'cant_divisiones':len(division)})  
 
 @login_required
 def verDivisionInasistencia(request, id,idCiclo):
@@ -385,7 +401,7 @@ def verDivisionInasistencia(request, id,idCiclo):
 @login_required
 def division_new(request, anio_id, id):
     anio = AnioPlan.objects.get(id=anio_id)
-    ciclo = Ciclo.objects.get(id=id)
+    ciclo = Ciclo.objects.get(esActual='True')
     print("Estoy en division New", request.method)
     if request.method == 'GET':
         print("etre al post")
@@ -403,15 +419,16 @@ def division_new(request, anio_id, id):
         'id': id,
         'anio': anio,
     })
-        return redirect('altaDivision', anio_id=anio_id,id=id)
+    
+    division_list(request, anio.id,ciclo.id)
     # Renderiza el formulario para agregar divisiones
-    form = forms.DivisionForm()
-    return render(request, 'Core/Plan/divisionForm.html', {
-        'form': form,
-        #'division': nueva_division,  # Puedes incluir la nueva división si es necesario
-        #'id': id,
-        #'anio': anio,
-    })
+    # form = forms.DivisionForm()
+    # return render(request, 'Core/Plan/divisionForm.html', {
+    #     'form': form,
+    #     #'division': nueva_division,  # Puedes incluir la nueva división si es necesario
+    #     #'id': id,
+    #     #'anio': anio,
+    # })
 
 
     # if request.method == 'POST':
@@ -453,47 +470,32 @@ def division_new(request, anio_id, id):
 ################################################
 @login_required
 def inscripciones_alumnnos_ciclo(request, id_ciclo=1):
-    id_ciclo = Ciclo.objects.get(esActual = 'True')
-    print("pisado",id_ciclo)
-    inscriptos = [] if not id_ciclo else inscripcionEstudianteCiclo.objects.filter(ciclo = id_ciclo)
+    id_ciclo_actual = Ciclo.objects.get(esActual=True)
+    inscriptos = [] if not id_ciclo_actual else inscripcionEstudianteCiclo.objects.filter(ciclo=id_ciclo_actual)
     cant_inscriptos = inscriptos.count()
-    print("Los inscriptos", inscriptos)
+
     if request.method == 'GET':
-        print(id_ciclo.plan)
         form = forms.inscripcionAlumnoForm()
     else:
-        print("entre al post")
         form = forms.inscripcionAlumnoForm(request.POST)
-        estudiante = form.data.get('estudiante')  # Acceder a los datos sin importar si el formulario es válido
+        estudiante = form.data.get('estudiante')
         fecha = form.data.get('fecha')
         cicloid = form.data.get('ciclo')
         anio = form.data.get('anio')
-        #print(ciclo,fecha,estudiante)
-        # inscripcionEstudianteCiclo(id_ciclo= cicloid,
-        #                               estudiante = estudiante,
-        #                               fecha = fecha,
-        #                               anio= anio)
-        #ciclo = Ciclo.objects.get(id= cicloid)
-        if form.is_valid():
-            print("era valido")
-            form.save()
-        return render(request, 'Core/Persona/Inscripciones.html',{'form': form, 
-                                                              #'estudiantes': estudiante,
-                                                              'ciclo': id_ciclo,
-                                                              #'anios': anios,
-                                                              'inscriptos': inscriptos,
-                                                              'cant_inscriptos' : cant_inscriptos})
 
         if form.is_valid():
-            print("era valido")
             form.save()
-            #return HttpResponseRedirect("/Core/Personas/Inscripciones.html")
-    return render(request, 'Core/Persona/Inscripciones.html',{'form': form,
-                                                              'inscriptos': inscriptos})
+            correcto = 'Alumno Inscripto correctamente'
+            return render(request, 'Core/Persona/Inscripciones.html', {'form': form,
+                                                                       'ciclo': id_ciclo_actual,
+                                                                       'inscriptos': inscriptos,
+                                                                       'cant_inscriptos': cant_inscriptos,
+                                                                       'correcto': correcto
+                                                                       })
 
-# class Inscripciones(forms.Form):
-#     my_field = ModelSelect2(url='my_autocomplete', model=inscripcionEstudianteCiclo)
-
+    return render(request, 'Core/Persona/Inscripciones.html', {'form': form,
+                                                               'inscriptos': inscriptos,
+                                                               'ciclo': id_ciclo_actual})
 @login_required
 def estudiantesDeAnioEnCiclo(request, idCiclo):
     

@@ -32,12 +32,13 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <form action="/Core/altaDivision/{{ id }}/{{ anio}}/" method="POST">
+            <form action="/Core/verDivision/{{ anio }}/{{ id}}/" method="POST">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">Nuevo</button>
             </form>
         </div>
     </div>
+    <h1> Hay {{cant_alumnos}} alumnos inscriptos</h1>
 </div>
 
 {% endblock content %}

@@ -179,7 +179,7 @@ class EspacioCurricularForm(forms.ModelForm):
 
         anios_plan_estudio = AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual= 'True'))
         
-        self.fields['plan'].queryset = PlanDeEstudios.objects.filter(esActual= 'True')
+        
         self.fields['anio'].queryset = anios_plan_estudio
 
    
@@ -196,6 +196,7 @@ class CicloEditForm(forms.ModelForm):
             'fechaFin',
             'plan',
         ]
+        #self.fields['plan'].queryset = PlanDeEstudios.objects.filter(esActual= 'True')
 
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
         widgets = {
@@ -222,6 +223,7 @@ class CicloForm(forms.ModelForm):
         ]
 
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+        anios_plan_estudio = PlanDeEstudios.objects.filter(esActual='True')
         widgets = {
         'fechaInicio': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
         'fechaFin': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
@@ -232,6 +234,12 @@ class CicloForm(forms.ModelForm):
         if inicio >= fin:
             raise forms.ValidationError("fecha ingresada es menor a la de inicio")
         return fin
+    
+    
+    def __init__(self, *args, **kwargs):
+        super(CicloForm, self).__init__(*args, **kwargs)
+        anios_plan_estudio = PlanDeEstudios.objects.filter(esActual='True')
+        self.fields['plan'].queryset = anios_plan_estudio
 
 PRIMERA = '1ra'
 SEGUNDA = '2da'

@@ -339,7 +339,7 @@ class AnioPlan(models.Model):
 
 
     def __str__(self):
-        return "{0}, {1}".format(self.codigo, self.descripcion)
+        return "{0}, {1}".format(self.codigo, 'Año')
 
 
 class EspacioCurricular(models.Model):
@@ -429,8 +429,8 @@ class Ciclo (models.Model):
         for a in anios.all():
             print('entro')
             division=Division.objects.create(ciclo=self,
-                                             codigo=Division.PRIMERA,
-                                             descripcion="{} {}".format(a, Division.PRIMERA),
+                                             codigo='A',
+                                             descripcion="{} {}".format(a, 'Division A'),
                                              anio=a)
         return division
     @classmethod
@@ -583,12 +583,12 @@ class inscripcionEstudianteCiclo(models.Model):
     estudiante = models.OneToOneField(
         Estudiante,
         null=True,
-        unique=True,
         on_delete=models.CASCADE,
     )
     
     ciclo = models.ForeignKey(
         Ciclo,
+        null=True,
         on_delete=models.CASCADE)
 
     anio = models.ForeignKey(
@@ -596,6 +596,9 @@ class inscripcionEstudianteCiclo(models.Model):
         on_delete=models.CASCADE
     )
     fecha = models.DateTimeField(default=now)
+
+    class Meta:
+        unique_together = ['estudiante', 'anio']
 
 class Aula(models.Model):
     

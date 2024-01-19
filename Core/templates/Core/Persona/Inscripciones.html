@@ -16,11 +16,15 @@
 <div class="container">
     <h2> Inscripciones </h2>
     <div class="container">
-        <div class="card">
+        <div class="card"> 
+            {% if correcto %} 
+                <li class= "alert alert-primary" > {{correcto}} </li>
+            {% endif %}
+
             <div class="card-body">
                 <form method="POST">
                     {% csrf_token %}
-                    {{ form.as_p }}
+                    {% bootstrap_form form %}
                     <div class="form-group">
                         <button type="submit" class="btn btn-success btn-black text-white form-label">Inscribir</button>
                     </div>
