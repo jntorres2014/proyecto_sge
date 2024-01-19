@@ -12,6 +12,7 @@ from django.db.models import Q
 from tablib import Dataset 
 from django.contrib import messages
 from tablib import Dataset
+from django.db.models import Subquery, OuterRef
 
 from dal import autocomplete
 class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
@@ -25,10 +26,15 @@ class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
                 Q(CodigoPosta__icontains=self.q) )           # Buscar en el atributo "Dni"
         return qs
 class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
-    print("estyduanioa")
     def get_queryset(self):
-        print("estyduanioaasdasd")
-        qs = Estudiante.objects.all()
+        ciclo_actual = Ciclo.objects.get(esActual=True)
+        # Filtra los estudiantes que no están inscritos en el ciclo actual
+        qs = Estudiante.objects.exclude(
+            id__in=inscripcionEstudianteCiclo.objects.filter(
+                ciclo=ciclo_actual
+            ).values('estudiante')
+            )
+        #qs = Estudiante.objects.all()
         print("Entreee",qs)
         if self.q:
             qs = qs.filter( Q(Nombre__icontains=self.q) |    # Buscar en el atributo "nombre"
