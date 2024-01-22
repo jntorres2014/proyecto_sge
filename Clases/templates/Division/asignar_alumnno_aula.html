@@ -2,73 +2,86 @@
 
 {% block content %}
 <style>
-    #aulas-container,#div2{
-      float: left;
-      width: 100px;
-            height: 200px;
-            background-color: #3498db;
-    }
-    #estudiante-container {
-        float:right;
+    #aulas-container {
+        float: left;
         width: 100px;
-            height: 200px;
-            background-color: #181616;
+        height: 200px;
+        background-color: #3498db;
+        margin-left: 20px;
     }
-    
-    </style>
-    <h1>Asignar Estudiantes a Aulas</h1>
-    <div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-        <div class="container" id="aulas-container" style="margin-left: 20px">
-            {% for aula in aulas %}
-            <div class="aula" id="aula-{{ aula.id }}" ondrop="drop(event)" ondragover="allowDrop(event)">
-                <div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
 
-            </div>
-            {% endfor %}
-        </div>
+    #div2 {
+        float: left;
+        width: 100px;
+        height: 200px;
+        background-color: #3498db;
+    }
 
-        <div class="container" id="estudiante-container" style="margin-right: 20px" >
-            {% for estudiante in estudiantes %}
-            <h3 draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31">
-                {{ estudiante.estudiante.id }} </h3>
-             {% endfor %}
-        </div>
-        
+    #estudiante-container {
+        float: right;
+        width: 100px;
+        height: 200px;
+        background-color: #181616;
+        margin-right: 20px;
+    }
+</style>
+
+<h1>Asignar Estudiantes a Aulas</h1>
+
+<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
+<div class="container" id="aulas-container">
+    {% for aula in aulas %}
+    <div class="aula" id="aula-{{ aula.id }}" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <!-- Contenido de cada aula -->
     </div>
-        
+    {% endfor %}
+</div>
 
+<div class="container" id="estudiante-container">
+    {% for estudiante in estudiantes %}
+    <h3 draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31">
+        {{ estudiante.estudiante.id }}
+    </h3>
+    {% endfor %}
+</div>
 
 <script>
-            function allowDrop(event) {
-                event.preventDefault();
-        }
+    function allowDrop(event) {
+        event.preventDefault();
+    }
 
-        function drag(event) {
-            event.dataTransfer.setData("text", event.target.id);
-        }
+    function drag(event) {
+        event.dataTransfer.setData("text", event.target.id);
+    }
 
-        function drop(event) {
-            event.preventDefault();
-            var data = event.dataTransfer.getData("text");
-            var estudiante = document.getElementById(data);
-            var aula = event.target;
-            aula.appendChild(estudiante);
+    function drop(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        var estudiante = document.getElementById(data);
+        var aula = event.target;
+        aula.appendChild(estudiante);
 
-            // Aquí deberías realizar una solicitud AJAX para actualizar la relación entre estudiante y aula en el backend
-            var estudianteId = data.split("-")[1];
-            var aulaId = aula.id.split("-")[1];
+        // Obtener el ID del estudiante y del aula desde los elementos HTML
+        var estudianteId = data.split("-")[1];
+        var aulaId = aula.id.split("-")[1];
 
-            // Realizar una solicitud AJAX para actualizar la relación en el backend
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/Clases/actualizar_relacion/", true);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        // Obtener el token CSRF desde el documento
+        var csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 
-            var data = JSON.stringify({
-                estudiante_id: estudianteId,
-                aula_id: aulaId
-            });
+        // Realizar una solicitud AJAX para actualizar la relación en el backend
+        var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/actualizar_relacion/", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.setRequestHeader("X-CSRFToken", csrfToken); // Incluir el token CSRF en la cabecera
 
-            xhr.send(data);
-        }
-    </script>
+        var data = JSON.stringify({
+            estudiante_id: estudianteId,
+            aula_id: aulaId
+        });
+
+        xhr.send(data);
+    }
+</script>
 {% endblock %}

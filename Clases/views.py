@@ -111,11 +111,13 @@ def registrarInasistencia(request, idAnio):
     # Mostrarlos y registrar los que no estan marcados
 
 def obtener_aulas(request):
+    print("asignar aulas")
     # Lógica para obtener aulas desde la base de datos
     aulas = Division.objects.filter(ciclo= Ciclo.objects.get(esActual = 'True'))  # Obtén las aulas desde tu modelo
     return render(request, 'aulas.html', {'aulas': aulas})
 
 def asignar_alumno_a_aula(request):
+    print("asignar alumno")
     aulas = Division.objects.filter(ciclo= Ciclo.objects.get(esActual = 'True'))
     #estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(ciclo= ciclo_actual)  # Define ciclo_actual según tu lógica
     estudiantes_inscritos = inscripcionEstudianteCiclo.objects.all()  # Obtén los alumnos desde tu modelo
@@ -124,6 +126,7 @@ def asignar_alumno_a_aula(request):
     return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_inscritos})
 
 def obtener_alumnos(request):
+    print("obtener alumno")
     # Lógica para obtener alumnos desde la base de datos
     alumnos = inscripcionEstudianteCiclo.objects.all()  # Obtén los alumnos desde tu modelo
     return render(request, 'alumnos.html', {'alumnos': alumnos})
@@ -142,6 +145,7 @@ def actualizar_relacion(request):
     if request.method == 'POST':
         alumno_id = request.POST.get('alumno_id')
         aula_id = request.POST.get('aula_id')
+        print("recuperados",alumno_id,aula_id)
         
         # Lógica para asignar alumno a aula en la base de datos
         # ...
