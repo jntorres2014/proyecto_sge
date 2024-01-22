@@ -128,23 +128,24 @@ def obtener_alumnos(request):
     alumnos = inscripcionEstudianteCiclo.objects.all()  # Obtén los alumnos desde tu modelo
     return render(request, 'alumnos.html', {'alumnos': alumnos})
 
-# def asignar_alumno_a_aula(request): 
-#     ciclo_actual = Ciclo.objects.get(esActual=True)
-#     divisiones = Division.objects.filter(ciclo= ciclo_actual)
-#     # Filtra los estudiantes que no están inscritos en el ciclo actual
-#     # alumnos_sin_aula= inscripcionEstudianteCiclo.objects.exclude(
-#     #         id__in = Aula.objects.filter(
-#     #             division= divisiones
-#     #         ).values('estudiante')
-#     #         )
-#     print('vengo por aca')
-#     if request.method == 'POST':
-#         alumno_id = request.POST.get('alumno_id')
-#         aula_id = request.POST.get('aula_id')
+def actualizar_relacion(request): 
+    print("entre")
+    ciclo_actual = Ciclo.objects.get(esActual=True)
+    divisiones = Division.objects.filter(ciclo= ciclo_actual)
+    # Filtra los estudiantes que no están inscritos en el ciclo actual
+    # alumnos_sin_aula= inscripcionEstudianteCiclo.objects.exclude(
+    #         id__in = Aula.objects.filter(
+    #             division= divisiones
+    #         ).values('estudiante')
+    #         )
+    print('vengo por aca')
+    if request.method == 'POST':
+        alumno_id = request.POST.get('alumno_id')
+        aula_id = request.POST.get('aula_id')
         
-#         # Lógica para asignar alumno a aula en la base de datos
-#         # ...
+        # Lógica para asignar alumno a aula en la base de datos
+        # ...
 
-#         return JsonResponse({'success': True})
-#     else:
-#         return JsonResponse({'success': False})
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'success': False})
