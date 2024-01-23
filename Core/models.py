@@ -616,4 +616,6 @@ class Aula(models.Model):
         on_delete=models.CASCADE,
         related_name="division")
     
+    class Meta:
+        db_table = 'Aula'
     

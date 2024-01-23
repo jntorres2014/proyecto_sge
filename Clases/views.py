@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
@@ -113,12 +114,12 @@ def registrarInasistencia(request, idAnio):
 def obtener_aulas(request):
     print("asignar aulas")
     # Lógica para obtener aulas desde la base de datos
-    aulas = Division.objects.filter(ciclo= Ciclo.objects.get(esActual = 'True'))  # Obtén las aulas desde tu modelo
+    aulas = Division.objects.filter(ciclo= Ciclo.objects.get(esActual = 'True'),anio=3)  # Obtén las aulas desde tu modelo
     return render(request, 'aulas.html', {'aulas': aulas})
 
 def asignar_alumno_a_aula(request):
     print("asignar alumno")
-    aulas = Division.objects.filter(ciclo= Ciclo.objects.get(esActual = 'True'))
+    aulas = Aula.objects.filter(division=93)
     #estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(ciclo= ciclo_actual)  # Define ciclo_actual según tu lógica
     estudiantes_inscritos = inscripcionEstudianteCiclo.objects.all()  # Obtén los alumnos desde tu modelo
     print(estudiantes_inscritos[1].id)
@@ -131,25 +132,23 @@ def obtener_alumnos(request):
     alumnos = inscripcionEstudianteCiclo.objects.all()  # Obtén los alumnos desde tu modelo
     return render(request, 'alumnos.html', {'alumnos': alumnos})
 
+
 def actualizar_relacion(request): 
-    print("entre")
+    print("entre actualizar relacion")
     ciclo_actual = Ciclo.objects.get(esActual=True)
     divisiones = Division.objects.filter(ciclo= ciclo_actual)
-    # Filtra los estudiantes que no están inscritos en el ciclo actual
-    # alumnos_sin_aula= inscripcionEstudianteCiclo.objects.exclude(
-    #         id__in = Aula.objects.filter(
-    #             division= divisiones
-    #         ).values('estudiante')
-    #         )
+    print(request.method)
     print('vengo por aca')
     if request.method == 'POST':
-        alumno_id = request.POST.get('alumno_id')
-        aula_id = request.POST.get('aula_id')
-        print("recuperados",alumno_id,aula_id)
+        data = json.loads(request.body.decode('utf-8'))
+        alumno_id = data.get('estudiante_id')
+        aula_nombre = data.get('aula_nombre')  # Cambié aula_id a aula_nombre
+        print("recuperados" , alumno_id, aula_nombre)
         
         # Lógica para asignar alumno a aula en la base de datos
         # ...
+        mensaje_exito = f'Se cargó el alumno {alumno_id} al aula {aula_nombre}'
 
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'message': mensaje_exito})
     else:
         return JsonResponse({'success': False})

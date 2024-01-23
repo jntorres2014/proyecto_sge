@@ -1,87 +1,146 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    #aulas-container {
-        float: left;
-        width: 100px;
-        height: 200px;
-        background-color: #3498db;
-        margin-left: 20px;
-    }
+<!DOCTYPE html>
+<html>
 
-    #div2 {
-        float: left;
-        width: 100px;
-        height: 200px;
-        background-color: #3498db;
-    }
+<head>
+    <style>
+        cuerpo {
+            display: flex;
+            justify-content: space-around;
+        }
 
-    #estudiante-container {
-        float: right;
-        width: 100px;
-        height: 200px;
-        background-color: #181616;
-        margin-right: 20px;
-    }
-</style>
+        #alumnos-container,
+        #aulas-container {
+            width: 45%;
+        }
 
-<h1>Asignar Estudiantes a Aulas</h1>
+        .alumno,
+        .aula {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin: 5px;
+            cursor: grab;
+        }
 
-<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        #alumnos-list,
+        #aulas-list {
+            list-style: none;
+            padding: 0;
+        }
+    </style>
+    <title>Asignación de Aulas</title>
 
-<div class="container" id="aulas-container">
-    {% for aula in aulas %}
-    <div class="aula" id="aula-{{ aula.id }}" ondrop="drop(event)" ondragover="allowDrop(event)">
-        <!-- Contenido de cada aula -->
+</head>
+
+<cuerpo>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <div id="alumnos-container">
+        <h1>Alumnos</h1>
+        <ul id="alumnos-list">
+            {% for estudiante in estudiantes %}
+            <li class="alumno" draggable="true" ondragstart="handleDragStart(event, {{ estudiante.estudiante.id }}, '{{ estudiante.estudiante.Dni }}', '{{ estudiante.estudiante.Nombre }}')" data-id="{{ estudiante.estudiante.id }}" data-dni="{{ estudiante.estudiante.Dni }}" data-nombre="{{ estudiante.estudiante.Nombre }}">{{ estudiante.estudiante.id }}</li>
+            {% endfor %}
+        </ul>
     </div>
-    {% endfor %}
-</div>
+    <div id="aulas-container">
+        <h1>Aulas</h1>
+        <ul id="aulas-list">
+            {% for aula in aulas %}
+            <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">{{ aula.id }}</li>            {% endfor %}
+        </ul>
+    </div>
 
-<div class="container" id="estudiante-container">
-    {% for estudiante in estudiantes %}
-    <h3 draggable="true" ondragstart="drag(event)" id="drag1" width="88" height="31">
-        {{ estudiante.estudiante.id }}
-    </h3>
-    {% endfor %}
-</div>
+    <script>
+        // Define la función drag en el alcance global
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
 
-<script>
-    function allowDrop(event) {
-        event.preventDefault();
-    }
+        const alumnosList = document.getElementById('alumnos-list');
+        const aulasList = document.getElementById('aulas-list');
 
-    function drag(event) {
-        event.dataTransfer.setData("text", event.target.id);
-    }
+        function handleDragStart(event, id, dni, nombre) {
+            event.dataTransfer.setData('text/plain', id);
+            console.log(`Estudiante ID: ${id}, DNI: ${dni}, Nombre: ${nombre}`);
+        }
 
-    function drop(event) {
-        event.preventDefault();
-        var data = event.dataTransfer.getData("text");
-        var estudiante = document.getElementById(data);
-        var aula = event.target;
-        aula.appendChild(estudiante);
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
 
-        // Obtener el ID del estudiante y del aula desde los elementos HTML
-        var estudianteId = data.split("-")[1];
-        var aulaId = aula.id.split("-")[1];
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+        function dragenter(event){
+            event.preventDefault();
+            if ( event.target.className == "droptarget" ) {
+    event.target.style.border = "3px dotted red";
+  }
+        }
 
-        // Obtener el token CSRF desde el documento
-        var csrfToken = document.getElementsByName("csrfmiddlewaretoken")[0].value;
+        function drop(event) {
+    event.preventDefault();
 
-        // Realizar una solicitud AJAX para actualizar la relación en el backend
-        var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/actualizar_relacion/", true);
-        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-        xhr.setRequestHeader("X-CSRFToken", csrfToken); // Incluir el token CSRF en la cabecera
+    var dni = event.dataTransfer.getData("text/plain");
+    var id = event.dataTransfer.getData("text/plain");
+    var aula = event.target;
 
-        var data = JSON.stringify({
-            estudiante_id: estudianteId,
-            aula_id: aulaId
-        });
+    // Obtener el nombre del aula desde los atributos del dataset
+    var aulaId = aula.dataset.id;
 
-        xhr.send(data);
-    }
-</script>
-{% endblock %}
+    // Crear un nuevo elemento para el estudiante
+    var estudiante = document.createElement("li");
+    estudiante.className = "alumno";
+    estudiante.draggable = true;
+    estudiante.dataset.Dni = dni;
+    estudiante.dataset.id = id;
+    estudiante.innerText = "Estudiante " + dni;
+
+    // Agregar el estudiante al aula
+    aula.appendChild(estudiante);
+
+    // Mostrar información por consola
+    console.log(`Estudiante ${id} asignado al aula ${aulaId}`);
+
+            // Obtener el token CSRF utilizando querySelector
+            var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+            // Realizar una solicitud AJAX para actualizar la relación en el backend
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/Clases/actualizar_relacion/", true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.setRequestHeader("X-CSRFToken", csrfToken); // Incluir el token CSRF en la cabecera
+
+            var data = JSON.stringify({
+                estudiante_id: id,
+                aula_nombre: aulaId  // Enviar el nombre del aula en lugar de su ID
+                
+            });
+            console.log(data)
+            xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+
+                if (response.success) {
+                    // Mostrar mensaje de éxito en algún lugar de tu interfaz
+                    console.log(response.message);
+                    alert(response.message);  // Puedes usar alert o mostrarlo de otra manera
+                } else {
+                    // Manejar el caso de no éxito si es necesario
+                }
+            } else {
+                // Manejar errores de la solicitud AJAX si es necesario
+            }
+        }
+    };
+            xhr.send(data);
+        }
+    </script>
+</cuerpo>
+
+</html>
+{% endblock content %}
