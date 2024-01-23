@@ -553,10 +553,10 @@ class Horario(models.Model):
     espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
 
     #dia = MultiSelectField(unique=True, null= False)
-    dia= models.CharField(max_length=4)
+    dia= models.CharField(max_length=10)
     #hora = MultiSelectField(unique=True, null= False)
-    hora = models.CharField(max_length=4)
-    cantidad_modulo = models.PositiveSmallIntegerField(null=True, blank=True, default=1)
+    hora = models.CharField(max_length=10)
+    cantidad_modulo = models.PositiveSmallIntegerField(null=False, blank=False, default=1)
 
     docente = models.ForeignKey(
         Docente,

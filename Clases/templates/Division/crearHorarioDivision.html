@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load bootstrap5 %}
 {% block content %}
 <head>
     <title>Crear y Mostrar Horario</title>
@@ -7,32 +7,60 @@
 <body>
     <h1>Crear Horario</h1>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ horario_form.as_p }}
-
-        <button type="submit">Guardar Horario</button>
-    </form>
+    <div class="container ">
+        <h1>Alta Horario</h1>
+        <form class="form" method="post">
+            {% csrf_token %}
+            <div class="container">
+                <div class="row">
+                    {% bootstrap_form form %}
+                    <hr>
+                    <div class="form-group">
+                        <input class="btn btn-primary" type="submit" value="Guardar">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
     <h1>Mostrar Horario</h1>
 
-    <table>
+    <table class="table table-bordered">
         <thead>
             <tr>
+                <th></th>
                 <th>Lunes</th>
-                <th>Hora</th>
-                <th>Cantidad de Módulos</th>
+                <th>Martes</th>
+                <th>Miércoles</th>
+                <th>Jueves</th>
+                <th>Viernes</th>
+                <th>Sabado</th>
+                <th>Domingo</th>
             </tr>
         </thead>
         <tbody>
-            {% for horario in horarios %}
-            <tr>
-                <td>{{ horario.dia }}</td>
-                <td>{{ horario.hora }}</td>
-                <td>{{ horario.cantidad_modulo }}</td>
-            </tr>
+            {% for modulo in modulos %}
+            {{modulo}}
+                <tr>
+                    <td>{{ modulo }}</td>
+                    {% for dia in dias %}
+                        <td>
+                            {% for horario in horarios %}
+                            {% if horario.hora == modulo and horario.dia == dia %}
+                                    <h5>{{ horario.espacioCurricular.nombre }}</h5>
+                                    {{ horario.hora}}
+                                    {{ horario.dia}}
+                                {% else %}
+                                <button class="btn btn-primary"></button>
+                                    {% endif %}
+
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
             {% endfor %}
         </tbody>
     </table>
+    
 </body>
 {% endblock %}

@@ -2,16 +2,15 @@
 {% load bootstrap5 %}
 {% block content %}
 
-<div class="container container-fluid p-5 bg-primary text-center">
+<div class="container container-fluid p-5 text-center">
     <div class="row container-fluid">
     {% for anio in anioPlan %}
-    <div class="col-sm-3">
+    <div class="col-sm-4 mb-4">
             <div class="card" style="width: 18rem;">
                 <h1> {{ anio.codigo}}</h1>
-                   <div class="card-body">
-                      <a href="/Core/altaDivision/{{anio.id }}/{{id}}/" class="card-link">Alta division</a>
-                      <a href="/Core/verDivision/{{anio.id }}/{{id}}/" class="card-link">Ver Divisiones</a>
-                      <a href="/Core/asigar_estudiante_a_aula/{{anio.id}}/">Agregar Alumnos a division</a>
+                   <div class="card-body d-flex flex-column">
+                      <a href="/Core/verDivision/{{anio.id }}/{{id}}/" class="btn btn-primary m-2">Ver Divisiones</a>
+                      <a href="/Core/asigar_estudiante_a_aula/{{anio.id}}/" class="btn btn-primary m-2">Agregar Alumnos a division</a>
                     </div>
                 </div>          
         </div>

@@ -40,6 +40,13 @@ class HorarioForm(forms.ModelForm):
             'dia',
 
         }
+        widgets = { 
+            'division': forms.Select(attrs={'class': 'input-group con-mv-4'}),
+            'hora': forms.Select(attrs={'class': 'input-group con-mv-4'}),
+            'dia': forms.TextInput(attrs={'class': 'input-group mb-3'}),
+                        
+        }
+
     def __init__(self, *args, **kwargs):
         super(HorarioForm, self).__init__(*args, **kwargs)
 
@@ -47,5 +54,4 @@ class HorarioForm(forms.ModelForm):
         self.fields['dia'].widget = forms.Select(choices=Horario.CHOICES_DIA)
 
         # Personaliza el widget para el campo 'hora'
-        horas_choices = [(1, '7:00 a 7:45'), (2, '7:45 a 8:20')]
-        self.fields['hora'].widget = forms.Select(choices=horas_choices)
+        self.fields['hora'].widget = forms.Select(choices=Horario.CHOICES_HORA)
