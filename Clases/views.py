@@ -1,10 +1,10 @@
 import json
 from django.http import JsonResponse
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
-from Clases.forms import CalificacionForm, InasistenciasForm, Inasistencias, HorarioForm
-from Core.models import Aula, Calificacion, Ciclo, Horario, inscripcionEstudianteCiclo,Division
+from Clases.forms import CalificacionForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
+from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Horario, inscripcionEstudianteCiclo,Division
 from django.shortcuts import render, redirect
 
 # Create your views here.
@@ -73,18 +73,22 @@ class inasistencia_list(ListView):
 def crear_horario(request):
     print("*******entre aca**** ")
     if request.method == "POST":
-        form = HorarioForm(request.POST)
+        form = Detalle_HorarioForm(request.POST)
         if form.is_valid():
             form.save()
 
-
+    
         # Asigna módulos adicionales si es necesario
         #horario.asignar_a_modulos(cantidad_modulo)
 
         # Redirecciona a una página de éxito o a donde lo necesites
         return redirect("/Clases/altaHorario")
-    horarios = Horario.objects.filter(division= 1)
-    form = HorarioForm()
+    if request.method =='GET':
+        data = request.GET.get('division_id')
+        print("aca vamoooooos",data)
+    horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
+    print("aca estoy",horarios)
+    form = Detalle_HorarioForm()
     dias = [tupla[0] for tupla in Horario.CHOICES_DIA]
     modulos = [tupla[0] for tupla in Horario.CHOICES_HORA]
     print(dias,modulos)
@@ -149,3 +153,17 @@ def actualizar_relacion(request):
         return JsonResponse({'success': True, 'message': mensaje_exito})
     else:
         return JsonResponse({'success': False})
+    
+
+def obtenerHorarios(request):
+    print("entre")
+    # data = json.loads(request.body.decode('utf-8'))
+    # print(data)
+    # horario_id = data.get('division_id')
+    # print(horario_id)
+    #horario = get_object_or_404(Horario, id=horario_id)
+    detalles = Detalle_Horario.objects.all()
+    print(detalles)
+    detalles_json = [{'dia': detalle.dia, 'hora': detalle.hora, 'espacioCurricular': detalle.espacioCurricular.nombre} for detalle in detalles]
+
+    return JsonResponse({'detalles': detalles_json})

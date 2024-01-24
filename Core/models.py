@@ -432,6 +432,7 @@ class Ciclo (models.Model):
                                              codigo='A',
                                              descripcion="{} {}".format(a, 'Division A'),
                                              anio=a)
+            division.crear_Horario_Division()
         return division
     @classmethod
     def actualizar_actual(cls):
@@ -456,6 +457,7 @@ class Ciclo (models.Model):
                                              codigo=Division.PRIMERA,
                                              descripcion="{} {}".format(a, Division.PRIMERA),
                                              anio=a)
+            division.crear_Horario_Division(division)
         return division
 @receiver(post_save, sender=Ciclo)
 def ajustarCicloactual(sender, instance, **kwargs):
@@ -499,7 +501,10 @@ class Division(models.Model):
         print(Division.objects.filter(anio=self.anio).count)
 
         self.codigo= Division.objects.filter().count
-    
+
+    def crear_Horario_Division(self):
+        print("entre a crear horario divisioon")
+        Horario.objects.create(division= self)    
 
     def agregar_materia(self, materia, dia, hora, modulos):
         return Horario.objects.create(division=self,
@@ -546,16 +551,16 @@ class Horario(models.Model):
         (MODOCHO, '11:00'))
 
     class Meta:
-        unique_together = (('dia','hora','division', 'espacioCurricular'),)
+        unique_together = (('division'),)
 
     division = models.ForeignKey(Division, on_delete=models.CASCADE, related_name='horarios')
 
-    espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
+    #espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
 
     #dia = MultiSelectField(unique=True, null= False)
-    dia= models.CharField(max_length=10)
+    #dia= models.CharField(max_length=10)
     #hora = MultiSelectField(unique=True, null= False)
-    hora = models.CharField(max_length=10)
+    #hora = models.CharField(max_length=10)
     cantidad_modulo = models.PositiveSmallIntegerField(null=False, blank=False, default=1)
 
     docente = models.ForeignKey(
@@ -577,6 +582,20 @@ class Horario(models.Model):
             cant = cant -1
             Horario.objects.create(division=self.division, espacioCurricular=self.espacioCurricular,cantidad_modulo= cant[1], dia= self.dia,hora= self.hora+i)
             i=i+1
+    def __str__(self):
+        return "{0}, ".format(self.division)
+
+
+class Detalle_Horario(models.Model):
+    horario= models.ForeignKey(Horario,on_delete = models.CASCADE)
+    espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
+    dia= models.CharField(max_length=10)
+    #hora = MultiSelectField(unique=True, null= False)
+    hora = models.CharField(max_length=10)
+    
+    
+    def __str__(self):
+        return "{0}".format(self.horario.division)
 
 
 class inscripcionEstudianteCiclo(models.Model):

@@ -63,4 +63,32 @@
     </table>
     
 </body>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    function cargarDatosHorario() {
+        var division_id = $('#id_division').val();
+        console.log(division_id);
+    }
+    </script>
+<script>
+    function cargarDatosHorario() {
+        var division_id = $('#id_division').val();
+        console.log(division_id);
+        // Realizar la solicitud AJAX para ob  tener datos del horario
+        $.ajax({
+                type: 'GET',
+                url: $(this).data('url'),  // Obtén la URL relativa desde el atributo data-url
+                data: {
+                    division_id: division_id,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    console.log("Llego volvio")
+                    console.log(data.datos_horario);
+                }
+            });
+    }
+</script>
 {% endblock %}
