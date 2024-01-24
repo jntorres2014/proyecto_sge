@@ -5,90 +5,87 @@
     <title>Crear y Mostrar Horario</title>
 </head>
 <body>
-    <h1>Crear Horario</h1>
-
-    <div class="container ">
-        <h1>Alta Horario</h1>
-        <form class="form" method="post">
-            {% csrf_token %}
-            <div class="container">
-                <div class="row">
-                    {% bootstrap_form form %}
-                    <hr>
-                    <div class="form-group">
-                        <input class="btn btn-primary" type="submit" value="Guardar">
+    <div class="container">
+        <div class="row">
+            <!-- Columna para el formulario -->
+            <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                <h1>Alta Horario</h1>
+                <form class="form" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        {% bootstrap_form form %}
+                        <hr>
+                        <div class="form-group">
+                            <input class="btn btn-primary" type="submit" value="Guardar">
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
-        </form>
+
+            <!-- Columna para la tabla -->
+            <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
+                <h1>Mostrar Horario</h1>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Lunes</th>
+                            <th>Martes</th>
+                            <th>Miércoles</th>
+                            <th>Jueves</th>
+                            <th>Viernes</th>
+                            <th>Sabado</th>
+                            <th>Domingo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for modulo in modulos %}
+                            <tr>
+                                <td>{{ modulo }}</td>
+                                {% for dia in dias %}
+                                    <td>
+                                        {% for horario in horarios %}
+                                            {% if horario.hora == modulo and horario.dia == dia %}
+                                                <h5>{{ horario.espacioCurricular }}</h5>
+                                                
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <h1>Mostrar Horario</h1>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Lunes</th>
-                <th>Martes</th>
-                <th>Miércoles</th>
-                <th>Jueves</th>
-                <th>Viernes</th>
-                <th>Sabado</th>
-                <th>Domingo</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for modulo in modulos %}
-            {{modulo}}
-                <tr>
-                    <td>{{ modulo }}</td>
-                    {% for dia in dias %}
-                        <td>
-                            {% for horario in horarios %}
-                            {% if horario.hora == modulo and horario.dia == dia %}
-                                    <h5>{{ horario.espacioCurricular.nombre }}</h5>
-                                    {{ horario.hora}}
-                                    {{ horario.dia}}
-                                {% else %}
-                                <button class="btn btn-primary"></button>
-                                    {% endif %}
-
-                            {% endfor %}
-                        </td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-</body>
-
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-<script>
-    function cargarDatosHorario() {
-        var division_id = $('#id_division').val();
-        console.log(division_id);
-    }
+    <script>
+        function cargarDatosHorario() {
+            var division_id = $('#id_division').val();
+            console.log(division_id);
+        }
     </script>
-<script>
-    function cargarDatosHorario() {
-        var division_id = $('#id_division').val();
-        console.log(division_id);
-        // Realizar la solicitud AJAX para ob  tener datos del horario
-        $.ajax({
-                type: 'GET',
-                url: $(this).data('url'),  // Obtén la URL relativa desde el atributo data-url
-                data: {
-                    division_id: division_id,
-                },
-                dataType: 'json',
-                success: function (data) {
-                    console.log("Llego volvio")
-                    console.log(data.datos_horario);
-                }
-            });
-    }
-</script>
+    <script>
+        function cargarDatosHorario() {
+            var division_id = $('#id_division').val();
+            console.log(division_id);
+            // Realizar la solicitud AJAX para ob  tener datos del horario
+            $.ajax({
+                    type: 'GET',
+                    url: $(this).data('url'),  // Obtén la URL relativa desde el atributo data-url
+                    data: {
+                        division_id: division_id,
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log("Llego volvio")
+                        console.log(data.datos_horario);
+                    }
+                });
+        }
+    </script>
+</body>
 {% endblock %}

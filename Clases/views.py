@@ -76,23 +76,24 @@ def crear_horario(request):
         form = Detalle_HorarioForm(request.POST)
         if form.is_valid():
             form.save()
-
-    
-        # Asigna módulos adicionales si es necesario
-        #horario.asignar_a_modulos(cantidad_modulo)
-
-        # Redirecciona a una página de éxito o a donde lo necesites
         return redirect("/Clases/altaHorario")
     if request.method =='GET':
         data = request.GET.get('division_id')
         print("aca vamoooooos",data)
-    horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
-    print("aca estoy",horarios)
+        if data is None:
+            print("entr none")
+            horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
+        else:
+            division = Division.objects.get(id=data)
+            print("division",division)
+            horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division=division)) 
+    #horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
+    print("aca estoy",horarios[0].hora)
     form = Detalle_HorarioForm()
     dias = [tupla[0] for tupla in Horario.CHOICES_DIA]
     modulos = [tupla[0] for tupla in Horario.CHOICES_HORA]
     print(dias,modulos)
-    # Si no es una solicitud POST, muestra el formulario para crear horarios
+    
     return render(request, "Division/crearHorarioDivision.html", {"form": form, 
                                                                   "horarios": horarios,
                                                                   "dias": dias,
