@@ -15,10 +15,9 @@ from tablib import Dataset
 from django.db.models import Subquery, OuterRef
 
 from dal import autocomplete
+
 class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
-    print("Entro a localidad11!!")
     def get_queryset(self):
-        print("Entro a localidad!22!")
         qs = Localidad.objects.all()
         print(qs)
         if self.q:
@@ -387,7 +386,8 @@ def division_list(request, id,idCiclo):
         print("etre al post")
         # Obtén los datos del formulario y crea la nueva división
         codigo = list(string.ascii_uppercase)[((len(division)))]
-        descripcion = 'Descripción de la división'
+        descripcion = anio.codigo + ', Año Division '+ codigo
+        print(descripcion)
         nueva_division = Division(ciclo=Ciclo.objects.get(esActual= 'True'), codigo=codigo, descripcion=descripcion, anio=anio)
         nueva_division.save()
     return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,

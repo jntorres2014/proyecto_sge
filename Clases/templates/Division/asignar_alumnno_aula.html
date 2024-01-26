@@ -41,7 +41,14 @@
         <h1>Alumnos</h1>
         <ul id="alumnos-list">
             {% for estudiante in estudiantes %}
-            <li class="alumno" draggable="true" ondragstart="handleDragStart(event, {{ estudiante.estudiante.id }}, '{{ estudiante.estudiante.Dni }}', '{{ estudiante.estudiante.Nombre }}')" data-id="{{ estudiante.estudiante.id }}" data-dni="{{ estudiante.estudiante.Dni }}" data-nombre="{{ estudiante.estudiante.Nombre }}">{{ estudiante.estudiante.id }}</li>
+                <li class="alumno" draggable="true" ondragstart="handleDragStart(event, 
+                '{{ estudiante.estudiante.Dni }}', 
+                '{{ estudiante.estudiante.id }}', 
+                '{{ estudiante.estudiante.Nombre }}')" 
+                data-id="{{ estudiante.estudiante.id }}" 
+                data-dni="{{ estudiante.estudiante.Dni }}" 
+                data-nombre="{{ estudiante.estudiante.Nombre }}">
+                {{ estudiante.estudiante.Nombre  }}</li>
             {% endfor %}
         </ul>
     </div>
@@ -49,7 +56,8 @@
         <h1>Aulas</h1>
         <ul id="aulas-list">
             {% for aula in aulas %}
-            <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">{{ aula.id }}</li>            {% endfor %}
+            <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">{{ aula.id }}</li>            
+            {% endfor %}
         </ul>
     </div>
 

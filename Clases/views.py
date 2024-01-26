@@ -124,10 +124,10 @@ def obtener_aulas(request):
 
 def asignar_alumno_a_aula(request):
     print("asignar alumno")
-    aulas = Aula.objects.filter(division=93)
+    aulas = Division.objects.filter(anio_id=1)
     #estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(ciclo= ciclo_actual)  # Define ciclo_actual según tu lógica
     estudiantes_inscritos = inscripcionEstudianteCiclo.objects.all()  # Obtén los alumnos desde tu modelo
-    print(estudiantes_inscritos[1].id)
+    #print(estudiantes_inscritos[1].id)
     print(aulas)
     return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_inscritos})
 
