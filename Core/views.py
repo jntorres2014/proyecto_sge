@@ -381,7 +381,8 @@ def division_list(request, id,idCiclo):
     print("VER Division")
     #division= list(Division.objects.filter(anio = id))
     print("VER Division2")
-    print(list(string.ascii_uppercase)[((len(division)))])
+    #print(list(string.ascii_uppercase)[((len(division)))])
+    print("request", request.method)
     if request.method == 'POST':
         print("etre al post")
         # Obtén los datos del formulario y crea la nueva división
@@ -390,6 +391,7 @@ def division_list(request, id,idCiclo):
         print(descripcion)
         nueva_division = Division(ciclo=Ciclo.objects.get(esActual= 'True'), codigo=codigo, descripcion=descripcion, anio=anio)
         nueva_division.save()
+        division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,
                                                       'id':idCiclo,
                                                       'anio':id,

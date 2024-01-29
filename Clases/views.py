@@ -90,8 +90,10 @@ def crear_horario(request):
             print("division",division)
             horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division=division)) 
             print(horarios)
+            return JsonResponse({'success': True, 'message': "mensaje_exito"})
     #horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
     #print("aca estoy",horarios[0].hora)
+    print("Horarios",horarios)
     form = Detalle_HorarioForm()
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
     modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]
