@@ -301,7 +301,11 @@ class Estudiante(Persona):
                 legajo=fake.unique.random_number(digits=5),
                 fechaInscripcion=fake.date_between(start_date='-365d', end_date='today'),  # fecha aleatoria en el último año
             )
-
+    aulas = models.ManyToManyField(
+        'Aula',
+        blank=True,
+        related_name='estudiantes_en_aula'
+        )
 '''calificacion = models.ForeignKey(Calificacion, on_delete= models.CASCADE, related_name= "estudiante")
 '''
 
@@ -623,16 +627,16 @@ class inscripcionEstudianteCiclo(models.Model):
         unique_together = ['estudiante', 'anio']
 
 class Aula(models.Model):
-    
-    estudiante = models.ForeignKey(
+   
+    estudiantes = models.ManyToManyField(
         Estudiante,
-        null=True,
-        blank=False,
-        on_delete=models.CASCADE,
-        related_name="estudiante")   
+        blank=True,
+        related_name="aulas_del_estudiante"
+    )   
     
     division = models.ForeignKey(
         Division,
+        unique= False,
         null=True,
         blank=False,
         on_delete=models.CASCADE,

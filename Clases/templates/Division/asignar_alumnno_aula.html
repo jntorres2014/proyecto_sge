@@ -57,16 +57,15 @@
         <ul id="aulas-list">
             {% for aula in aulas %}
             <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" 
-            data-id="{{ aula.id }}">{{ aula.id }}
+            data-id="{{ aula.id }}"> aula :{{ aula.id }}
                 {% for alumno in alumnos_aula %}
-
                     {% if alumno.id == aula.estudiante.id %}
-                        <div>
+                        <li>
                             <h6>{{aula.estudiante.Nombre}}</h6> 
                             <button class="btn btn-danger btn-sm" onclick="eliminarAlumno({{aula.estudiante.id}})">
                                 <i class="fas fa-times"></i>
                             </button>
-                        </div>
+                        </li>
                     {% endif %}    
                 {% endfor %}</li>
             {% endfor %}
@@ -101,15 +100,18 @@
   }
         }
 
-        function drop(event) {
+    function drop(event) {
     event.preventDefault();
 
     var dni = event.dataTransfer.getData("text/plain");
     var id = event.dataTransfer.getData("text/plain");
+    var aula2= event.target;
     var aula = event.target;
 
     // Obtener el nombre del aula desde los atributos del dataset
     var aulaId = aula.dataset.id;
+ 
+    var aulaId2 = aula2.dataset.id;
 
     // Crear un nuevo elemento para el estudiante
     var estudiante = document.createElement("li");
@@ -123,14 +125,14 @@
     aula.appendChild(estudiante);
 
     // Mostrar información por consola
-    console.log(`Estudiante ${id} asignado al aula ${aulaId}`);
+    console.log(`Estudiante ${id} asignado al aula ${aulaId},${aulaId2}`);
 
     // Obtener el token CSRF utilizando querySelector
     var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
     // Realizar una solicitud AJAX para actualizar la relación en el backend
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/Clases/actualizar_relacion/", false);  // Configurar como sincrónico
+    xhr.open("POST", "/Clases/actualizar_relacion/", true);  // Configurar como sincrónico
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.setRequestHeader("X-CSRFToken", csrfToken); // Incluir el token CSRF en la cabecera
 
@@ -139,7 +141,7 @@
         aula_nombre: aulaId  // Enviar el nombre del aula en lugar de su ID
     });
 
-    console.log(data);
+    console.log("aca vamoooos",data);
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -182,7 +184,8 @@ function eliminarAlumno(idAula) {
                 //mostrarMensaje("Detalle de horario eliminado con éxito");
             } else {
                 // Actualiza el mensaje con error
-                mostrarMensaje("Error al eliminar el detalle de horario", true);
+                $('#mensaje').html('<div class="alert alert-warning" role="alert"> MEnsaje de Error</div>');
+                // mostrarMensaje("Error al eliminar el detalle de horario", true);
             }
         }
     });
