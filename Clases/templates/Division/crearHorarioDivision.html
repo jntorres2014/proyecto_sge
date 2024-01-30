@@ -25,7 +25,7 @@
 
             <!-- Columna para la tabla -->
             <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
-                <div  class="alert alert-warning" role="alert" id="mensaje"></div>
+                <div id="mensaje"></div>
                 
                 <h1>Mostrar Horario</h1>
                 <table class="table table-bordered">
@@ -47,13 +47,16 @@
                             <tr>
                                 <td>{{ modulo }}</td>
                                 {% for dia in dias %}
-                                    <td>
+                                    <td id="tabla-render">
                                         {% for horario in horarios %}
                                             {% if horario.hora == modulo and horario.dia == dia %}
+                                            <div id="datos">
+
                                                 <h5>{{ horario.espacioCurricular.nombre }}</h5>
                                                 <button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario({{horario.id}})">
                                                     <i class="fas fa-times"></i>
                                                 </button>
+                                            </div>    
                                             {% endif %}
                                         {% endfor %}
                                     </td>
@@ -81,6 +84,8 @@
             console.log(division_id);
             // Realizar la solicitud AJAX para ob  tener datos del horario
             $.ajax({
+        type: 'GET',
+        url: $(this).data('url'),
                     type: 'GET',
                     url: $(this).data('url'),  // Obtén la URL relativa desde el atributo data-url
                     data: {
@@ -92,8 +97,63 @@
                         console.log("Llego volvio")
                         console.log(data);
                     }
+                    }
                 });
         }
+        }
+            division_id: division_id,
+        },
+        dataType: 'json',
+        success: function (data) {
+            console.log("Llego volvio");
+
+            // Limpiar la tabla antes de agregar nuevos datos
+            $('#tabla-render').empty();
+
+            // Obtener días y horas
+            var dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            var modulos = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];  // Ajusta esto según tus necesidades
+
+            // Generar dinámicamente el contenido de la tabla
+            for (var i = 0; i < modulos.length; i++) {
+                console.log("entre a modulos");
+                var modulo = modulos[i];
+                var fila = '<tr>';
+               // fila += '<td>' + modulo + '</td>';
+
+                for (var j = 0; j < dias.length; j++) {
+                    var dia = dias[j];
+                    var contenido = '';
+
+                    for (var k = 0; k < data.length; k++) {
+                        var horario = data.nombre[k];
+                        console.log(horario);
+                        if (horario.hora == modulo && horario.dia == dia) {
+                            contenido = '<div id="datos">' +
+                                '<h5>' + horario + '</h5>' +
+                                '<button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario(' + horario.id + ')">' +
+                                '<i class="fas fa-times"></i>' +
+                                '</button>' +
+                                '</div>';
+                            break;
+                        }
+
+                    }
+
+                    //fila += '<td>' + contenido + '</td>';
+                }
+
+                //fila += '</tr>';
+
+                // Agregar fila a la tabla
+                $('#tabla-render').append(fila);
+            }
+        },
+        error: function (error) {
+            console.log("Error al cargar datos de horario:", error);
+        }
+    });
+}
     </script>
     <script>
 
@@ -108,6 +168,8 @@
             },
             success: function (data) {
                     if (data.success) {
+                        location.reload()
+                        $('#mensaje').html('<div class="alert alert-warning" role="alert"> MEnsaje de exito</div>');
                         // Actualiza el mensaje con éxito
                         mostrarMensaje("Detalle de horario eliminado con éxito");
                     } else {

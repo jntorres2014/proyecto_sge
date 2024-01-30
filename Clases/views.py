@@ -90,7 +90,11 @@ def crear_horario(request):
             print("division",division)
             horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division=division)) 
             print(horarios)
-            return JsonResponse({'success': True, 'message': "mensaje_exito"})
+            horarios_list = [{'id': horario.id, 'nombre': horario.espacioCurricular.nombre} for horario in horarios]
+            datos_json = {'horarios': horarios_list}
+
+            # Devolver la respuesta como JSON
+            return JsonResponse(datos_json)
     #horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
     #print("aca estoy",horarios[0].hora)
     print("Horarios",horarios)
@@ -146,6 +150,7 @@ def actualizar_relacion(request):
     divisiones = Division.objects.filter(ciclo= ciclo_actual)
     print(request.method)
     print('vengo por aca')
+
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         alumno_id = data.get('estudiante_id')
@@ -155,8 +160,13 @@ def actualizar_relacion(request):
         # Lógica para asignar alumno a aula en la base de datos
         # ...
         mensaje_exito = f'Se cargó el alumno {alumno_id} al aula {aula_nombre}'
+        contenido_html = "<h1>Mi HTML</h1><p>Este es un párrafo.</p>"
 
-        return JsonResponse({'success': True, 'message': mensaje_exito})
+        # Serializar el contenido HTML
+        datos_json = {'contenido_html': contenido_html}
+        return JsonResponse({'success': True, 
+                             'message': mensaje_exito,
+                             'datos': datos_json})
     else:
         return JsonResponse({'success': False})
     
