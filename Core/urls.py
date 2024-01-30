@@ -78,6 +78,6 @@ urlpatterns = [
         
     re_path(r'^asignarAlumno_Division/(?P<idAnio>\d+)(?P<idCiclo>\d+)/$', views.AsignarAlumno_Division,name='asignarAlumno_Division'),
 
-    re_path(r'^asigar_estudiante_a_aula/(?P<id_anio>\d+)/$', views.asigar_estudiante_a_aula,name='asigar_estudiante_a_aula'),
+    re_path(r'^asignar_estudiante_a_aula/(?P<id_anio>\d+)/$', views.asignar_estudiante_a_aula,name='asignar_estudiante_a_aula'),
 
 ]

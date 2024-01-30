@@ -538,7 +538,7 @@ def AsignarAlumno_Division(request, idAnio, idCiclo):
                                                                  'inscriptos': inscriptos,
                                                                  'cantAlumnos': cantidadAlumnosInscriptos})
 
-def asigar_estudiante_a_aula(request,id_anio):
+def asignar_estudiante_a_aula(request,id_anio):
     ciclo_actual = Ciclo.objects.get(esActual=True)
     # Obtener las divisiones del año y ciclo actual
     divisiones = Division.objects.filter(anio=id_anio, ciclo=ciclo_actual)

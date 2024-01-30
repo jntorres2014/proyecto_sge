@@ -56,7 +56,19 @@
         <h1>Aulas</h1>
         <ul id="aulas-list">
             {% for aula in aulas %}
-            <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">{{ aula.id }}</li>            
+            <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" 
+            data-id="{{ aula.id }}">{{ aula.id }}
+                {% for alumno in alumnos_aula %}
+
+                    {% if alumno.id == aula.estudiante.id %}
+                        <div>
+                            <h6>{{aula.estudiante.Nombre}}</h6> 
+                            <button class="btn btn-danger btn-sm" onclick="eliminarAlumno({{aula.estudiante.id}})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endif %}    
+                {% endfor %}</li>
             {% endfor %}
         </ul>
     </div>
@@ -113,22 +125,23 @@
     // Mostrar información por consola
     console.log(`Estudiante ${id} asignado al aula ${aulaId}`);
 
-            // Obtener el token CSRF utilizando querySelector
-            var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+    // Obtener el token CSRF utilizando querySelector
+    var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
-            // Realizar una solicitud AJAX para actualizar la relación en el backend
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/Clases/actualizar_relacion/", true);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.setRequestHeader("X-CSRFToken", csrfToken); // Incluir el token CSRF en la cabecera
+    // Realizar una solicitud AJAX para actualizar la relación en el backend
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/Clases/actualizar_relacion/", false);  // Configurar como sincrónico
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.setRequestHeader("X-CSRFToken", csrfToken); // Incluir el token CSRF en la cabecera
 
-            var data = JSON.stringify({
-                estudiante_id: id,
-                aula_nombre: aulaId  // Enviar el nombre del aula en lugar de su ID
-                
-            });
-            console.log(data)
-            xhr.onreadystatechange = function () {
+    var data = JSON.stringify({
+        estudiante_id: id,
+        aula_nombre: aulaId  // Enviar el nombre del aula en lugar de su ID
+    });
+
+    console.log(data);
+
+    xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
                 var response = JSON.parse(xhr.responseText);
@@ -137,6 +150,7 @@
                     // Mostrar mensaje de éxito en algún lugar de tu interfaz
                     console.log(response.message);
                     alert(response.message);  // Puedes usar alert o mostrarlo de otra manera
+                    location.reload()
                 } else {
                     // Manejar el caso de no éxito si es necesario
                 }
@@ -145,8 +159,35 @@
             }
         }
     };
-            xhr.send(data);
+
+    xhr.send(data);
+
+}
+
+
+function eliminarAlumno(idAula) {
+    // Realiza una solicitud AJAX para eliminar el detalle de horario
+    $.ajax({
+        type: 'POST',  // Puedes ajustar el método según tu vista de Django
+        url: '/Clases/eliminarAlumno/',
+        data: {
+        detalle_id: idAula,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+    },
+    success: function (data) {
+            if (data.success) {
+                location.reload()
+                $('#mensaje').html('<div class="alert alert-warning" role="alert"> MEnsaje de exito</div>');
+                // Actualiza el mensaje con éxito
+                //mostrarMensaje("Detalle de horario eliminado con éxito");
+            } else {
+                // Actualiza el mensaje con error
+                mostrarMensaje("Error al eliminar el detalle de horario", true);
+            }
         }
+    });
+}
+
     </script>
 </cuerpo>
 

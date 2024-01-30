@@ -14,7 +14,7 @@ urlpatterns  = [
     re_path(r'^altaHorario$', views.crear_horario),
 
     re_path(r'^cargarInasistencia/(?P<idAnio>\d+)/$', views.registrarInasistencia, name= 'registrarInasistencia'),
-    re_path(r'^asignar_alumno_a_aula/$', views.asignar_alumno_a_aula, name= 'asignar_alumno_a_aula'),
+    re_path(r'^asignar_alumno_a_aula/(?P<idAnio>\d+)$', views.asignar_alumno_a_aula, name= 'asignar_alumno_a_aula'),
     
     path('obtenerHorarios/', views.obtenerHorarios, name='obtenerHorarios'),
     path('crear_horario/', views.crear_horario, name='crear_horario'),
@@ -22,4 +22,5 @@ urlpatterns  = [
     path('obtener_alumnos/', views.obtener_alumnos, name='obtener_alumnos'),
     path('actualizar_relacion/', views.actualizar_relacion, name='actualizar_relacion'),
     path('eliminar_detalle_horario/', views.eliminar_detalle_horario, name='eliminar_detalle_horario'),
+    path('eliminarAlumno/', views.eliminarAlumno, name='eliminarAlumno'),
 ]
