@@ -25,8 +25,7 @@
 
             <!-- Columna para la tabla -->
             <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
-                <div id="mensaje"></div>
-                
+                <div  class="alert alert-warning" role="alert" id="mensaje"></div>
                 <h1>Mostrar Horario</h1>
                 <table class="table table-bordered">
                     <thead>
@@ -53,7 +52,7 @@
                                             <div id="datos">
 
                                                 <h5>{{ horario.espacioCurricular.nombre }}</h5>
-                                                <button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario({{horario.id}})">
+                                                <button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario(horario.id)">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>    
@@ -86,21 +85,7 @@
             $.ajax({
         type: 'GET',
         url: $(this).data('url'),
-                    type: 'GET',
-                    url: $(this).data('url'),  // Obtén la URL relativa desde el atributo data-url
-                    data: {
-                        division_id: division_id,
-                    },
-                    dataType: 'json',
-                    success: function (data) {
-                        location.reload();
-                        console.log("Llego volvio")
-                        console.log(data);
-                    }
-                    }
-                });
-        }
-        }
+        data: {
             division_id: division_id,
         },
         dataType: 'json',
@@ -171,7 +156,7 @@
                         location.reload()
                         $('#mensaje').html('<div class="alert alert-warning" role="alert"> MEnsaje de exito</div>');
                         // Actualiza el mensaje con éxito
-                        mostrarMensaje("Detalle de horario eliminado con éxito");
+                        //mostrarMensaje("Detalle de horario eliminado con éxito");
                     } else {
                         // Actualiza el mensaje con error
                         mostrarMensaje("Error al eliminar el detalle de horario", true);
