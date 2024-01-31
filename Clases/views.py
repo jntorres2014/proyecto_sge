@@ -135,33 +135,34 @@ def asignar_alumno_a_aula(request, idAnio):
     print("asignar alumno", idAnio)
 
     divisiones = Division.objects.filter(anio_id=idAnio)
-    #estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(anio=idAnio)
+    estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(anio=idAnio)
 
     # Verificar si las aulas existen para cada división
     for division in divisiones:
         aulas_existen = Aula.objects.filter(division=division).exists()
         if not aulas_existen:
             Aula.objects.create(division=division)
-    print("aulas creadas")
 
-    aulas = Aula.objects.filter(division__in=divisiones)
-    # Obtener estudiantes que no están en ninguna de las aulas indicadas
-    estudiantes_no_en_aula = Estudiante.objects.filter(~Q(aulas__in=aulas))
-    print("estudiantes sin aulas", estudiantes_no_en_aula.Nombre)
-    # Obtener estudiantes inscritos que no están en aulas
-    estudiantes_inscritos_no_en_aula = estudiantes_no_en_aula.filter(
-        inscripcionestudianteciclo__anio=idAnio)
-    estudiantes_inscritos_no_en_aula = estudiantes_no_en_aula.filter
-    print("otros estudiantes",)
     # Obtener las aulas después de verificar o crear
     aulas = Aula.objects.filter(division__in=divisiones)
-    estudiantes_aula = []
+
+    estudiantes_aula = {}  # Cambiaremos a un diccionario para asociar estudiantes con aulas
+
+    for aula in aulas:
+        estudiantes_aula[aula.id] = aula.estudiantes.all()
+
+    print("Estudiates e aulas",type(estudiantes_aula))
+    # Obtener los IDs de los estudiantes en aulas
+    ids_estudiantes_aula = [estudiante.id for aula_estudiantes in estudiantes_aula.values() for estudiante in aula_estudiantes]
 
     # Obtener estudiantes que no están en ninguna aula
+    estudiantes_no_en_aula = estudiantes_inscritos.exclude(id__in=ids_estudiantes_aula)
+    print("no en aula", estudiantes_no_en_aula)
 
+    return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_no_en_aula,
+                                                                'estudiantes_aula': estudiantes_aula,
+                                                                'estudiantes_no_en_aula': estudiantes_no_en_aula})
 
-    return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes':estudiantes_inscritos_no_en_aula,
-                                                                'alumnos_aula': estudiantes_aula})
 
 def obtener_alumnos(request):
     print("obtener alumno")
@@ -173,33 +174,29 @@ def obtener_alumnos(request):
 def actualizar_relacion(request): 
     print("entre actualizar relacion")
     ciclo_actual = Ciclo.objects.get(esActual=True)
-    divisiones = Division.objects.filter(ciclo= ciclo_actual)
+    divisiones = Division.objects.filter(ciclo=ciclo_actual)
     print(request.method)
     print('vengo por aca')
 
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         alumno_id = data.get('estudiante_id')
-        aula_nombre = data.get('aula_nombre')  # Cambié aula_id a aula_nombre
-        print("recuperados" , alumno_id, aula_nombre)
-        estudiante= Estudiante.objects.get(Dni = alumno_id)
-        print("estudiantes",estudiante)
-        aula = Aula.objects.get(id=int(aula_nombre))
-        estudiante= Estudiante.objects.get(Dni=alumno_id)
-        print("estudianteeee",estudiante)
-    
+        aula_nombre = data.get('aula_nombre')
+        print("recuperados", alumno_id, aula_nombre)
+        estudiante = Estudiante.objects.get(Dni=alumno_id)
+        print("estudiantes", estudiante)
+
         # Obtener el aula específica
-        aula = Aula.objects.get(id=int(aula_nombre))
-        #print("aula,aula",aula.estudiantes)
+        aula_id = int(aula_nombre)
+        aula = Aula.objects.get(id=aula_id)
+        print("Estudiantes de aulaa*****", aula.estudiantes.all())
+
         # Asignar al estudiante al aula
-        
         aula.estudiantes.add(estudiante)
-        print("Estudiantes de aulaa*****",aula.estudiantes.all())
-        #aula = Aula.objects.create(division_id=int(aula_nombre),estudiante=estudiante)
-        #aula = Aula.objects.get(id= int(aula_nombre))
-        #aula.estudiante = estudiante
-        aula.save()
+        print("Estudiantes de aulaa*****", aula.estudiantes.all())
+
         mensaje_exito = f'Se cargó el alumno {alumno_id} al aula {aula_nombre}'
+
         contenido_html = "<h1>Mi HTML</h1><p>Este es un párrafo.</p>"
 
         # Serializar el contenido HTML
@@ -208,8 +205,7 @@ def actualizar_relacion(request):
                              'message': mensaje_exito,
                              'datos': datos_json})
     else:
-        return JsonResponse({'success': False})
-    
+        return JsonResponse({'success': False})    
 
 def obtenerHorarios(request):
     print("entre")
@@ -238,16 +234,22 @@ def eliminar_detalle_horario(request):
 
     return JsonResponse({'success': success})
 
+
 @require_POST
 def eliminarAlumno(request):
-    detalle_id = request.POST.get('detalle_id')
-    print("****ENTREEE", detalle_id)
-    
+    aula_id = request.POST.get('aula_id')
+    estudiante_id = request.POST.get('estudiante_id')
+
     try:
-        detalle = Aula.objects.get(estudiante_id=detalle_id)
-        detalle.delete()
+        # Encuentra el aula por su ID
+        aula = Aula.objects.get(id=aula_id)
+        
+        # Elimina al estudiante del aula
+        aula.estudiantes.remove(estudiante_id)
         success = True
     except Aula.DoesNotExist:
+        success = False
+    except Estudiante.DoesNotExist:
         success = False
 
     return JsonResponse({'success': success})

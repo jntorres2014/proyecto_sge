@@ -626,21 +626,23 @@ class inscripcionEstudianteCiclo(models.Model):
     class Meta:
         unique_together = ['estudiante', 'anio']
 
+from django.db import models
+
 class Aula(models.Model):
-   
     estudiantes = models.ManyToManyField(
-        Estudiante,
+        'Estudiante',
         blank=True,
-        related_name="aulas_del_estudiante"
+        related_name="aulas_del_estudiante",
     )   
     
     division = models.ForeignKey(
-        Division,
-        unique= False,
-        null=True,
+        'Division',
+        unique=False,
+        null=False,  # Asegura que cada aula tenga una división asociada
         blank=False,
         on_delete=models.CASCADE,
-        related_name="division")
+        related_name="aulas"  # Hace que el acceso a las aulas asociadas con una división sea más claro
+    )
     
     class Meta:
         db_table = 'Aula'

@@ -10,6 +10,4 @@ class TaskForm (ModelForm):
             'important',
             'user'
         ]
-        
-class cambiasPassForm(ModelForm):
- 
+         

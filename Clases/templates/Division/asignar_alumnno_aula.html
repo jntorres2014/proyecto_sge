@@ -58,21 +58,27 @@
             {% for aula in aulas %}
                 <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">
                     {{ aula.id }}
-                    {% for alumno in alumnos_aula %}
-                        {% if alumno.id == aula.estudiante.id %}
-                            <div>
-                                <h6>{{ alumno.Nombre }}</h6> 
-                                <button class="btn btn-danger btn-sm" onclick="eliminarAlumno({{ aula.estudiante.id }})">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+                    <ul>
+                        {% for estudiante_id, estudiante in estudiantes_aula.items %}
+                            {% if estudiante_id == aula.id %}
+                                {% for e in estudiante %}
+                                    <li>
+                                        <h6>{{ e.Nombre }}</h6> 
+                                        <button class="btn btn-danger btn-sm" onclick="eliminarAlumno('{{ aula.id }}', '{{ e.id }}')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        
+                                    </li>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
                 </li>
             {% endfor %}
         </ul>
     </div>
-    
+        
+        
     <script>
         // Define la función drag en el alcance global
         function drag(event) {
@@ -115,7 +121,7 @@
     var aulaId2 = aula2.dataset.id;
 
     // Crear un nuevo elemento para el estudiante
-    var estudiante = document.createElement("li");
+    var estudiante = document.createElement("p");
     estudiante.className = "alumno";
     estudiante.draggable = true;
     estudiante.dataset.Dni = dni;
@@ -168,29 +174,32 @@
 }
 
 
-function eliminarAlumno(idAula) {
-    // Realiza una solicitud AJAX para eliminar el detalle de horario
+function eliminarAlumno(idAula, idEstudiante) {
+    // Realiza una solicitud AJAX para eliminar el estudiante del aula
     $.ajax({
-        type: 'POST',  // Puedes ajustar el método según tu vista de Django
+        type: 'POST',
         url: '/Clases/eliminarAlumno/',
         data: {
-        detalle_id: idAula,
-        csrfmiddlewaretoken: '{{ csrf_token }}'
-    },
-    success: function (data) {
+            aula_id: idAula,
+            estudiante_id: idEstudiante,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (data) {
             if (data.success) {
-                location.reload()
-                $('#mensaje').html('<div class="alert alert-warning" role="alert"> MEnsaje de exito</div>');
                 // Actualiza el mensaje con éxito
-                //mostrarMensaje("Detalle de horario eliminado con éxito");
+                console.log("Estudiante eliminado del aula con éxito");
+                location.reload();
             } else {
                 // Actualiza el mensaje con error
-                $('#mensaje').html('<div class="alert alert-warning" role="alert"> MEnsaje de Error</div>');
-                // mostrarMensaje("Error al eliminar el detalle de horario", true);
+                console.log("Error al eliminar el estudiante del aula");
             }
+        },
+        error: function () {
+            console.log("Error en la solicitud AJAX");
         }
     });
 }
+
 
     </script>
 </cuerpo>
