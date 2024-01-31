@@ -140,6 +140,7 @@ def asignar_alumno_a_aula(request, idAnio):
         aulas_existen = Aula.objects.filter(division=division).exists()
         if not aulas_existen:
             Aula.objects.create(division=division)
+    print("aulas creadas")
 
     # Obtener las aulas después de verificar o crear
     aulas = Aula.objects.filter(division__in=divisiones)
@@ -165,6 +166,14 @@ def asignar_alumno_a_aula(request, idAnio):
     return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_no_en_aula,
                                                                 'alumnos_aula': estudiantes_aula,
                                                                 'estudiantes_no_en_aula': estudiantes_no_en_aula})
+    for aula in aulas:
+        # Agregar cada estudiante directamente a la lista
+        estudiantes_aula.append(aula.estudiante)
+    #estudiantes_no_en_aula = estudiantes_inscritos.exclude(id__in=estudiantes_aula)
+    #print("********sn ayulas",estudiantes_no_en_aula)
+    #aulas = Aula.objects.filter(division__in= divisiones)
+    return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_inscritos,
+                                                                'alumnos_aula':estudiantes_aula})
 
 def obtener_alumnos(request):
     print("obtener alumno")

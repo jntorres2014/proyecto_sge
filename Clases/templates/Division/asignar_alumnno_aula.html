@@ -56,22 +56,23 @@
         <h1>Aulas</h1>
         <ul id="aulas-list">
             {% for aula in aulas %}
-            <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" 
-            data-id="{{ aula.id }}"> aula :{{ aula.id }}
-                {% for alumno in alumnos_aula %}
-                    {% if alumno.id == aula.estudiante.id %}
-                        <li>
-                            <h6>{{aula.estudiante.Nombre}}</h6> 
-                            <button class="btn btn-danger btn-sm" onclick="eliminarAlumno({{aula.estudiante.id}})">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </li>
-                    {% endif %}    
-                {% endfor %}</li>
+                <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">
+                    {{ aula.id }}
+                    {% for alumno in alumnos_aula %}
+                        {% if alumno.id == aula.estudiante.id %}
+                            <div>
+                                <h6>{{ alumno.Nombre }}</h6> 
+                                <button class="btn btn-danger btn-sm" onclick="eliminarAlumno({{ aula.estudiante.id }})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </li>
             {% endfor %}
         </ul>
     </div>
-
+    
     <script>
         // Define la función drag en el alcance global
         function drag(event) {
