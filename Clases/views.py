@@ -129,11 +129,13 @@ def obtener_aulas(request):
     aulas = Division.objects.filter(ciclo= Ciclo.objects.get(esActual = 'True'),anio=3)  # Obtén las aulas desde tu modelo
     return render(request, 'aulas.html', {'aulas': aulas})
 
+from django.db.models import Q
+
 def asignar_alumno_a_aula(request, idAnio):
     print("asignar alumno", idAnio)
 
     divisiones = Division.objects.filter(anio_id=idAnio)
-    estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(anio=idAnio)
+    #estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(anio=idAnio)
 
     # Verificar si las aulas existen para cada división
     for division in divisiones:
@@ -142,38 +144,24 @@ def asignar_alumno_a_aula(request, idAnio):
             Aula.objects.create(division=division)
     print("aulas creadas")
 
+    aulas = Aula.objects.filter(division__in=divisiones)
+    # Obtener estudiantes que no están en ninguna de las aulas indicadas
+    estudiantes_no_en_aula = Estudiante.objects.filter(~Q(aulas__in=aulas))
+    print("estudiantes sin aulas", estudiantes_no_en_aula.Nombre)
+    # Obtener estudiantes inscritos que no están en aulas
+    estudiantes_inscritos_no_en_aula = estudiantes_no_en_aula.filter(
+        inscripcionestudianteciclo__anio=idAnio)
+    estudiantes_inscritos_no_en_aula = estudiantes_no_en_aula.filter(
+    print("otros estudiantes",)
     # Obtener las aulas después de verificar o crear
     aulas = Aula.objects.filter(division__in=divisiones)
     estudiantes_aula = []
 
-    print("AULAAAAAA",aulas)
-    estudiantes_no_en_aula = Estudiante.objects.exclude(
-    Q(aulas__in=aulas))
-    # for aula in aulas:
-    #     if aula.estudiante:
-    #         # Agregar cada estudiante directamente a la lista
-    #         estudiantes_aula.append(aula.estudiante)
-
-    # print(estudiantes_aula)
-
-    # Obtener los IDs de los estudiantes en aulas
-    # ids_estudiantes_aula = [estudiante.id for estudiante in estudiantes_aula]
-
     # Obtener estudiantes que no están en ninguna aula
-    # estudiantes_no_en_aula = estudiantes_inscritos.exclude(id__in=ids_estudiantes_aula)
-    print("no en aula", estudiantes_no_en_aula)
 
-    return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_no_en_aula,
-                                                                'alumnos_aula': estudiantes_aula,
-                                                                'estudiantes_no_en_aula': estudiantes_no_en_aula})
-    for aula in aulas:
-        # Agregar cada estudiante directamente a la lista
-        estudiantes_aula.append(aula.estudiante)
-    #estudiantes_no_en_aula = estudiantes_inscritos.exclude(id__in=estudiantes_aula)
-    #print("********sn ayulas",estudiantes_no_en_aula)
-    #aulas = Aula.objects.filter(division__in= divisiones)
-    return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_inscritos,
-                                                                'alumnos_aula':estudiantes_aula})
+
+    return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes':estudiantes_inscritos_no_en_aula,
+                                                                'alumnos_aula': estudiantes_aula})
 
 def obtener_alumnos(request):
     print("obtener alumno")
@@ -196,15 +184,21 @@ def actualizar_relacion(request):
         print("recuperados" , alumno_id, aula_nombre)
         estudiante= Estudiante.objects.get(Dni = alumno_id)
         print("estudiantes",estudiante)
-        aula = get_object_or_404(Aula, division_id=int(aula_nombre))
-        aula = Aula(division_id=int(aula_nombre))
-        # aula = Aula.objects.get(id=int(aula_nombre))
-        print("Aulaaaaaa",aula)
+        aula = Aula.objects.get(id=int(aula_nombre))
+        estudiante= Estudiante.objects.get(Dni=alumno_id)
+        print("estudianteeee",estudiante)
+    
+        # Obtener el aula específica
+        aula = Aula.objects.get(id=int(aula_nombre))
+        #print("aula,aula",aula.estudiantes)
+        # Asignar al estudiante al aula
+        
         aula.estudiantes.add(estudiante)
+        print("Estudiantes de aulaa*****",aula.estudiantes.all())
         #aula = Aula.objects.create(division_id=int(aula_nombre),estudiante=estudiante)
         #aula = Aula.objects.get(id= int(aula_nombre))
         #aula.estudiante = estudiante
-        #aula.save()
+        aula.save()
         mensaje_exito = f'Se cargó el alumno {alumno_id} al aula {aula_nombre}'
         contenido_html = "<h1>Mi HTML</h1><p>Este es un párrafo.</p>"
 
