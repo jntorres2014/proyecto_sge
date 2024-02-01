@@ -151,7 +151,7 @@ def asignar_alumno_a_aula(request, idAnio):
     # Obtener estudiantes inscritos que no están en aulas
     estudiantes_inscritos_no_en_aula = estudiantes_no_en_aula.filter(
         inscripcionestudianteciclo__anio=idAnio)
-    estudiantes_inscritos_no_en_aula = estudiantes_no_en_aula.filter(
+    estudiantes_inscritos_no_en_aula = estudiantes_no_en_aula.filter
     print("otros estudiantes",)
     # Obtener las aulas después de verificar o crear
     aulas = Aula.objects.filter(division__in=divisiones)

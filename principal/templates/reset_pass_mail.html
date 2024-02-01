@@ -1,0 +1,8 @@
+Cambio de contraseña
+
+click en el siguiente link
+{% block reset_link %}
+    {{protocol}}://{{domain}}{% url 'reset_pass_confirm' uidb64= uid token=token %}
+{% endblock %}
+
+Tu nombre de usuario es :{{user.get_username}}

@@ -155,3 +155,10 @@ LOGIN_URL = '/signin'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap'
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'sgemail.sge.2024@gmail.com'
+EMAIL_HOST_PASSWORD = 'ptloikkyodeyndun'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

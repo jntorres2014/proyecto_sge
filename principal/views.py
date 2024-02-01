@@ -10,6 +10,17 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
+
+from django.contrib.auth.views import PasswordChangeView,PasswordResetView
+from django.urls import reverse_lazy
+
+class CustomPasswordChangeView(PasswordChangeView):
+    template_name = 'reset_pass.html'
+    success_url = reverse_lazy('reset_pass_complete')
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'custom_reset_password.html'  # Plantilla personalizada
+    email_template_name = 'custom_reset_password_email.html'  # Plantilla de correo electrónico personalizada
 @login_required
 def home2(request):
     hay_plan=PlanDeEstudios.objects.exists()
@@ -126,6 +137,7 @@ def delete(request,id):
 def signout(request):
     logout(request)
     return redirect('login')
+
 
 def signin(request):
     if request.method == 'GET':

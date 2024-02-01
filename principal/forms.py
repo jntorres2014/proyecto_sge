@@ -11,3 +11,5 @@ class TaskForm (ModelForm):
             'user'
         ]
         
+class cambiasPassForm(ModelForm):
+ 

@@ -16,19 +16,32 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include, re_path
 from principal import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.signin, name= 'login' ),
     path('home2', views.home2, name= 'home2' ),
-    
+    path('reset_password/', 
+         auth_views.PasswordResetView.as_view(), 
+         name='reset_password'),
+    path('reset_password_sent/', 
+         auth_views.PasswordResetDoneView.as_view(), 
+         name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', 
+         auth_views.PasswordResetConfirmView.as_view(), 
+         name='password_reset_confirm'),
+    path('reset_password_complete/', 
+         auth_views.PasswordResetCompleteView.as_view(), 
+         name='password_reset_complete'),
     path('signup/', views.signup, name= 'signup' ),
     path('principal/', views.principal, name= 'principal'),
     path('principal/<int:id>', views.principal_detail, name= 'principal_detail'),
     path('principal/<int:id>/complete', views.complete, name= 'complete'),
     path('principal/<int:id>/delete', views.delete, name= 'delete'),
     path('inscripciones/', views.inscripciones, name= "inscripciones"),
-
+    path('cambiar-contrasena/', views.CustomPasswordChangeView.as_view(), name='cambiar-contrasena'),
+    # path('cambiar-contrasena/', PasswordChangeView.as_view(), name='cambiar-contrasena'),ath('reset/done',views.complete.as_view(template_name='registration/password_reset_complete.html') , name = 'reset_pass_complete'),    
     path('logout/', views.signout, name= 'logout'),
     path('signin/', views.signin, name= 'login'),
     path('task/create', views.create_task, name= 'create_task'),
