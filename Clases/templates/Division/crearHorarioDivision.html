@@ -17,7 +17,7 @@
                         {% bootstrap_form form %}
                         <hr>
                         <div class="form-group">
-                            <input class="btn btn-primary" type="submit" value="Guardar">
+                            <button type="submit" class="btn btn-success btn-black text-white form-label">Crear</button>
                         </div>
                     </div>
                 </form>
@@ -50,9 +50,8 @@
                                         {% for horario in horarios %}
                                             {% if horario.hora == modulo and horario.dia == dia %}
                                             <div id="datos">
-
                                                 <h5>{{ horario.espacioCurricular.nombre }}</h5>
-                                                <button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario(horario.id)">
+                                                <button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario({{horario.id}})">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>    
@@ -71,7 +70,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-    <script>
+    <!-- <script>
         function cargarDatosHorario() {
             var division_id = $('#id_division').val();
             console.log(division_id);
@@ -139,14 +138,15 @@
         }
     });
 }
-    </script>
+    </script> -->
     <script>
 
         function eliminarDetalleHorario(detalleId) {
+            console.log("entre aca")
             // Realiza una solicitud AJAX para eliminar el detalle de horario
             $.ajax({
                 type: 'POST',  // Puedes ajustar el método según tu vista de Django
-                url: 'eliminar_detalle_horario/',
+                url: '/Clases/eliminar_detalle_horario/',
                 data: {
                 detalle_id: detalleId,
                 csrfmiddlewaretoken: '{{ csrf_token }}'

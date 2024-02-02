@@ -71,35 +71,38 @@ class inasistencia_list(ListView):
     template_name = 'Inasistencia/verInasistencias.html'
     
 @login_required
-def crear_horario(request):
-    print("*******entre aca**** ")
+def crear_horario(request,idDivision):
+    print("*******entre aca**** ",idDivision)
+    horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division_id=idDivision))
     if request.method == "POST":
         print("Entre al post")
         form = Detalle_HorarioForm(request.POST)
+        print("El formulario",form)
         if form.is_valid():
+            print("Era valido")
             form.save()
-        return redirect("/Clases/altaHorario")
-    if request.method =='GET':
-        data = request.GET.get('division_id')
-        print("aca vamoooooos",data)
-        if data is None:
-            print("entr none")
-            horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
-            print(horarios)
-        else:
-            division = Division.objects.get(id=data)
-            print("division",division)
-            horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division=division)) 
-            print(horarios)
-            horarios_list = [{'id': horario.id, 'nombre': horario.espacioCurricular.nombre} for horario in horarios]
-            datos_json = {'horarios': horarios_list}
+        #return redirect("/Clases/altaHorario")
+    # if request.method =='GET':
+    #     data = request.GET.get('division_id')
+    #     print("aca vamoooooos",data)
+    #     if data is None:
+    #         print("entr none")
+    #         horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
+    #         print(horarios)
+    #     else:
+    #         division = Division.objects.get(id=data)
+    #         print("division",division)
+    #         horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division=division)) 
+    #         print(horarios)
+    #         horarios_list = [{'id': horario.id, 'nombre': horario.espacioCurricular.nombre} for horario in horarios]
+    #         datos_json = {'horarios': horarios_list}
 
-            # Devolver la respuesta como JSON
-            return JsonResponse(datos_json)
+    #         # Devolver la respuesta como JSON
+    #         return JsonResponse(datos_json)
     #horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
     #print("aca estoy",horarios[0].hora)
     print("Horarios",horarios)
-    form = Detalle_HorarioForm()
+    form = Detalle_HorarioForm(division = Division.objects.get(id=idDivision))
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
     modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]
     print(dias,modulos)
@@ -107,7 +110,8 @@ def crear_horario(request):
     return render(request, "Division/crearHorarioDivision.html", {"form": form, 
                                                                   "horarios": horarios,
                                                                   "dias": dias,
-                                                                  'modulos': modulos})
+                                                                  'modulos': modulos,
+                                                                  'idDivision':idDivision})
 
 
 @login_required

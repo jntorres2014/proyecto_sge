@@ -1,5 +1,5 @@
 from django import forms
-from Core.models import Calificacion, Detalle_Horario, Horario
+from Core.models import Calificacion, Detalle_Horario, EspacioCurricular, Horario,Division
 from Clases.models import Inasistencias
 
 
@@ -34,16 +34,23 @@ class Detalle_HorarioForm(forms.ModelForm):
         model= Detalle_Horario
         fields='__all__'
         widgets = {
+            # 'horario': forms.Select(attrs={'class': 'input-group con-mv-4', 'id':'id_division','onchange':'cargarDatosHorario()'}),
             'horario': forms.Select(attrs={'class': 'input-group con-mv-4', 'id':'id_division','onchange':'cargarDatosHorario()'}),
             'hora': forms.Select(attrs={'class': 'input-group con-mv-4'}),
-            'dia': forms.TextInput(attrs={'class': 'input-group mb-3'}),    
+            'espaciCurricular': forms.Select(attrs={'class': 'input-group con-mv-4'}),
+            'dia': forms.TextInput(attrs={'class': 'input-group mb-3'}),   
+
         }
 
     def __init__(self, *args, **kwargs):
+        division = kwargs.pop('division', None)
         super(Detalle_HorarioForm, self).__init__(*args, **kwargs)
+        print("Divisionnnn****",division.anio_id)
 
         # # Personaliza el widget para el campo 'dia'
         self.fields['dia'].widget = forms.Select(choices=Horario.CHOICES_DIA)
+        self.fields['espacioCurricular'].queryset = EspacioCurricular.objects.filter(anio_id= division.anio_id)
+        self.fields['horario'].queryset = Division.objects.filter(id= division.id)
 
         # # Personaliza el widget para el campo 'hora'
         self.fields['hora'].widget = forms.Select(choices=Horario.CHOICES_HORA)
