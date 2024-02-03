@@ -4,23 +4,35 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout,authenticate
 
 from Core.models import Ciclo, PlanDeEstudios
-from .forms import TaskForm
+from .forms import TaskForm, UsuarioForm
 from .models import Task
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 
-from django.contrib.auth.views import PasswordChangeView,PasswordResetView
+from django.contrib.auth.views import PasswordResetView,PasswordResetDoneView,PasswordResetConfirmView
 from django.urls import reverse_lazy
 
-class CustomPasswordChangeView(PasswordChangeView):
+class CustomPasswordChangeView(PasswordResetView):
     template_name = 'reset_pass.html'
-    success_url = reverse_lazy('reset_pass_complete')
+    success_url = reverse_lazy('reset_password_done')
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'custom_reset_password.html'  # Plantilla personalizada
     email_template_name = 'custom_reset_password_email.html'  # Plantilla de correo electrónico personalizada
+
+class PasswordResetCompleteView(PasswordResetDoneView):
+    template_name = 'reset_pass_complete.html'  # Plantilla personalizada
+    email_template_name = 'custom_reset_password_email.html'  # Plantilla de correo electrónico personalizada
+
+class PasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'reset_pass_confirm.html'  # Plantilla personalizada
+    email_template_name = 'custom_reset_password_email.html'  # Plantilla de correo electrónico personalizada    
+class PasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'reset_password_done.html'  # Plantilla personalizada
+        
+
 @login_required
 def home2(request):
     hay_plan=PlanDeEstudios.objects.exists()
@@ -59,7 +71,7 @@ def create_task(request):
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {
-            'form': UserCreationForm
+            'form': UsuarioForm
         })
         print('Enviando formulario')
     else:
@@ -67,7 +79,10 @@ def signup(request):
         if request.POST['password1'] == request.POST['password2']:
             try:
                 user = User.objects.create_user(username=request.POST['username'],
-                                                password=request.POST['password1'])
+                                                password=request.POST['password1'],
+                                                email = request.POST['email'],
+                                                first_name= request.POST['first_name'],
+                                                last_name= request.POST['last_name'])
                 user.save()
                 login(request,user)
                 return redirect('/signin')

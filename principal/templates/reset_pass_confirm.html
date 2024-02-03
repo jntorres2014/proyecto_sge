@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block header %}
+{% endblock %}
+
+{% load bootstrap5 %}
 
 {% block content %}
 
@@ -6,10 +10,12 @@
 
 <h1> Nueva contraseña</h1>
 
-<form method="post">
+<div class="container">
 
-    {% csrf_token %}
-    {{form.new_password1.errors }}
+    <form method="post">
+        
+        {% csrf_token %}
+        {{form.new_password1.errors }}
     <label for="id_new_password1"> Nueva contraseña: </label>
     {{form.new_password1}}
 
@@ -19,6 +25,7 @@
     <input type="submit" value="Cambiar mi contraseña">
 </form>
 {% else %}
-<h1 class="text-center">Enlace invalido</h1>
+<h1 class="text-center">El enlace ya no esta disponible</h1>
 {% endif %}
+</div>
 {% endblock %}
