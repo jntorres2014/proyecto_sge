@@ -17,7 +17,9 @@
                         {% bootstrap_form form %}
                         <hr>
                         <div class="form-group">
-                            <button type="submit" class="btn btn-success btn-black text-white form-label">Crear</button>
+                            <button type="submit" class="btn btn-success btn-black text-white form-label">
+                                Crear
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -46,7 +48,7 @@
                             <tr>
                                 <td>{{ modulo }}</td>
                                 {% for dia in dias %}
-                                    <td id="tabla-render">
+                                    <td>
                                         {% for horario in horarios %}
                                             {% if horario.hora == modulo and horario.dia == dia %}
                                             <div id="datos">

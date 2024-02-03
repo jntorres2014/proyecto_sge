@@ -73,34 +73,18 @@ class inasistencia_list(ListView):
 @login_required
 def crear_horario(request,idDivision):
     print("*******entre aca**** ",idDivision)
+
     horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division_id=idDivision))
     if request.method == "POST":
-        print("Entre al post")
-        form = Detalle_HorarioForm(request.POST)
+        print("******Entre al post******")
+        print("requesst",request.POST)
+        division = Division.objects.get(id=idDivision)
+        form = Detalle_HorarioForm(request.POST, division=division)
         print("El formulario",form)
         if form.is_valid():
             print("Era valido")
             form.save()
-        #return redirect("/Clases/altaHorario")
-    # if request.method =='GET':
-    #     data = request.GET.get('division_id')
-    #     print("aca vamoooooos",data)
-    #     if data is None:
-    #         print("entr none")
-    #         horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
-    #         print(horarios)
-    #     else:
-    #         division = Division.objects.get(id=data)
-    #         print("division",division)
-    #         horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division=division)) 
-    #         print(horarios)
-    #         horarios_list = [{'id': horario.id, 'nombre': horario.espacioCurricular.nombre} for horario in horarios]
-    #         datos_json = {'horarios': horarios_list}
-
-    #         # Devolver la respuesta como JSON
-    #         return JsonResponse(datos_json)
-    #horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
-    #print("aca estoy",horarios[0].hora)
+        return redirect("/Clases/crear_horario/" + idDivision)
     print("Horarios",horarios)
     form = Detalle_HorarioForm(division = Division.objects.get(id=idDivision))
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
@@ -117,13 +101,26 @@ def crear_horario(request,idDivision):
 @login_required
 def registrarInasistencia(request, idAnio):
     #ACa deberia trer los alumnos de un anio especifico de un ciclo especifico
-    estudiantes = inscripcionEstudianteCiclo.objects.all()
-    print(estudiantes)
-    if request.method == 'POST':
-        print(request.POST)
+    if request.method == "POST":
+        print("entre al post")
+        # Obtener información del formulario
+        inasistencias_seleccionadas = request.POST.getlist('inasistencias_seleccionadas')
+        print(inasistencias_seleccionadas)
+        for estudiante_id in inasistencias_seleccionadas:
+            # Verificar si la falta está marcada
+            falta_key = f'falta_{estudiante_id}'
+            falta = request.POST.get(falta_key, False)
+            
+            # Verificar si el justificado está marcado
+            justificado_key = f'justificado_{estudiante_id}'
+            justificado = request.POST.get(justificado_key, False)
+            estudiante = Estudiante.objects.get(id=estudiante_id)
+            nueva_inasistencia = Inasistencias(estudiante=estudiante, falta=falta, justificacion=justificado)
+            nueva_inasistencia.save()
+           #Inasistencias.create()
         
 
-    return render(request, 'Cursada/cargarInasistencia.html', {'estudiantes': estudiantes})
+    return render(request, 'Cursada/cargarInasistencia.html', {'estudiantes': estudiante})
     
     # Mostrarlos y registrar los que no estan marcados
 

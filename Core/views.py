@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from Core import forms
 from Core.resource import LocalidadResource
-from .models import PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,inscripcionEstudianteCiclo, Division
+from .models import Aula, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,inscripcionEstudianteCiclo, Division
 from django.views.generic import ListView,TemplateView
 from django.db.models import Q
 from tablib import Dataset 
@@ -391,6 +391,7 @@ def division_list(request, id,idCiclo):
         print(descripcion)
         nueva_division = Division(ciclo=Ciclo.objects.get(esActual= 'True'), codigo=codigo, descripcion=descripcion, anio=anio)
         nueva_division.save()
+        nueva_division.crear_Horario_Division()
         division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,
                                                       'id':idCiclo,
@@ -508,10 +509,14 @@ def inscripciones_alumnnos_ciclo(request, id_ciclo=1):
                                                                'ciclo': id_ciclo_actual})
 @login_required
 def estudiantesDeAnioEnCiclo(request, idCiclo):
-    
-    estudiantesCiclo=  inscripcionEstudianteCiclo.objects.filter(ciclo = idCiclo)
-    
+    estudiantesCiclo=  inscripcionEstudianteCiclo.objects.filter(ciclo = idCiclo)   
     return render(request, 'Core/Persona/estudiantes_por_anio_ciclo.html', {'estudiantes': estudiantesCiclo})
+
+def list_alumno_aula(request,idDivision):
+    aula = Aula.objects.get(division_id=idDivision)
+    return render(request, 'Cursada/cargarInasistencia.html',{'inscriptos': list(aula.estudiantes.all()),
+                                                                 'idDivision': idDivision})
+
 @login_required
 def AsignarAlumno_Division(request, idAnio, idCiclo):
     inscriptos = inscripcionEstudianteCiclo.objects.filter(anio = idAnio, ciclo = idCiclo)
