@@ -1,8 +1,6 @@
 from django import forms
 from django.utils import timezone
-from Core.models import PlanDeEstudios, EspacioCurricular
-from Core.models import AnioPlan
-from Core.models import Localidad
+from Core.models import PlanDeEstudios, EspacioCurricular,AnioPlan,Localidad
 from Core.models import Persona,Docente,Estudiante,Ciclo,Division, inscripcionEstudianteCiclo
 from dal import autocomplete
 from datetime import datetime

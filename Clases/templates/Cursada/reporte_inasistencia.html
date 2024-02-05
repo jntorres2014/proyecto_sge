@@ -1,23 +1,29 @@
 {% extends 'base.html' %}
 {% load static %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 {% block css %} 
 <link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
 {% endblock %}
 {% load bootstrap5 %}
 
-
 {% block content %}
-
-
 {{form.media}}
 <body>
-    <h1>Consulta de Faltas</h1>
+    <div class="container">
 
-    <form id="consultaForm" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-    
+        <h1>Consulta de Faltas</h1>
+        
+        <form id="consultaForm">
+            {% csrf_token %}
+        <label for="fechaInicio">Fecha de inicio:</label>
+        <input type="date" id="fechaInicio" name="fechaInicio" required>
+
+        <label for="fechaFin">Fecha de fin:</label>
+        <input type="date" id="fechaFin" name="fechaFin" required>
+
+        <label for="estudiante">Estudiante:</label>
+        <input type="input" id="estudiante" name="estudiante" required>
+
+
         <button type="button" id="consultaBtn">Consultar Faltas</button>
     </form>
 
@@ -25,44 +31,42 @@
         <!-- Aquí se mostrarán los resultados de la consulta -->
     </div>
 
-    {% endblock %}
-
-    {% comment %} {% load static %} {% endcomment %}
-    
-    {% block scripts %}    
+</div>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
     <script>
         $(document).ready(function () {
             $('#consultaBtn').click(function () {
-                var formData = $('#consultaForm').serialize();
+                var fechaInicio = $('#fechaInicio').val();
+                var fechaFin = $('#fechaFin').val();
+                console.log(fechaInicio,fechaFin)
+                var estudiante = $('#estudiante').val();
 
                 $.ajax({
                     type: 'POST',
                     url: '/Clases/consultar_faltas/',
                     data: {
-                        data: formData,
-                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()  // Incluye el token CSRF
+                        'fecha_inicio': fechaInicio,
+                        'fecha_fin': fechaFin,
+                        'estudiante_id': estudiante,
+                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
                     },
                     success: function (data) {
                         // Procesar y mostrar los resultados en '#resultadosContainer'
-                        console.log('volviiiiiiii')
                         console.log(data.resultados);
                         $('#resultadosContainer').empty();
-
-        // Verificar si hay resultados
-        if (data.resultados.length > 0) {
-            // Iterar sobre los resultados y agregarlos al contenedor
-            $.each(data.resultados, function (index, resultado) {
-                var html = '<p>Nombre: ' + resultado.nombre_alumno + ', Fecha de falta: ' + resultado.dia + '</p>';
-                $('#resultadosContainer').append(html);
-            });
-        } else {
-            // Si no hay resultados, mostrar un mensaje indicando eso
-            $('#resultadosContainer').html('<p>No hay faltas encontradas para el período seleccionado.</p>');
-        }
-
-                    },
+                        // Verificar si hay resultados
+                        if (data.resultados.length > 0) {
+                            // Iterar sobre los resultados y agregarlos al contenedor
+                            $('#resultadosContainer').html('<p>Las faltas registradas entre' + fechaInicio +' y '+ fechaFin +'</p>');
+                            $.each(data.resultados, function (index, resultado) {
+                                var html = '<p>Nombre: ' + resultado.nombre_alumno + ', Fecha de falta: ' + resultado.fecha + '</p>';
+                                $('#resultadosContainer').append(html);
+                            });
+                        } else {
+                            // Si no hay resultados, mostrar un mensaje indicando eso
+                            $('#resultadosContainer').html('<p>No hay faltas encontradas para el período seleccionado.</p>');
+                        }
+                                    },
                     error: function (error) {
                         console.log(error);
                     }

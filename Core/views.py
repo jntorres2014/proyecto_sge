@@ -27,6 +27,7 @@ class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
         return qs
 class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
+        print('ENTRE A AUTOCOMPLETE******')
         ciclo_actual = Ciclo.objects.get(esActual=True)
         # Filtra los estudiantes que no están inscritos en el ciclo actual
         qs = Estudiante.objects.exclude(
