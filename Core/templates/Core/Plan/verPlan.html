@@ -2,7 +2,7 @@
 {% load bootstrap5 %}
 
 {% block content %}
-  <div class="container contenedor-tabla">
+<div class="container container-table">
     <h1>Listado de PLANES DE ESTUDIO</h1>
     <div class="form-inline mt-3">
         <div class="form-group mx-sm-3 mb-2">
@@ -11,11 +11,11 @@
         </div>
     </div>
     <div class="p-5 text-center" id="resultadoBusqueda">
-        <div class="row">
+        <div class="row" id="isotope-container">
             {% if planes %}
                 {% for plan in planes %}
                     <div class="col-sm-4 mb-4 plan" data-anio="{{ plan.anio }}">
-                        <div class="card"  style="width: 18rem; height: 100%;">
+                        <div class="card" style="width: 18rem; height: 100%;">
                             {% if plan.esActual %}
                                 <h2>Plan actual</h2>
                             {% endif %}
@@ -49,48 +49,42 @@
             <a class="btn btn-primary" href="/Core/altaPlan">Alta Plan de Estudio</a>
         </div>
     </div>
-  </div>
+</div>
 
-  {% block scripts %}
-  <!-- Script JavaScript -->
-  <script>
-      // Asociar la función buscarPlanesPorAnio al evento input del campo de año
-      document.getElementById('inputAnio').addEventListener('input', buscarPlanesPorAnio);
+{% block scripts %}
+<!-- Script JavaScript -->
+<script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
+<script>
+$(document).ready(function () {
+    var $container = $('#isotope-container').isotope({
+        itemSelector: '.plan',
+        layoutMode: 'fitRows'
+    });
 
-      function buscarPlanesPorAnio() {
-          // Obtener el valor del campo de entrada
-          var anio = document.getElementById('inputAnio').value.toLowerCase();
+    // Filtrar cuando se escriba en el campo de año
+    $('#inputAnio').on('input', function () {
+        var anio = $(this).val().toLowerCase();
+        if (anio === '') {
+            $container.isotope({ filter: '*' }); // Mostrar todos los planes
+        } else {
+            $container.isotope({ filter: '[data-anio*="' + anio + '"]' });
+        }
+    });
 
-          // Obtener todos los planes de la vista
-          var planes = document.querySelectorAll('.plan');
+    // Filtrar al presionar Enter en el campo de año
+    $('#inputAnio').keypress(function (e) {
+        if (e.which === 13) {
+            var anio = $(this).val().toLowerCase();
+            if (anio === '') {
+                $container.isotope({ filter: '*' }); // Mostrar todos los planes
+            } else {
+                $container.isotope({ filter: '[data-anio*="' + anio + '"]' });
+            }
+        }
+    });
+});
 
-          // Mostrar todos los planes si el campo de año está vacío
-          if (anio === '') {
-              document.getElementById('resultadoBusqueda').innerHTML = '';
-              planes.forEach(function(plan) {
-                  document.getElementById('resultadoBusqueda').appendChild(plan);
-              });
-          } else {
-              // Filtrar los planes por año
-              var planesFiltrados = Array.from(planes).filter(function(plan) {
-                  var planAnio = plan.dataset.anio.toLowerCase();  // Acceder al atributo data-anio
-                  return planAnio === anio;
-              });
-
-              // Mostrar los planes filtrados en el elemento con id "resultadoBusqueda"
-              document.getElementById('resultadoBusqueda').innerHTML = '';
-              planesFiltrados.forEach(function(plan) {
-                  document.getElementById('resultadoBusqueda').appendChild(plan.cloneNode(true));
-              });
-          }
-      }
-  </script>
-  <script>
-
-    $(document).ready( function () {
-        $('#myTable').DataTable();
-    } );
 </script>
-    {% endblock scripts %}
+{% endblock scripts %}
 
-    {% endblock content %}
+{% endblock content %}

@@ -2,6 +2,7 @@
 
 {% block content %}
 <div class="container">
+
     <div class="contenedor-tabla">
         <div>
             <h1><a href='#'>Lista Estudiantes</a></h1>
@@ -19,7 +20,7 @@
                             <th>Email</th>
                             <th>Legajo</th>
                             <th>Fecha Inscripcion</th>
-                            <th>Acciones</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,18 +67,8 @@
 
 <!-- Agrega el archivo de idioma español -->
 <script src="https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"></script>
+
 <style>
-    /* Ajustar el tamaño de las celdas de DataTable */
-    #table_id td {
-        font-size: 10px; /* Tamaño de texto */
-        padding: 3px;    /* Espaciado interno */
-    }
-</style>
-<style>
-#table_id td {
-    font-size: 10px; /* Tamaño de texto de las celdas */
-    padding: 3px;    /* Espaciado interno de las celdas */
-}
 
 /* Ajustar el tamaño de los campos de búsqueda */
 .dataTables_wrapper .dataTables_filter input {

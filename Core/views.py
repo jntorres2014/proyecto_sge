@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from Core import forms
+from django.urls import reverse
 from Core.resource import LocalidadResource
 from .models import Aula, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,inscripcionEstudianteCiclo, Division
 from django.views.generic import ListView,TemplateView
@@ -22,7 +23,7 @@ class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
         print(qs)
         if self.q:
             qs = qs.filter( Q(NombreLocalidad__icontains=self.q) |    # Buscar en el atributo "nombre"
-                Q(CodigoPosta__icontains=self.q) )           # Buscar en el atributo "Dni"
+                Q(CodigoPostal__icontains=self.q) )           # Buscar en el atributo "Dni"
         return qs
 class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -111,9 +112,6 @@ def Estudiante_view(request):
         if form.is_valid():
             print(form.cleaned_data)
             form.save()
-            #estudiante = form.save(commit=False)
-            #estudiante.fechaInscripcion = form.fechaInscripcion
-            #estudiante.save()
             return HttpResponseRedirect("/Core/verEstudiantes")
     else:
         form = forms.EstudianteForm()
@@ -150,9 +148,13 @@ def docente_edit(request, id_docente):
 
 @login_required
 def eliminar_estudiante(request, id_estudiante):
-    print("entro aca")    
-    estudiante = Estudiante.objects.get(id=id_estudiante)
-    estudiante.delete()
+    try:
+        estudiante = Estudiante.objects.get(id=id_estudiante)
+        estudiante.delete()
+        messages.success(request, 'El estudiante se eliminó correctamente.')
+    except Estudiante.DoesNotExist:
+        messages.error(request, 'No se encontró el estudiante que intentas eliminar.')
+    
     return HttpResponseRedirect("/Core/verEstudiantes")
     if request.method == 'POST':
         print("Entro a eliminar el estudiante")
@@ -196,7 +198,7 @@ def plan_de_estudios_view(request):
 
 @login_required    
 def plan_list(request):
-    planes=PlanDeEstudios.objects.order_by('esActual')
+    planes=PlanDeEstudios.objects.all().order_by('-esActual')
     print(planes)
     return render(request, 'Core/Plan/verPlan.html', {
         'planes': planes,
@@ -206,9 +208,9 @@ def plan_list(request):
 def plan_edit(request, id_plan):
     plan = PlanDeEstudios.objects.get(id=id_plan)
     if request.method == 'GET':
-        form = forms.PlanDeEstudiosForm(instance=plan)
+        form = forms.PlanDeEstudiosEditForm(instance=plan)
     else:
-        form = forms.PlanDeEstudiosForm(request.POST, instance=plan)
+        form = forms.PlanDeEstudiosEditForm(request.POST, instance=plan)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect("/Core/verPlan")
@@ -316,41 +318,26 @@ def cicloPlan_list(request, id):
     plan = PlanDeEstudios.objects.get(id=id)
     print("VER CICLO estoy aca", plan.id)
     
-    anioCicloPlan= Ciclo.objects.filter(plan=plan)
+    anioCicloPlan= Ciclo.objects.filter(plan=plan).order_by('-esActual')
 
     print (anioCicloPlan)
     return render(request, 'Core/Plan/verCiclo.html',{'ciclo': anioCicloPlan, 'id':id, 'plan':plan })    
-
 @login_required
-def ciclo_view(request,id):
-    plan = PlanDeEstudios.objects.get(id=id)
-    print("******************")
-    print(plan)
-    anios = AnioPlan.objects.filter(plan = plan.id)
-    #print(request.method)
-    if request.method == 'POST':
-        # form = forms.PlanDeEstudiosForm(request.POST, instance=plan)
-        form = forms.CicloForm(request.POST,)
-        print("entre al post")
-        if form.is_valid():
-            print("era valido")
-            ciclo = form.save()
-            ciclo.crear_division_para_anio_ciclo(ciclo,anios)
-            print('Cree las divisiones')
-            Ciclo.cambiar_actual(request, ciclo.id)
-            print('Cambie el ciclo actual')
-            pagina = "/Core/verCiclo/" + id
-            plan.implementado = 'True'
-            plan.save()
-            #print("la pagina",pagina)
-        return HttpResponseRedirect("/Core/verCiclo/" + id)
-    else:
-        print("no era valido")
-        form = forms.CicloForm()
-    return render(request, 'Core/Plan/CicloForm.html', {
-        'form': form,
-        'plan': plan,
-        'id':id})
+def ciclo_view(request, id):
+    plan = get_object_or_404(PlanDeEstudios, id=id)
+    anios = AnioPlan.objects.filter(plan=plan.id)
+
+    form = forms.CicloForm(request.POST) if request.method == 'POST' else forms.CicloForm()
+
+    if request.method == 'POST' and form.is_valid():
+        ciclo = form.save()
+        ciclo.crear_division_para_anio_ciclo(ciclo, anios)
+        Ciclo.cambiar_actual(request, ciclo.id)
+        plan.implementado = True
+        plan.save()
+        return redirect('/Core/verCicloEnPlan/'+id)
+
+    return render(request, 'Core/Plan/CicloForm.html', {'form': form, 'plan': plan, 'id': id})
 
 def cambiar_actual(request, id_plan):
     # Llama al método cambiar_actual de la clase PlanDeEstudios

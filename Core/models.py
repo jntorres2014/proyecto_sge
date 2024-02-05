@@ -9,6 +9,7 @@ from django.dispatch import receiver
 import pandas as pd
 from django.db import IntegrityError
 
+
 class Localidad (models.Model):
 
     REGEX_NUMEROPOSTAL = '^[0-9]{1,12}$'
@@ -16,7 +17,7 @@ class Localidad (models.Model):
     REGEX_NOMBRE = '^[0-9a-zA-Z-_ .]{3,100}$'
     MAXNOMBRELOCALIDAD=70
 
-    CodigoPosta = models.CharField(
+    CodigoPostal = models.CharField(
         help_text="cp",
         max_length=MAXNUMEROPOSTAL,
         unique=False,
@@ -283,7 +284,7 @@ class Estudiante(Persona):
         return value
 
     legajo = models.CharField(max_length= 50,unique= True)
-    fechaInscripcion = models.DateField(validators=[dia_futuro])
+    fechaInscripcion = models.DateField(default = now,validators=[dia_futuro])
 
     @classmethod
     def seed_db(this,n):
@@ -355,7 +356,7 @@ class EspacioCurricular(models.Model):
 
     anio = models.ForeignKey(AnioPlan, on_delete= models.CASCADE)
 
-    codigo = models.CharField(max_length= 50)
+    codigo = models.CharField(max_length= 50,unique= True)
 
     cantidadModulos = models.PositiveIntegerField()
 
@@ -426,8 +427,8 @@ class Ciclo (models.Model):
     esActual = models.BooleanField(
         default= True
     )
-    
 
+    
     def __str__(self):
         return "{0}".format(self.anioCalendario)
     @staticmethod
@@ -606,7 +607,7 @@ class Detalle_Horario(models.Model):
 
 
 class inscripcionEstudianteCiclo(models.Model):
-    estudiante = models.OneToOneField(
+    estudiante = models.ForeignKey(
         Estudiante,
         null=True,
         on_delete=models.CASCADE,
@@ -615,7 +616,8 @@ class inscripcionEstudianteCiclo(models.Model):
     ciclo = models.ForeignKey(
         Ciclo,
         null=True,
-        on_delete=models.CASCADE)
+        on_delete=models.CASCADE
+    )
 
     anio = models.ForeignKey(
         AnioPlan,
@@ -624,7 +626,9 @@ class inscripcionEstudianteCiclo(models.Model):
     fecha = models.DateTimeField(default=now)
 
     class Meta:
-        unique_together = ['estudiante', 'anio']
+        unique_together = ['estudiante', 'ciclo', 'anio']
+
+
 
 from django.db import models
 

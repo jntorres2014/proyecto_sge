@@ -134,10 +134,10 @@ from django.db.models import Q
 
 def asignar_alumno_a_aula(request, idAnio):
     print("asignar alumno", idAnio)
-
-    divisiones = Division.objects.filter(anio_id=idAnio)
-    estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(anio=idAnio)
-
+    ciclo = Ciclo.objects.get(esActual = 'True')
+    divisiones = Division.objects.filter(anio_id=idAnio,ciclo=ciclo)
+    estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(anio=idAnio,ciclo = ciclo)
+    print("estudiuantes inscriptos",estudiantes_inscritos)
     # Verificar si las aulas existen para cada división
     for division in divisiones:
         aulas_existen = Aula.objects.filter(division=division).exists()
@@ -151,13 +151,18 @@ def asignar_alumno_a_aula(request, idAnio):
 
     for aula in aulas:
         estudiantes_aula[aula.id] = aula.estudiantes.all()
-
-    print("Estudiates e aulas",type(estudiantes_aula))
+    estudiantes_no_en_aula = []
+    print("Estudiates e aulas",estudiantes_aula)
     # Obtener los IDs de los estudiantes en aulas
+
+    for estudiante in estudiantes_inscritos:
+        if not(estudiante in estudiantes_aula):
+
+            estudiantes_no_en_aula.append(estudiante)
     ids_estudiantes_aula = [estudiante.id for aula_estudiantes in estudiantes_aula.values() for estudiante in aula_estudiantes]
 
     # Obtener estudiantes que no están en ninguna aula
-    estudiantes_no_en_aula = estudiantes_inscritos.exclude(id__in=ids_estudiantes_aula)
+ #   estudiantes_no_en_aula = estudiantes_inscritos.exclude(id__in=ids_estudiantes_aula)
     print("no en aula", estudiantes_no_en_aula)
 
     return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_no_en_aula,

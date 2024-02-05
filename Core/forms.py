@@ -1,12 +1,10 @@
 from django import forms
-from django.urls import reverse
+from django.utils import timezone
 from Core.models import PlanDeEstudios, EspacioCurricular
 from Core.models import AnioPlan
 from Core.models import Localidad
 from Core.models import Persona,Docente,Estudiante,Ciclo,Division, inscripcionEstudianteCiclo
-
 from dal import autocomplete
-
 from datetime import datetime
 
 
@@ -33,10 +31,19 @@ class AnioForm(forms.ModelForm):
             #'ciclo' : forms.TextInput(attrs={'class': 'ciclo.codigo'}),
         }
 
+class PlanDeEstudiosEditForm(forms.ModelForm):
+    class Meta:
+        model = PlanDeEstudios
 
+        fields = [
+            'codigo',
+            'anio',
+            'orientacion',
+            'nivel',
+            'descripcion',
+        ]
 
 class PlanDeEstudiosForm(forms.ModelForm):
-
     class Meta:
         model = PlanDeEstudios
 
@@ -55,20 +62,10 @@ class LocalidadForm(forms.ModelForm):
         model = Localidad
 
         fields= [
-            'CodigoPosta',
+            'CodigoPostal',
             'NombreLocalidad',
         ]
 
-
-# Localidad = forms.DateField(
-#     required=True,
-#     label='Localidad',
-#     widget=forms.CharField,
-#     help_text='Localidad',
-#     error_messages={
-#         'invalid_choice': "La opcion no es valida",
-#         'required': "La localidad es obligatorio"
-#     })
 
 
 class PersonaForm(forms.ModelForm):
@@ -110,7 +107,16 @@ class EstudianteForm(forms.ModelForm):
     
     class Meta:
         model = Estudiante
-        fields = '__all__'
+        fields = ['Nombre',
+                  'Apellido',
+                  'Dni',
+                  'legajo',
+                  'Localidad',
+                  'Direccion',
+                  'Email',
+                  'Telefono',
+                  ]
+
         print("acaaaaaaaaaaaaaaasdasdas")
         widgets_localidad = autocomplete.ModelSelect2(url='core:localidad-autocomplete',attrs={'class': 'input-group'})
         print(widgets_localidad)
@@ -139,6 +145,21 @@ class EspacioCurricularEditForm(forms.ModelForm):
             'nombre',
             'contenido',
         ]
+        labels = {
+            'codigo': 'Codigo',
+            'cantidadModulos': 'Cantidad de modulos',
+            'nombre' : 'Nombre',
+            'contenido': 'Contenido',
+        }
+        widgets = { 
+            'plan': forms.Select(attrs={'class': 'input-group mb-3'}),
+            'anio': forms.Select(attrs={'class': 'input-group mb-3'}),
+            'codigo': forms.TextInput(attrs={'class': 'input-group mb-3'}),
+            'cantidadModulos': forms.TextInput(attrs={'class': 'input-group mb-3', 'type': 'number', 'min':'1'}),
+            'nombre': forms.TextInput(attrs={'class': 'input-group mb-3'}),
+            'contenido': forms.TextInput(attrs={'class': 'input-group mb-3'}),
+            
+        }
 
 class EspacioCurricularForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -159,6 +180,14 @@ class EspacioCurricularForm(forms.ModelForm):
             'contenido',
 
         ]
+        labels={
+            'plan': 'Plan de estudio',
+            'anio': 'Año',
+            'codigo': 'Codigo de Espacio Curricular',
+            'cantidadModulos': 'Cantidad de modulos',
+            'nombre': 'Nombre',
+            'contenido': 'Contenido',
+        }
         widgets = { 
             'plan': forms.Select(attrs={'class': 'input-group mb-3'}),
             'anio': forms.Select(attrs={'class': 'input-group mb-3'}),
@@ -182,9 +211,6 @@ class EspacioCurricularForm(forms.ModelForm):
         
         self.fields['anio'].queryset = anios_plan_estudio
 
-   
-
-
 class CicloEditForm(forms.ModelForm):
 
     class Meta:
@@ -194,8 +220,14 @@ class CicloEditForm(forms.ModelForm):
             'anioCalendario',
             'fechaInicio',
             'fechaFin',
-            'plan',
+
         ]
+        labels = {
+            'anioCalendario': 'Año calendario',
+            'fechaInicio': 'Fecha de inicio',
+            'fechaFin': 'Fecha de fin',
+
+        }
         #self.fields['plan'].queryset = PlanDeEstudios.objects.filter(esActual= 'True')
 
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
@@ -208,7 +240,14 @@ class CicloEditForm(forms.ModelForm):
         fin = self.cleaned_data.get("fechaFin")
         if inicio >= fin:
             raise forms.ValidationError("fecha ingresada es menor a la de inicio")
+    
+        # Verificar si hay ciclos activos para las fechas proporcionadas
+        ciclos_activos = Ciclo.objects.filter(fechaInicio__lte=fin, fechaFin__gte=inicio).exclude(id=self.instance.id)
+        print("ciclos activooooosss", ciclos_activos)
+        if ciclos_activos.exists():
+            raise forms.ValidationError("Hay un ciclo activo para las fechas proporcionadas")
         return fin
+
 
 class CicloForm(forms.ModelForm):
 
@@ -221,6 +260,12 @@ class CicloForm(forms.ModelForm):
             'fechaFin',
             'plan',
         ]
+        labels = {
+            'anioCalendario': 'Año Calendario',
+            'fechaInicio': 'Fecha de Inicio de ciclo',
+            'fechaFin': 'Fecha de fin de ciclo',
+            'plan': 'Plan que implementa'
+        }
 
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
         anios_plan_estudio = PlanDeEstudios.objects.filter(esActual='True')
@@ -232,9 +277,13 @@ class CicloForm(forms.ModelForm):
         inicio = self.cleaned_data.get("fechaInicio")
         fin = self.cleaned_data.get("fechaFin")
         if inicio >= fin:
-            raise forms.ValidationError("fecha ingresada es menor a la de inicio")
+            raise forms.ValidationError("fecha ingresada debe ser mayor a la fecha de inicio")
+        # Verificar si hay ciclos activos para las fechas proporcionadas
+        ciclos_activos = Ciclo.objects.filter(fechaInicio__lte=fin, fechaFin__gte=inicio).exclude(id=self.instance.id)
+        print("ciclos activooooosss", ciclos_activos)
+        if ciclos_activos.exists():
+            raise forms.ValidationError("Hay un ciclo activo para las fechas proporcionadas")
         return fin
-    
     
     def __init__(self, *args, **kwargs):
         super(CicloForm, self).__init__(*args, **kwargs)
@@ -299,21 +348,13 @@ estudiante = forms.DateField(
 )
 class inscripcionAlumnoForm(forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        print("acaaaaaaaaaaaaaa")
-        # Obtener el plan de estudios y los ciclos desde los kwargs
-        #plan_estudio = kwargs.pop('plan_estudio', None)
-        
-        super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)
-
-
-
     class Meta:
         model = inscripcionEstudianteCiclo
         fields= '__all__'
+        labels = {
+            'anio': 'Año'
+        }
         widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'class': 'input-group mb-3'})
-        #import ipdb; ipdb.set_trace() 
-        # print(widgets_estudiante)
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
         
      
@@ -324,6 +365,11 @@ class inscripcionAlumnoForm(forms.ModelForm):
             'anio': forms.Select(attrs={'class': 'form-label input-group mb-3 '}),
             
         }
+    def clean_fecha(self):
+        fecha = self.cleaned_data.get("fecha")
+        if fecha > timezone.now():
+            raise forms.ValidationError("La fecha ingresada es mayor al día de hoy")
+        return fecha
 
     def __init__(self, *args, **kwargs):
         super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)

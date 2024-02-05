@@ -2,14 +2,22 @@
 {% block content %}
 {% load bootstrap5 %}
 
-    <div class="container contact-form">
-        <h1>Alta Ciclo</h1>
-        <form class="form " method="post">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            <div class="form-group">
-                <input class="btn btn-primary" type="submit" value="Guardar">
+{{ form.media }}
+<div class="container contact-form">
+    <h1>Alta Ciclo</h1>
+    <form class="form " method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3" role="alert">
+                <strong>Error:</strong> Por favor, corrige los siguientes errores.
             </div>
-        </form>
-    </div>
+        {% endif %}
+
+        <div class="form-group">
+            <input class="btn btn-primary" type="submit" value="Guardar">
+        </div>
+    </form>
+</div>
 {% endblock content %}

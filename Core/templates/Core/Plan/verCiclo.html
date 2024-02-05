@@ -1,77 +1,80 @@
 {% extends 'Core/Plan/menuCiclo.html' %}
+{% load bootstrap5 %}
+
 {% block content %}
- <div class="container container-table">
-     <h1> Lista de Ciclos que implementan el plan </h1>
-            
-     <div class="p-5 text-center">
-        <div class="row ">
+
+<div class="container container-table">
+    <h1> Lista de Ciclos que implementan el plan </h1>
+    <div class="form-inline mt-3">
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="inputAnioCalendario" class="sr-only">Año Calendario</label>
+            <input type="text" class="form-control" id="inputAnioCalendario" placeholder="Ingrese el año calendario">
+        </div>
+    </div>
+
+    <div class="p-5 text-center">
         <h1> Plan de estudio {{id}} {{plan.orientacion}} </h1>
-                {% for ciclo in ciclo %} 
-                <div class="col-sm-4 mb-4">
+        <div id="isotope-container" class="row">
+            {% for ciclo in ciclo %} 
+                <div class="col-sm-4 mb-4" data-anioCalendario="{{ ciclo.anioCalendario }}">
                     <div class="card" style="width: 18rem; height: 100%;">
-                            {% if ciclo.esActual %}
+                        {% if ciclo.esActual %}
                             <h2> Ciclo actual</h2>
-                            {% endif %}
-                            <div>
-                                
+                        {% endif %}
+                        <div>
                             <h5 style="text-align: left;">Año calendario: {{ ciclo.anioCalendario }}</h5>
                             <h5 style="text-align: left;">Fecha de inicio: {{ ciclo.fechaInicio}}</h5>
                             <h5 style="text-align: left;">Plan que implementa: {{ ciclo.plan }}</h5>
                             <h5 style="text-align: left;">Fecha de fin: {{ ciclo.fechaFin}}</h5>
                         </div>
-                            <div class="card-body d-flex flex-column ">
-                                <a  class="btn btn-primary m-2" href="/Core/modificarCiclo/{{ciclo.id }}">Editar </a>
-                                <a  class="btn btn-primary m-2" href="/Core/modificarCiclo/{{ciclo.id }}">Eliminar </a>
-                                <a  class="btn btn-primary m-2" href="/Core/inscribir_Ciclo/{{ciclo.id }}">Inscripciones </a>
-                                <a  class="btn btn-primary m-2" href="/Core/verAnio/{{ciclo.id }}">Años </a>
-
-                            </div>
-                            </div>          
-                    </div>
-                    
-                    {% endfor %}
-                </div>        
-                
-                <div class="container-fluid p-5 bg-secondary text-center">
-                    <a  class="btn btn-primary" href="/Core/altaCiclo/{{id }}"">Alta Ciclo Lectivo en Plan </a>
+                        <div class="card-body d-flex flex-column ">
+                            <a  class="btn btn-primary m-2" href="/Core/modificarCiclo/{{ciclo.id }}">Editar </a>
+                            <a  class="btn btn-primary m-2" href="/Core/modificarCiclo/{{ciclo.id }}">Eliminar </a>
+                            <a  class="btn btn-primary m-2" href="/Core/inscribir_Ciclo/{{ciclo.id }}">Inscripciones </a>
+                            <a  class="btn btn-primary m-2" href="/Core/verAnio/{{ciclo.id }}">Años </a>
+                        </div>
+                    </div>          
                 </div>
-            </div>
+            {% endfor %}
+        </div>        
+    </div>
 
-            <!-- <div class="hidden orden-listado">
-               <div class="flex-md-column-reverse" >
-                    <button type="button" class="btn btn-success">Nuevo ciclo </button> 
-                
-                <table class="table-bordered table-hover  " id="table_id" >
-                   <thead class="hidden orden-listado">
+    <div class="container-fluid p-5 bg-secondary text-center">
+        <a  class="btn btn-primary" href="/Core/altaCiclo/{{id }}">Alta Ciclo Lectivo en Plan </a>
+    </div>
+</div>
 
-                    <tr class="table-hover">
-                        <th>Anio</th>
-                        <th>Fecha de Inicio</th>
-                        <th>Plan</th>
-                        <th>Fecha de Finalizacion</th>
-                            <th></th>
-                    </tr>
-                </thead>
-                <tbody>
+{% block script %}
+<script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
+<script>
+$(document).ready(function () {
+    var $container = $('#isotope-container').isotope({
+        itemSelector: '.col-sm-4',
+        layoutMode: 'fitRows'
+    });
 
-                {% if ciclo %}
-                    {% for ciclo in ciclo %}
-                        <tr>
-                            <td>{{ ciclo.anioCalendario }}</td>
-                            <td>{{ ciclo.fechaInicio}}</td>
-                            <td>{{ ciclo.plan }}</td>
-                            <td>{{ ciclo.fechaFin}}</td>
-                            
-                            <td><a  class="btn btn-primary" href="/Core/modificarCiclo/{{ciclo.id }}">Editar </a></td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                    <h1>NO HAY CICLO PARA LISTAR</h1>
-                        {% endif %}
-                    </tbody>
-                </table>
-                
-            </div>
-            <ul class="pager"></ul>
-        </div> -->
+    // Filtrar cuando se escriba en el campo de año calendario
+    $('#inputAnioCalendario').on('input', function () {
+        var anioCalendario = $(this).val().toLowerCase();
+        if (anioCalendario === '') {
+            $container.isotope({ filter: '*' }); // Mostrar todos los ciclos
+        } else {
+            $container.isotope({ filter: '[data-anioCalendario*="' + anioCalendario + '"]' });
+        }
+    });
+
+    // Filtrar al presionar Enter en el campo de año calendario
+    $('#inputAnioCalendario').keypress(function (e) {
+        if (e.which === 13) {
+            var anioCalendario = $(this).val().toLowerCase();
+            if (anioCalendario === '') {
+                $container.isotope({ filter: '*' }); // Mostrar todos los ciclos
+            } else {
+                $container.isotope({ filter: '[data-anioCalendario*="' + anioCalendario + '"]' });
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}
