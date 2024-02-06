@@ -1,3 +1,4 @@
+import random
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.timezone import now
@@ -183,7 +184,7 @@ class Persona(models.Model):
     REGEX_NUMERO = '^[0-9]{1,12}$'
     MAXDNI =11
     MAXDIRECCION = 100
-    MAXTELEFONO = 7
+    MAXTELEFONO = 10
 
     Nombre = models.CharField(
         help_text= "Nombre",
@@ -235,7 +236,7 @@ class Persona(models.Model):
 
     Direccion=models.CharField(
         help_text= "Direccion",
-        max_length = MAXDNI,
+        max_length = MAXDIRECCION,
         unique= False,
         null= False,
         blank= False,
@@ -534,11 +535,13 @@ class Horario(models.Model):
     SABADO = 6
     DOMINGO = 7
     CHOICES_DIA = (
-        (LUNES, 'lunes'),
-        (MARTES, 'martes'),
-        (MIERCOLES, 'miercoles'),
-        (JUEVES, 'jueves'),
-        (VIERNES, 'viernes'))
+        (LUNES, 'Lunes'),
+        (MARTES, 'Martes'),
+        (MIERCOLES, 'Miercoles'),
+        (JUEVES, 'Jueves'),
+        (VIERNES, 'Viernes'),
+        (SABADO, 'Sabado'),
+        (DOMINGO, 'Domingo'))
 
 
     MODUNO= 1
@@ -628,6 +631,30 @@ class inscripcionEstudianteCiclo(models.Model):
     class Meta:
         unique_together = ['estudiante', 'ciclo', 'anio']
 
+    @classmethod
+    def seed_db(this, n):
+        fake = Faker()
+        ciclo_actual = Ciclo.objects.get(esActual='True')
+        
+        # Obtener todos los estudiantes que no están inscritos en el ciclo actual
+        estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcionestudianteciclo__ciclo=ciclo_actual)
+        
+        # Verificar si hay suficientes estudiantes disponibles para seleccionar aleatoriamente
+        if estudiantes_sin_inscripcion.count() < n:
+            print("No hay suficientes estudiantes disponibles.")
+            return
+        
+        # Seleccionar n estudiantes al azar sin repetición de la lista de estudiantes sin inscripción
+        estudiantes_aleatorios = random.sample(list(estudiantes_sin_inscripcion), n)
+        
+        # Crear inscripciones para los estudiantes seleccionados
+        for estudiante in estudiantes_aleatorios:
+            inscripcionEstudianteCiclo.objects.create(
+                estudiante=estudiante,
+                ciclo=ciclo_actual,
+                anio=random.choice(list(AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual='True')))),
+                fecha=fake.date_between(start_date='-365d', end_date='today'),  # fecha aleatoria en el último año
+            )
 
 
 from django.db import models

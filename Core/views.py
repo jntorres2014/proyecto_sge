@@ -17,6 +17,17 @@ from django.db.models import Subquery, OuterRef
 
 from dal import autocomplete
 
+class MateriaAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = EspacioCurricular.objects.all()
+        print(qs)
+        if self.q:
+            qs = qs.filter( Q(nombre__icontains=self.q) |    # Buscar en el atributo "nombre"
+                Q(codigo__icontains=self.q) )           # Buscar en el atributo "Dni"
+        return qs
+
+
+
 class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Localidad.objects.all()

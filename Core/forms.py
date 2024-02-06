@@ -187,6 +187,7 @@ class EspacioCurricularForm(forms.ModelForm):
             'contenido': 'Contenido',
         }
         widgets = { 
+            
             'plan': forms.Select(attrs={'class': 'input-group mb-3'}),
             'anio': forms.Select(attrs={'class': 'input-group mb-3'}),
             'codigo': forms.TextInput(attrs={'class': 'input-group mb-3'}),

@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
-from Clases.forms import CalificacionForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
+from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
 from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, inscripcionEstudianteCiclo,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
@@ -65,33 +65,55 @@ def Inasistencia_edit(request, id_inasistencia):
             return HttpResponseRedirect("/Notas/verInasistencias")
     return render(request, 'Inasistencia/inasistenciaForm.html',{'form':form})
 
-@login_required
+# @login_required
+# def consultar_faltas(request):
+#     print('Methodo',request.method)
+#     if request.method == 'POST' :
+#         fecha_inicio = request.POST.get('fecha_inicio')
+#         fecha_fin = request.POST.get('fecha_fin')
+#         estudiante_id = request.POST.get('estudiante_id')  # Nuevo campo para el estudiante
+#         print("HASTA ACA VAMOOOOS*****")
+#         if not fecha_inicio and fecha_fin:
+#             # Si fecha_inicio está vacía pero fecha_fin tiene valor, establece fecha_inicio igual a fecha_fin
+#             fecha_inicio = fecha_fin
+#         elif fecha_inicio and not fecha_fin:
+#             # Si fecha_fin está vacía pero fecha_inicio tiene valor, establece fecha_fin igual a fecha_inicio
+#             fecha_fin = fecha_inicio
+#         # Construir consulta para faltas según fecha y estudiante
+#         consulta_faltas = Q(dia__range=[fecha_inicio, fecha_fin])
+#         if estudiante_id:
+#             consulta_faltas &= Q(estudiante_id=estudiante_id)
+
+#         # Realizar la consulta de faltas
+#         inasistencias = Inasistencias.objects.filter(consulta_faltas)
+
+#         # Serializar los resultados si es necesario
+#         resultados = [{'nombre_alumno': falta.estudiante.Nombre, 'fecha': falta.dia} for falta in inasistencias]
+
+#         return JsonResponse({'resultados': resultados})
 def consultar_faltas(request):
-    print('Methodo',request.method)
-    if request.method == 'POST' :
-        fecha_inicio = request.POST.get('fecha_inicio')
-        fecha_fin = request.POST.get('fecha_fin')
-        estudiante_id = request.POST.get('estudiante_id')  # Nuevo campo para el estudiante
-        print("HASTA ACA VAMOOOOS*****")
-        if not fecha_inicio and fecha_fin:
-            # Si fecha_inicio está vacía pero fecha_fin tiene valor, establece fecha_inicio igual a fecha_fin
-            fecha_inicio = fecha_fin
-        elif fecha_inicio and not fecha_fin:
-            # Si fecha_fin está vacía pero fecha_inicio tiene valor, establece fecha_fin igual a fecha_inicio
-            fecha_fin = fecha_inicio
-        # Construir consulta para faltas según fecha y estudiante
-        consulta_faltas = Q(dia__range=[fecha_inicio, fecha_fin])
-        if estudiante_id:
-            consulta_faltas &= Q(estudiante_id=estudiante_id)
+    if request.method == 'POST' and request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        form = ConsultaForm(request.POST)
 
-        # Realizar la consulta de faltas
-        inasistencias = Inasistencias.objects.filter(consulta_faltas)
+        if form.is_valid():
+            fecha_inicio = form.cleaned_data['fecha_inicio']
+            fecha_fin = form.cleaned_data['fecha_fin']
+            estudiante_id = form.cleaned_data['estudiante']
 
-        # Serializar los resultados si es necesario
-        resultados = [{'nombre_alumno': falta.estudiante.Nombre, 'fecha': falta.dia} for falta in inasistencias]
+            consulta_faltas = Q(fecha__range=[fecha_inicio, fecha_fin])
+            if estudiante_id:
+                consulta_faltas &= Q(alumno_id=estudiante_id)
 
-        return JsonResponse({'resultados': resultados})
+            faltas = Inasistencias.objects.filter(consulta_faltas)
 
+            resultados = [{'nombre_alumno': falta.estudiante.Nombre, 'fecha': falta.dia} for falta in faltas]
+
+            return JsonResponse({'resultados': resultados})
+
+    else:
+        form = ConsultaForm()
+
+    return render(request, 'Cursada/reporte_inasistencia.html', {'form': form})
 
 
 

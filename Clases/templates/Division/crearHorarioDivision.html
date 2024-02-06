@@ -1,10 +1,16 @@
 {% extends 'base.html' %}
-{% load bootstrap5 %}
-{% block content %}
-<head>
-    <title>Crear y Mostrar Horario</title>
-</head>
+{% load static %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+{% block css %} 
+<link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
 
+{% endblock %}
+
+{% block content %}
+
+{% load bootstrap5 %}
+
+{{form.media}}
 <body>
     <div class="container">
         <div class="row">
@@ -69,78 +75,21 @@
             </div>
         </div>
     </div>
+</body>
+{% endblock %}
+{% comment %} 
+{% load static %} 
+{% endcomment %}
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+{% block scripts %}
 
-    <!-- <script>
-        function cargarDatosHorario() {
-            var division_id = $('#id_division').val();
-            console.log(division_id);
-        }
-    </script>
-    <script>
-        function cargarDatosHorario() {
-            var division_id = $('#id_division').val();
-            console.log(division_id);
-            // Realizar la solicitud AJAX para ob  tener datos del horario
-            $.ajax({
-        type: 'GET',
-        url: $(this).data('url'),
-        data: {
-            division_id: division_id,
-        },
-        dataType: 'json',
-        success: function (data) {
-            console.log("Llego volvio");
+{% comment %} <!--script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script--> {% endcomment %}
+<!-- JavaScript de DataTables -->
+<link href="https://cdn.datatables.net/v/dt/dt-1.13.8/af-2.6.0/cr-1.7.0/fc-4.3.0/sc-2.3.0/datatables.min.css" rel="stylesheet">
+ 
+<script src="https://cdn.datatables.net/v/dt/dt-1.13.8/af-2.6.0/cr-1.7.0/fc-4.3.0/sc-2.3.0/datatables.min.js"></script>
 
-            // Limpiar la tabla antes de agregar nuevos datos
-            $('#tabla-render').empty();
 
-            // Obtener días y horas
-            var dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-            var modulos = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];  // Ajusta esto según tus necesidades
-
-            // Generar dinámicamente el contenido de la tabla
-            for (var i = 0; i < modulos.length; i++) {
-                console.log("entre a modulos");
-                var modulo = modulos[i];
-                var fila = '<tr>';
-               // fila += '<td>' + modulo + '</td>';
-
-                for (var j = 0; j < dias.length; j++) {
-                    var dia = dias[j];
-                    var contenido = '';
-
-                    for (var k = 0; k < data.length; k++) {
-                        var horario = data.nombre[k];
-                        console.log(horario);
-                        if (horario.hora == modulo && horario.dia == dia) {
-                            contenido = '<div id="datos">' +
-                                '<h5>' + horario + '</h5>' +
-                                '<button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario(' + horario.id + ')">' +
-                                '<i class="fas fa-times"></i>' +
-                                '</button>' +
-                                '</div>';
-                            break;
-                        }
-
-                    }
-
-                    //fila += '<td>' + contenido + '</td>';
-                }
-
-                //fila += '</tr>';
-
-                // Agregar fila a la tabla
-                $('#tabla-render').append(fila);
-            }
-        },
-        error: function (error) {
-            console.log("Error al cargar datos de horario:", error);
-        }
-    });
-}
-    </script> -->
     <script>
 
         function eliminarDetalleHorario(detalleId) {
@@ -182,5 +131,7 @@
             }
         }
     </script>
-</body>
+    <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
+
 {% endblock %}
+
