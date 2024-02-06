@@ -17,7 +17,7 @@ class Localidad (models.Model):
     REGEX_NOMBRE = '^[0-9a-zA-Z-_ .]{3,100}$'
     MAXNOMBRELOCALIDAD=70
 
-    CodigoPostal = models.CharField(
+    CodigoPosta = models.CharField(
         help_text="cp",
         max_length=MAXNUMEROPOSTAL,
         unique=False,

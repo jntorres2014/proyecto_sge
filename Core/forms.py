@@ -60,7 +60,7 @@ class LocalidadForm(forms.ModelForm):
         model = Localidad
 
         fields= [
-            'CodigoPostal',
+            'CodigoPosta',
             'NombreLocalidad',
         ]
 

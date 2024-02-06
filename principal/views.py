@@ -69,37 +69,40 @@ def create_task(request):
         })
 
 def signup(request):
-    if request.method == 'GET':
-        return render(request, 'signup.html', {
-            'form': UsuarioForm
-        })
-        print('Enviando formulario')
-    else:
-        print(request.POST['password1'], request.POST['password2'])
+    if request.method == 'POST':
         form = UsuarioForm(request.POST)
         if form.is_valid():
+            print('era valido')
             if request.POST['password1'] == request.POST['password2']:
                 try:
-                    user = User.objects.create_user(username=request.POST['username'],
-                                                    password=request.POST['password1'],
-                                                    email = request.POST['email'],
-                                                    first_name= request.POST['first_name'],
-                                                    last_name= request.POST['last_name'])
+                    user = User.objects.create_user(
+                        username=request.POST['username'],
+                        password=request.POST['password1'],
+                        email=request.POST['email'],
+                        first_name=request.POST['first_name'],
+                        last_name=request.POST['last_name']
+                    )
                     user.save()
-                    login(request,user)
-                    return redirect('/signin')
-                    #return HttpResponse('Usuario guardado correctamente')
+                    return redirect('registro_exitoso')  # Redirecciona a una página de registro exitoso
                 except:
                     return render(request, 'signup.html', {
                         'error': 'El usuario ya existe',
-                        'form': UsuarioForm})
+                        'form': form
+                    })
+            else:
+                return render(request, 'signup.html', {
+                    'error': 'Las contraseñas no coinciden',
+                    'form': form
+                })
+        else:
             return render(request, 'signup.html', {
-                        'error': 'Contraseña no coincide',
-                        'form': UsuarioForm})
-            #return HttpResponse('Contraseña no coincide')
-
-        # print(request.POST)
-        # print('obteniendo datos')
+                'error': 'Por favor, corrija los errores en el formulario.',
+                'form': form
+            })
+    else:
+        form = UsuarioForm()
+    
+    return render(request, 'signup.html', {'form': form})
 
 @login_required
 def principal(request):

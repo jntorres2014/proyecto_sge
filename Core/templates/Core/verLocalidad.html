@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+{% load bootstrap5 %}
 {% block content %}
-<div class="contenedor-tabla">
+<div class="content">
+    
             <div><h1><a href="/">Lista Localidad</a></h1></div>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
@@ -19,8 +21,6 @@
                             <tr>
                               <td>{{ localidad.CodigoPosta}}</td>
                               <td>{{ localidad.NombreLocalidad }}</td>
-                              <td><a  class="btn btn-primary" href="{% url 'modificarLocalidad' localidad.id %}"
-                                   >Editar </a></td>
                             </tr>
                          {% endfor %}
                     {% else %}
@@ -30,7 +30,7 @@
                     </tbody>
                 </table>
                 </div>
-        <a  class="btn btn-primary" href="{% url 'altaLocalidad' %}">Agregar</a>
+
             </div>
         </div>
 {%endblock %}

@@ -16,10 +16,12 @@ class UsuarioForm(UserCreationForm):
         self.fields['password1'].widget.attrs['class'] = 'form-control'
         self.fields['password2'].widget.attrs['class'] = 'form-control'
         self.fields['email'].widget.attrs['class'] = 'form-control'
+    
     def clean_email(self):
         email = self.cleaned_data.get('email')
         print('Verificando mauil')
         if User.objects.filter(email=email).exists():
+            
             raise forms.ValidationError("Este correo electrónico ya está en uso. Por favor, elija otro.")
         return email
     
