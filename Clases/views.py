@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
-from Clases.forms import CalificacionForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
+from Clases.forms import CalificacionForm, ConsultarFaltasForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
 from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, inscripcionEstudianteCiclo,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
@@ -66,9 +66,36 @@ def Inasistencia_edit(request, id_inasistencia):
     return render(request, 'Inasistencia/inasistenciaForm.html',{'form':form})
 
 
+def consultar_faltas(request):
+    if request.method == 'POST' and request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        form = ConsultarFaltasForm(request.POST)
+
+        if form.is_valid():
+            fecha_inicio = form.cleaned_data['fecha_inicio']
+            fecha_fin = form.cleaned_data['fecha_fin']
+            estudiante_id = form.cleaned_data['estudiante']
+
+            consulta_faltas = Q(fecha__range=[fecha_inicio, fecha_fin])
+            if estudiante_id:
+                consulta_faltas &= Q(alumno_id=estudiante_id)
+
+            inasistencias = Inasistencias.objects.filter(consulta_faltas)
+
+            resultados = [{'nombre_alumno': falta.estudiante.Nombre, 'fecha': falta.dia} for falta in inasistencias]
+
+            return JsonResponse({'resultados': resultados})
+
+    else:
+        form = ConsultarFaltasForm()
+
+    return render(request, 'Cursada/reporte_inasistencia.html', {'form': form})
+
 class inasistencia_list(ListView):
     model = Inasistencias
     template_name = 'Inasistencia/verInasistencias.html'
+
+
+#************************Horarios************************
     
 @login_required
 def crear_horario(request,idDivision):
@@ -148,24 +175,26 @@ def asignar_alumno_a_aula(request, idAnio):
     aulas = Aula.objects.filter(division__in=divisiones)
 
     estudiantes_aula = {}  # Cambiaremos a un diccionario para asociar estudiantes con aulas
-
     for aula in aulas:
         estudiantes_aula[aula.id] = aula.estudiantes.all()
+        print(aula.estudiantes.all())
     estudiantes_no_en_aula = []
-    print("Estudiates e aulas",estudiantes_aula)
-    # Obtener los IDs de los estudiantes en aulas
-
-    for estudiante in estudiantes_inscritos:
-        if not(estudiante in estudiantes_aula):
-
-            estudiantes_no_en_aula.append(estudiante)
     ids_estudiantes_aula = [estudiante.id for aula_estudiantes in estudiantes_aula.values() for estudiante in aula_estudiantes]
+
+    print("Estudiates e aulas",ids_estudiantes_aula)
+    # Obtener los IDs de los estudiantes en aulas
+    print((ids_estudiantes_aula))
+    for estudiante in estudiantes_inscritos:
+        print("id estudiante*****",estudiante.estudiante.id,ids_estudiantes_aula)
+        if estudiante.estudiante.id not in ids_estudiantes_aula:
+            estudiantes_no_en_aula.append(estudiante)
 
     # Obtener estudiantes que no están en ninguna aula
  #   estudiantes_no_en_aula = estudiantes_inscritos.exclude(id__in=ids_estudiantes_aula)
     print("no en aula", estudiantes_no_en_aula)
 
-    return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 'estudiantes': estudiantes_no_en_aula,
+    return render(request, 'Division/asignar_alumnno_aula.html', {'aulas': aulas, 
+                                                                'estudiantes': estudiantes_no_en_aula,
                                                                 'estudiantes_aula': estudiantes_aula,
                                                                 'estudiantes_no_en_aula': estudiantes_no_en_aula})
 

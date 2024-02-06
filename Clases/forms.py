@@ -1,5 +1,7 @@
+from datetime import datetime
 from django import forms
-from Core.models import Calificacion, Detalle_Horario, EspacioCurricular, Horario,Division
+from Core.models import Calificacion, Detalle_Horario, EspacioCurricular, Estudiante, Horario,Division
+from dal import autocomplete
 from Clases.models import Inasistencias
 
 
@@ -53,3 +55,22 @@ class Detalle_HorarioForm(forms.ModelForm):
 
         # # Personaliza el widget para el campo 'hora'
         self.fields['hora'].widget = forms.Select(choices=Horario.CHOICES_HORA)
+
+class ConsultarFaltasForm(forms.Form):
+        
+    fecha_inicio = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    fecha_fin = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    widget_estudiante=autocomplete.ModelSelect2(url='core:estudiante-autocomplete', attrs={'class': 'input-group mb-3'})
+    fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+    widgets = {
+        'estudiante' : widget_estudiante,
+        'fechaInicio': forms.TextInput(attrs={'type': 'date', 'value': fecha,'readonly': True}),
+        'fechaFin': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
+    }
+
+    def clean_fecha_fin(self):
+        inicio = self.cleaned_data.get("fechaInicio")
+        fin = self.cleaned_data.get("fechaFin")
+        if inicio >= fin:
+            raise forms.ValidationError("fecha ingresada es menor a la de inicio")
+        return fin
