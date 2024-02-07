@@ -364,7 +364,8 @@ def ciclo_edit(request, ciclo):
 def division_list(request, id,idCiclo):
     division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     anio = AnioPlan.objects.get(id=id)
-    alumnos= inscripcionEstudianteCiclo.objects.filter(anio = anio,ciclo=idCiclo)
+    ciclo = Ciclo.objects.get(esActual= 'True')
+    alumnos= inscripcionEstudianteCiclo.objects.filter(anio = anio,ciclo=ciclo)
     print('cantidad de alumnos',alumnos.count())
     print("VER Division")
     #division= list(Division.objects.filter(anio = id))
