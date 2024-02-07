@@ -266,7 +266,7 @@ def menuPlan(request):
 @login_required
 def menuCiclo(request):
     return render(request, 'Core/Plan/menuCiclo.html')
-
+@login_required
 def menuCursada(request):
     return render(request, 'Cursada/menuCursada.html')
 
@@ -365,7 +365,7 @@ def division_list(request, id,idCiclo):
     division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     anio = AnioPlan.objects.get(id=id)
     ciclo = Ciclo.objects.get(esActual= 'True')
-    alumnos= inscripcionEstudianteCiclo.objects.filter(anio = anio,ciclo=ciclo)
+    alumnos= inscripcionEstudianteCiclo.objects.filter(anio = anio,ciclo = ciclo)
     print('cantidad de alumnos',alumnos.count())
     print("VER Division")
     #division= list(Division.objects.filter(anio = id))

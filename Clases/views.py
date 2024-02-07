@@ -65,7 +65,7 @@ def Inasistencia_edit(request, id_inasistencia):
             return HttpResponseRedirect("/Notas/verInasistencias")
     return render(request, 'Inasistencia/inasistenciaForm.html',{'form':form})
 
-
+@login_required
 def consultar_faltas(request):
     print('Methodo',request.method)
     if request.method == 'POST' :
@@ -156,7 +156,7 @@ def registrarInasistencia(request, idAnio):
     return render(request, 'Cursada/cargarInasistencia.html', {'estudiantes': estudiante})
     
     # Mostrarlos y registrar los que no estan marcados
-
+@login_required
 def obtener_aulas(request):
     print("asignar aulas")
     # Lógica para obtener aulas desde la base de datos
@@ -164,7 +164,7 @@ def obtener_aulas(request):
     return render(request, 'aulas.html', {'aulas': aulas})
 
 from django.db.models import Q
-
+@login_required
 def asignar_alumno_a_aula(request, idAnio):
     print("asignar alumno", idAnio)
     ciclo = Ciclo.objects.get(esActual = 'True')
@@ -204,7 +204,7 @@ def asignar_alumno_a_aula(request, idAnio):
                                                                 'estudiantes_aula': estudiantes_aula,
                                                                 'estudiantes_no_en_aula': estudiantes_no_en_aula})
 
-
+@login_required
 def obtener_alumnos(request):
     print("obtener alumno")
     # Lógica para obtener alumnos desde la base de datos
@@ -247,7 +247,7 @@ def actualizar_relacion(request):
                              'datos': datos_json})
     else:
         return JsonResponse({'success': False})    
-
+@login_required
 def obtenerHorarios(request):
     print("entre")
     # data = json.loads(request.body.decode('utf-8'))

@@ -76,25 +76,27 @@ def signup(request):
         print('Enviando formulario')
     else:
         print(request.POST['password1'], request.POST['password2'])
-        if request.POST['password1'] == request.POST['password2']:
-            try:
-                user = User.objects.create_user(username=request.POST['username'],
-                                                password=request.POST['password1'],
-                                                email = request.POST['email'],
-                                                first_name= request.POST['first_name'],
-                                                last_name= request.POST['last_name'])
-                user.save()
-                login(request,user)
-                return redirect('/signin')
-                #return HttpResponse('Usuario guardado correctamente')
-            except:
-                return render(request, 'signup.html', {
-                    'error': 'El usuario ya existe',
-                    'form': UserCreationForm})
-        return render(request, 'signup.html', {
-                    'error': 'Contraseña no coincide',
-                    'form': UserCreationForm})
-        #return HttpResponse('Contraseña no coincide')
+        form = UsuarioForm(request.POST)
+        if form.is_valid():
+            if request.POST['password1'] == request.POST['password2']:
+                try:
+                    user = User.objects.create_user(username=request.POST['username'],
+                                                    password=request.POST['password1'],
+                                                    email = request.POST['email'],
+                                                    first_name= request.POST['first_name'],
+                                                    last_name= request.POST['last_name'])
+                    user.save()
+                    login(request,user)
+                    return redirect('/signin')
+                    #return HttpResponse('Usuario guardado correctamente')
+                except:
+                    return render(request, 'signup.html', {
+                        'error': 'El usuario ya existe',
+                        'form': UsuarioForm})
+            return render(request, 'signup.html', {
+                        'error': 'Contraseña no coincide',
+                        'form': UsuarioForm})
+            #return HttpResponse('Contraseña no coincide')
 
         # print(request.POST)
         # print('obteniendo datos')
