@@ -420,29 +420,29 @@ def verDivisionInasistencia(request, id,idCiclo):
     return render(request, 'Core/Plan/verDivisionInasistencia.html',{'divisiones': division,
                                                       'id':id,
                                                       'anio':division[0].anio.id})  
-@login_required
-def division_new(request, anio_id, id):
-    anio = AnioPlan.objects.get(id=anio_id)
-    ciclo = Ciclo.objects.get(esActual='True')
-    print("Estoy en division New", request.method)
-    if request.method == 'GET':
-        print("etre al post")
-        # Obtén los datos del formulario y crea la nueva división
-        codigo = '6'
-        descripcion = 'Descripción de la división'
-        nueva_division = Division(ciclo=ciclo, codigo=codigo, descripcion=descripcion, anio=anio)
-        nueva_division.save()
-        # Redirige al usuario a la página de listado de divisiones
-        print("ingrese al post")
-        return redirect('verDivision/', anio_id=anio_id)
-        return render(request, 'Core/Plan/divisionForm.html', {
-        'form': form,
-        'division': nueva_division,  # Puedes incluir la nueva división si es necesario
-        'id': id,
-        'anio': anio,
-    })
+# @login_required
+# def division_new(request, anio_id, id):
+#     anio = AnioPlan.objects.get(id=anio_id)
+#     ciclo = Ciclo.objects.get(esActual='True')
+#     print("Estoy en division New", request.method)
+#     if request.method == 'GET':
+#         print("etre al post")
+#         # Obtén los datos del formulario y crea la nueva división
+#         codigo = '6'
+#         descripcion = 'Descripción de la división'
+#         nueva_division = Division(ciclo=ciclo, codigo=codigo, descripcion=descripcion, anio=anio)
+#         nueva_division.save()
+#         # Redirige al usuario a la página de listado de divisiones
+#         print("ingrese al post")
+#         return redirect('verDivision/', anio_id=anio_id)
+#         return render(request, 'Core/Plan/divisionForm.html', {
+#         'form': form,
+#         'division': nueva_division,  # Puedes incluir la nueva división si es necesario
+#         'id': id,
+#         'anio': anio,
+#     })
     
-    division_list(request, anio.id,ciclo.id)
+#     division_list(request, anio.id,ciclo.id)
     # Renderiza el formulario para agregar divisiones
     # form = forms.DivisionForm()
     # return render(request, 'Core/Plan/divisionForm.html', {

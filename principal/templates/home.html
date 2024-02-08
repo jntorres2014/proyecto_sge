@@ -49,10 +49,9 @@
                 </svg>
               </a>
               <ul class="dropdown-menu text-small">
-                <li><a class="dropdown-item" href="/signin">Iniciar</a></li>
-                <li><hr class="dropdown-divider"></li>
+
                 {% if user.is_authenticated %}
-                    <li><a class="dropdown-item" href="/logout">Sign out</a></li>
+                    <li><a class="dropdown-item" href="/logout">Cerrar sesion</a></li>
                 {% else %}
                     <li><a class="dropdown-item" href="/signup">Crear</a></li>
                 {% endif %}    
@@ -68,9 +67,9 @@
 
         
 <div class="container">
-  <h1>Bienvenido, {{ request.user.username }}</h1>
+  <h1>Bienvenido: {{ request.user.username }}</h1>
 
-    <p>Correo electrónico: {{ request.user.Correo}}</p>
+    <p>Correo electrónico: {{ request.user.mail}}</p>
     <!-- Otros detalles del perfil del usuario -->
   <div class="row">
     <div class="col-md-4">
