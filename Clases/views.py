@@ -4,7 +4,7 @@ from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
-from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, inscripcionEstudianteCiclo,Division
+from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, PlanDeEstudios, inscripcionEstudianteCiclo,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
@@ -226,12 +226,69 @@ def asignar_alumno_a_aula(request, idAnio):
                                                                 'estudiantes_aula': estudiantes_aula,
                                                                 'estudiantes_no_en_aula': estudiantes_no_en_aula})
 
-@login_required
-def obtener_alumnos(request):
-    print("obtener alumno")
-    # Lógica para obtener alumnos desde la base de datos
-    alumnos = inscripcionEstudianteCiclo.objects.all()  # Obtén los alumnos desde tu modelo
-    return render(request, 'alumnos.html', {'alumnos': alumnos})
+
+def obtener_alumnos(request, idEstudiante):
+    print("Obteniendo las inscripciones del estudiante")
+
+    # Obtener las inscripciones del estudiante
+    alumnos_inscripciones = inscripcionEstudianteCiclo.objects.filter(estudiante_id=idEstudiante)
+    alumno = Estudiante.objects.get(id=alumnos_inscripciones[0].estudiante_id)
+    # Diccionario para almacenar la información
+    info_alumnos = {}
+
+    for estudiante in alumnos_inscripciones:
+        ciclos = Ciclo.objects.filter(id=estudiante.ciclo_id)
+        for ciclo in ciclos:
+            plan = PlanDeEstudios.objects.get(id=ciclo.plan_id)
+            print(plan)
+            # Agregar la información al diccionario
+            if estudiante.estudiante_id not in info_alumnos:
+                info_alumnos[estudiante.estudiante_id] = {
+                    'ciclos': [],
+                    'inscripciones': [],
+                    'planes': []
+                }
+        
+            info_alumnos[estudiante.estudiante_id]['ciclos'].append(ciclo)
+            info_alumnos[estudiante.estudiante_id]['inscripciones'].append(estudiante)
+            info_alumnos[estudiante.estudiante_id]['planes'].append(plan)
+    for estudiante_id, info in info_alumnos.items():
+        ciclos_serializables = []
+    
+    for estudiante_id, info in info_alumnos.items():
+        ciclos_serializables = []
+        for ciclo in info['ciclos']:
+            ciclo_serializable = {
+                'id': ciclo.id,
+                'nombre': ciclo.anioCalendario,
+                # Agregar otros campos necesarios aquí
+            }
+            ciclos_serializables.append(ciclo_serializable)
+        info['ciclos'] = ciclos_serializables
+
+        # Construir un diccionario serializable para cada objeto de tipo PlanDeEstudios
+        planes_serializables = []
+        for plan in info['planes']:
+            plan_serializable = {
+                'id': plan.id,
+                'nombre': plan.codigo,
+                # Agregar otros campos necesarios aquí
+            }
+            planes_serializables.append(plan_serializable)
+        inscripciones_serializables = []
+        for inscripcion in info['inscripciones']:
+            inscripcion_serializable = {
+                'id': inscripcion.id,
+                'fecha': inscripcion.fecha
+                # Incluye otros campos necesarios aquí
+            }   
+        info['planes'] = planes_serializables
+        info['inscripciones'] = inscripciones_serializables
+    print(info_alumnos)
+    # Devolver los datos como respuesta JSON
+    return JsonResponse(info_alumnos)
+    print(alumno.fechaInscripcion,info_alumnos)
+    return JsonResponse(info_alumnos)
 
 
 def actualizar_relacion(request): 
@@ -316,3 +373,8 @@ def eliminarAlumno(request):
         success = False
 
     return JsonResponse({'success': success})
+
+
+@login_required
+def reporte_alumno(request):
+     return render(request, 'Cursada/reporte_alumno.html')
