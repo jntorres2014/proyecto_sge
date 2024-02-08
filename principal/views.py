@@ -83,7 +83,7 @@ def signup(request):
                         last_name=request.POST['last_name']
                     )
                     user.save()
-                    return redirect('registro_exitoso')  # Redirecciona a una página de registro exitoso
+                    return redirect('registro_exitoso')  # Redireccion a una página de registro exitoso
                 except:
                     return render(request, 'signup.html', {
                         'error': 'El usuario ya existe',
