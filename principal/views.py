@@ -74,16 +74,17 @@ def signup(request):
         if form.is_valid():
             print('era valido')
             if request.POST['password1'] == request.POST['password2']:
+                form.save()
                 try:
-                    user = User.objects.create_user(
-                        username=request.POST['username'],
-                        password=request.POST['password1'],
-                        email=request.POST['email'],
-                        first_name=request.POST['first_name'],
-                        last_name=request.POST['last_name']
-                    )
-                    user.save()
-                    return redirect('registro_exitoso')  # Redireccion a una página de registro exitoso
+                    # user = User.objects.create_user(
+                    #     username=request.POST['username'],
+                    #     password=request.POST['password1'],
+                    #     email=request.POST['email'],
+                    #     first_name=request.POST['first_name'],
+                    #     last_name=request.POST['last_name']
+                    # )
+                    
+                    return redirect('login')  # Redireccion a una página de registro exitoso
                 except:
                     return render(request, 'signup.html', {
                         'error': 'El usuario ya existe',
