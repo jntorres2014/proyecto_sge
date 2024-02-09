@@ -273,7 +273,7 @@ class CicloForm(forms.ModelForm):
         widgets = {
         'fechaInicio': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
         'fechaFin': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
-    }
+        }
     def clean_fechaFin(self):
         inicio = self.cleaned_data.get("fechaInicio")
         fin = self.cleaned_data.get("fechaFin")

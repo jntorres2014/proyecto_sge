@@ -96,7 +96,7 @@ def signup(request):
                 })
         else:
             return render(request, 'signup.html', {
-                'error': 'Por favor, corrija los errores en el formulario.',
+                #'error': form,
                 'form': form
             })
     else:
