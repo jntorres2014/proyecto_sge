@@ -68,8 +68,9 @@
                 historialHTML += '<thead><tr><th>ID</th><th>Otro campo</th></tr></thead>';
                 historialHTML += '<tbody>';
                 $.each(info.inscripciones, function(index, inscripcion) {
+                    console.log('inscripcion',inscripcion)
                     historialHTML += '<tr>';
-                    historialHTML += '<td>' + inscripcion.id + '</td>';
+                    historialHTML += '<td>' + inscripcion + '</td>';
                     historialHTML += '<td>'+ inscripcion.fecha +'</td>'; // Agrega otros campos necesarios aquí
                     historialHTML += '</tr>';
                 });

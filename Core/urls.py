@@ -50,7 +50,7 @@ urlpatterns = [
     
     re_path(r'^alumno_division/(?P<idAnio>\d+)/(?P<idCiclo>\d+)/$', views.AsignarAlumno_Division, name='alumno_division'),    
     
-    
+     path('estudiante/<int:estudiante_id>/exportar-pdf/', views.exportar_historial_pdf, name='exportar_historial_pdf'),
     re_path(r'^verEspacioCurricularEnPlan/(?P<id>\d+)/$', views.Espacio_view, name='verEspacioCurricularEnPlan'),
 
     re_path(r'agregarEspacio/(?P<id_plan>\d+)/$', views.Espacio_view,name= 'agregarEspacio'),

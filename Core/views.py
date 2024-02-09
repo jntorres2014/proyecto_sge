@@ -1,4 +1,5 @@
 import datetime
+from io import BytesIO
 import string
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
@@ -13,7 +14,16 @@ from django.db.models import Q
 from tablib import Dataset 
 from django.contrib import messages
 from tablib import Dataset
-from django.db.models import Subquery, OuterRef
+from django.http import HttpResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from .models import Estudiante, inscripcionEstudianteCiclo
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import styles,colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+
 
 from dal import autocomplete
 
@@ -559,5 +569,59 @@ def asignar_estudiante_a_aula(request,id_anio):
                                                                  'cantAlumnos': cantidadInscriptos,
                                                                  'cantDivisiones': cantidadDivisiones})
 
+def exportar_historial_pdf(request, estudiante_id):
+    estudiante = Estudiante.objects.get(pk=estudiante_id)
+    inscripciones = inscripcionEstudianteCiclo.objects.filter(estudiante=estudiante).order_by('fecha')
+    
+    # Crear un buffer de bytes en memoria para el PDF
+    buffer = BytesIO()
 
+    # Crear el documento PDF
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
 
+    # Obtener los estilos de muestra de ReportLab
+    styles = getSampleStyleSheet()
+
+    # Encabezado
+    elements.append(Paragraph("Historial del Estudiante", styles['Title']))
+    elements.append(Spacer(1, 12))
+    elements.append(Paragraph(f"Estudiante: {estudiante.Nombre} {estudiante.Apellido}", styles['Normal']))
+    elements.append(Paragraph(f"Fecha de alta: {estudiante.fechaInscripcion}", styles['Normal']))
+    elements.append(Spacer(1, 12))
+
+    # Datos del historial
+    data = [["Plan de Estudio", "Ciclo",'Año', "Fecha de Inscripción"]]
+    for inscripcion in inscripciones:
+        data.append([inscripcion.ciclo.plan.anio, inscripcion.ciclo,inscripcion.anio, datetime.strptime(inscripcion.fecha).strftime("%d %B %Y")])
+
+    # Crear tabla con los datos del historial
+    table = Table(data)
+    table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.black),
+                               ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                               ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                               ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                               ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                               ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                               ('GRID', (0, 0), (-1, -1), 1, colors.black)]))
+        # Establecer ancho de las columnas
+    table._argW[0] = 2.5 * inch  # Ancho de la primera columna
+    table._argW[1] = 2 * inch    # Ancho de la segunda columna
+    table._argW[2] = 1.5 * inch  # Ancho de la tercera columna
+    
+    # Establecer espacio entre filas
+    table.setStyle(TableStyle([
+        ('SPACEBEFORE', (0,0), (-1,-1), 12),
+        ('SPACEAFTER', (0,0), (-1,-1), 12)
+    ]))
+    
+    elements.append(table)
+
+    # Construir el PDF
+    doc.build(elements)
+    buffer.seek(0)
+
+    # Devolver el PDF como una respuesta HTTP
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="historial_estudiante_{estudiante_id}.pdf"'
+    return response

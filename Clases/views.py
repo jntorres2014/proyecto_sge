@@ -250,6 +250,7 @@ def obtener_alumnos(request, idEstudiante):
                 }
         
             info_alumnos[estudiante.estudiante_id]['ciclos'].append(ciclo)
+            print('Mostrando inscripciones',estudiante.fecha)
             info_alumnos[estudiante.estudiante_id]['inscripciones'].append(estudiante)
             info_alumnos[estudiante.estudiante_id]['planes'].append(plan)
     for estudiante_id, info in info_alumnos.items():
@@ -277,13 +278,16 @@ def obtener_alumnos(request, idEstudiante):
             planes_serializables.append(plan_serializable)
         inscripciones_serializables = []
         for inscripcion in info['inscripciones']:
+            print('en teoria tiene que estar la inscripcion',inscripcion.fecha)
             inscripcion_serializable = {
-                'id': inscripcion.id,
+                'id': inscripcion.anio.codigo,
                 'fecha': inscripcion.fecha
                 # Incluye otros campos necesarios aquí
-            }   
-        info['planes'] = planes_serializables
+            }
+            inscripciones_serializables.append(inscripcion_serializable)   
         info['inscripciones'] = inscripciones_serializables
+
+        info['planes'] = planes_serializables
     print(info_alumnos)
     # Devolver los datos como respuesta JSON
     return JsonResponse(info_alumnos)

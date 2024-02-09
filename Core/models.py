@@ -603,7 +603,8 @@ class Detalle_Horario(models.Model):
     dia= models.CharField(max_length=10)
     #hora = MultiSelectField(unique=True, null= False)
     hora = models.CharField(max_length=10)
-    
+    class Meta:
+        unique_together = ('horario','espacioCurricular','dia','hora')
     
     def __str__(self):
         return "{0}".format(self.horario.division)

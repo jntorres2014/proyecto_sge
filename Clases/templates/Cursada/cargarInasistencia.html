@@ -2,34 +2,47 @@
 {% block content %}
   {% load bootstrap5 %}
   <div class="container container-fluid">
+    <h1>Alumnos</h1>
     <form method="post" action="/Clases/cargarInasistencia/{{idDivision}}/">
       {% csrf_token %}
-      {% if inscriptos %}
-        <h1> Alumnos</h1>
-        <ul>
-          {% for estudiante in inscriptos %}
-            <li>
-              <label>
-                <input type="checkbox" name="inasistencias_seleccionadas" value="{{ estudiante.id }}" class="falta-checkbox">
-                {{ estudiante.Nombre}}&nbsp{{ estudiante.Apellido}}
-              </label>
-              <!-- Checkbox Justificado, inicialmente deshabilitado -->
-              <label > Justificada?</label>
-              <input type="checkbox" name="{{ estudiante.id }}" class="justificado-checkbox" disabled>
-            </li>
-          {% endfor %}
-        </ul>
-        <button type="submit" class="btn btn-primary">Cargar Inasistencia</button>
-      {% else %}
-        <p>No hay alumnos disponibles.</p>
-      {% endif %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Ausente?</th>
+            <th>Justificado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if inscriptos %}
+            {% for estudiante in inscriptos %}
+              <tr>
+                <td>{{ estudiante.Nombre }}</td>
+                <td>{{ estudiante.Apellido }}</td>
+                <td>
+                  <input type="checkbox" name="inasistencias_seleccionadas" value="{{ estudiante.id }}" class="falta-checkbox">
+                </td>
+                <td>
+                  <input type="checkbox" name="{{ estudiante.id }}" class="justificado-checkbox" disabled>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="4">No hay alumnos disponibles.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+      <button type="submit" class="btn btn-primary">Cargar Inasistencia</button>
     </form>
 
     <script>
       // Habilitar o deshabilitar el checkbox "Justificado" al cambiar la casilla "Falta"
       $(document).ready(function () {
         $('.falta-checkbox').change(function () {
-          var justificadoCheckbox = $(this).closest('li').find('.justificado-checkbox');
+          var justificadoCheckbox = $(this).closest('tr').find('.justificado-checkbox');
           justificadoCheckbox.prop('disabled', !this.checked);
         });
       });

@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'Clases',
     'bootstrap5',
-    'import_export',  
+    'import_export',
+    'reportlab'  
     
 ]
 
