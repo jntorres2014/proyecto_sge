@@ -31,6 +31,13 @@
             list-style: none;
             padding: 0;
         }
+        .aula {
+            min-height: 50px; /* Asegura que haya suficiente espacio para soltar un elemento */
+        }
+
+        .droptarget {
+            border: 2px dashed blue; /* Cambia el estilo del borde al pasar sobre el área de soltar */
+        }
     </style>
     <title>Asignación de Aulas</title>
 
@@ -52,10 +59,12 @@
                 <li class="alumno" draggable="true" ondragstart="handleDragStart(event, 
                 '{{ estudiante.estudiante.Dni }}', 
                 '{{ estudiante.estudiante.id }}', 
-                '{{ estudiante.estudiante.Nombre }}')" 
+                '{{ estudiante.estudiante.Nombre }}',
+                '{{ estudiante.estudiante.Apellido }}')" 
                 data-id="{{ estudiante.estudiante.id }}" 
                 data-dni="{{ estudiante.estudiante.Dni }}" 
-                data-nombre="{{ estudiante.estudiante.Nombre }}">
+                data-nombre="{{ estudiante.estudiante.Nombre }}"
+                data-apellido="{{ estudiante.estudiante.Apellido }}">
                 {{ estudiante.estudiante.Dni  }}: &nbsp {{ estudiante.estudiante.Nombre  }}&nbsp {{estudiante.estudiante.Apellido}}</li>
             {% endfor %}
         </ul>
@@ -71,10 +80,14 @@
                             {% if estudiante_id == aula.id %}
                                 {% for e in estudiante %}
                                     <li>
-                                        <h6>{{ e.Nombre }}</h6> 
+                                        <h6> {{e.Dni}}: {{ e.Nombre }} {{ e.Apellido }}  
                                         <button class="btn btn-danger btn-sm" onclick="eliminarAlumno('{{ aula.id }}', '{{ e.id }}')">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
+                                                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                              </svg>
+                                        </button></h6>
                                         
                                     </li>
                                 {% endfor %}
@@ -145,8 +158,14 @@
         function dragenter(event){
             event.preventDefault();
             if ( event.target.className == "droptarget" ) {
-    event.target.style.border = "3px dotted red";
-  }
+            event.target.style.border = "3px dotted red";
+            }
+        }
+        function dragleave(event) {
+            event.preventDefault();
+            if (event.target.className == "droptarget") {
+                event.target.style.border = ""; // Restaura el estilo del borde cuando se sale del área de soltar
+            }
         }
 
     function drop(event) {
@@ -154,6 +173,8 @@
 
     var dni = event.dataTransfer.getData("text/plain");
     var id = event.dataTransfer.getData("text/plain");
+    var apellido = event.dataTransfer.getData("text/plain");
+    var nombre = event.dataTransfer.getData("text/plain");
     var aula2= event.target;
     var aula = event.target;
 
@@ -164,11 +185,12 @@
 
     // Crear un nuevo elemento para el estudiante
     var estudiante = document.createElement("p");
-    estudiante.className = "alumno";
-    estudiante.draggable = true;
+    estudiante.className = "alumnos-list";
     estudiante.dataset.Dni = dni;
+    estudiante.dataset.Nombre = nombre;
+    estudiante.dataset.Apellido = apellido;
     estudiante.dataset.id = id;
-    estudiante.innerText = "Estudiante " + dni;
+    estudiante.innerText = "Estudianteas " + dni+ nombre+ apellido;
 
     // Agregar el estudiante al aula
     aula.appendChild(estudiante);
