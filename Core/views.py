@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime,timezone
 from io import BytesIO
 import string
 from django.shortcuts import get_object_or_404, render
@@ -285,7 +285,7 @@ def menuCiclo(request):
     hay_ciclo = Ciclo.objects.exists()
     print(hay_ciclo)
     if hay_ciclo:
-        ciclo_activo = Ciclo.objects.get(esActual= 'True').fechaFin >= datetime.timezone.now().date()
+        ciclo_activo = Ciclo.objects.get(esActual=True).fechaFin >= datetime.now(timezone.utc).date()
         print("ciclo activo",ciclo_activo)
     else:
             ciclo_activo='False'
