@@ -179,12 +179,7 @@ def eliminar_estudiante(request, id_estudiante):
         messages.error(request, 'No se encontró el estudiante que intentas eliminar.')
     
     return HttpResponseRedirect("/Core/verEstudiantes")
-    if request.method == 'POST':
-        print("Entro a eliminar el estudiante")
-        estudiante.delete()
-        return HttpResponseRedirect("/Core/verEstudiantes")
 
-    return render(request, 'Core/Persona/verEstudiante.html',)
 
 @login_required
 def estudiante_edit(request, id_estudiante):
@@ -287,10 +282,28 @@ def menuPlan(request):
 
 @login_required
 def menuCiclo(request):
-    return render(request, 'Core/Plan/menuCiclo.html')
+    hay_ciclo = Ciclo.objects.exists()
+    print(hay_ciclo)
+    if hay_ciclo:
+        ciclo_activo = Ciclo.objects.get(esActual= 'True').fechaFin >= datetime.timezone.now().date()
+        print("ciclo activo",ciclo_activo)
+    else:
+            ciclo_activo='False'
+    return render(request, 'Core/Plan/menuCiclo.html',{'cicloActivo':ciclo_activo})
 @login_required
 def menuCursada(request):
     return render(request, 'Cursada/menuCursada.html')
+
+@login_required
+def eliminarCiclo(request, idCiclo):
+    try:
+        ciclo = Ciclo.objects.get(id=idCiclo)
+        ciclo.delete()
+        messages.success(request, 'El Ciclo se eliminó correctamente.')
+    except Estudiante.DoesNotExist:
+        messages.error(request, 'No se encontró el Ciclo que intentas eliminar.')
+    
+    return HttpResponseRedirect("/Core/verPlan")
 
 def aniosDePlanActual(request):
     ciclo = Ciclo.objects.get(esActual=True)
@@ -316,14 +329,13 @@ def cargar_espacios(request):
 ########## ESTOY ACA #################
 @login_required
 def anio_list(request, id):
-    
     print("llegue",id)
-    plan = Ciclo.objects.filter(id = id).first()
-    print((plan))
-    anioPlan = AnioPlan.objects.filter(plan = plan.plan)
+    ciclo = Ciclo.objects.get(esActual = 'True')
+    print((ciclo))
+    anioPlan = AnioPlan.objects.filter(plan = ciclo.plan)
     print(anioPlan)
     return render(request, 'Core/Plan/verAnio.html',{'anioPlan': anioPlan,
-                                                     'id':id})
+                                                     'id':ciclo.id})
 
 @login_required
 def ciclo_list(request, id):
@@ -347,6 +359,7 @@ def cicloPlan_list(request, id):
     return render(request, 'Core/Plan/verCiclo.html',{'ciclo': anioCicloPlan, 'id':id, 'plan':plan })    
 @login_required
 def ciclo_view(request, id):
+    print('entre acaaaaa')
     plan = get_object_or_404(PlanDeEstudios, id=id)
     anios = AnioPlan.objects.filter(plan=plan.id)
 
@@ -370,16 +383,16 @@ def cambiar_actual(request, id_plan):
     return HttpResponseRedirect("/Core/verPlan")
     
 @login_required
-def ciclo_edit(request, ciclo):
-    ciclo = Ciclo.objects.get(id=ciclo)
+def ciclo_edit(request, id_ciclo):
+    ciclo = Ciclo.objects.get(id=id_ciclo)
     if request.method == 'GET':
-        form = forms.Ciclo(instance=ciclo)
+        form = forms.CicloEditForm(instance=ciclo)
     else:
-        form = forms.CicloForm(request.POST, instance= ciclo)
+        form = forms.CicloEditForm(request.POST, instance= ciclo)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect("/Core/verCiclo")
-    return render(request, 'Core/Plan/cicloForm.html',{'form': form})
+            return HttpResponseRedirect("/Core/verPlan")
+    return render(request, 'Core/Plan/CicloForm.html',{'form': form})
 
 ################################################
 @login_required

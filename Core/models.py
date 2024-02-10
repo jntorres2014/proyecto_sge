@@ -2,7 +2,7 @@ import random
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.timezone import now
-from datetime import date
+from datetime import date, timezone
 from django.core.exceptions import ValidationError
 from faker import Faker
 from django.db.models.signals import post_save
@@ -428,6 +428,13 @@ class Ciclo (models.Model):
     esActual = models.BooleanField(
         default= True
     )
+    @property
+    def esta_vigente(self):
+        """
+        Método que verifica si el ciclo está vigente en función de la fecha actual.
+        """
+        fecha_actual = timezone.now().date()
+        return self.fechaInicio <= fecha_actual <= self.fechaFin
 
     
     def __str__(self):

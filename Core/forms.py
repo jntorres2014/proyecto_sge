@@ -53,7 +53,14 @@ class PlanDeEstudiosForm(forms.ModelForm):
             'cantidadAnios',
             'descripcion',
         ]
-
+        labels = {
+            'codigo': 'Codigo',
+            'anio' : 'Año',
+            'orientacion':'Orientacion',
+            'nivel': 'Nivel',
+            'cantidadAnios': 'Cantidad de años',
+            'descripcion': 'Descripcion',
+        }
 class LocalidadForm(forms.ModelForm):
 
     class Meta:
@@ -240,11 +247,6 @@ class CicloEditForm(forms.ModelForm):
         if inicio >= fin:
             raise forms.ValidationError("fecha ingresada es menor a la de inicio")
     
-        # Verificar si hay ciclos activos para las fechas proporcionadas
-        ciclos_activos = Ciclo.objects.filter(fechaInicio__lte=fin, fechaFin__gte=inicio).exclude(id=self.instance.id)
-        print("ciclos activooooosss", ciclos_activos)
-        if ciclos_activos.exists():
-            raise forms.ValidationError("Hay un ciclo activo para las fechas proporcionadas")
         return fin
 
 

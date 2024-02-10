@@ -24,7 +24,9 @@ urlpatterns = [
     re_path(r'^altaPlan$', views.plan_de_estudios_view,name='altaPlan'),
     re_path(r'^menuPlanDeEstudio$', views.menuPlan,name='menuPlanDeEstudio'),
     re_path(r'^menuCiclo$', views.menuCiclo,name='menuCiclo'),
-    
+
+    re_path(r'^eliminarCiclo/(?P<idCiclo>\d+)/$', views.eliminarCiclo, name='eliminarCiclo'),
+
     re_path(r'^menuCursada$', views.menuCursada,name='menuCursada'),
     re_path(r'^aniosDePlanActual$', views.aniosDePlanActual,name='aniosDePlanActual'),
     
@@ -41,7 +43,7 @@ urlpatterns = [
     
     re_path(r'^verCicloEnPlan/(?P<id>\d+)/$', views.cicloPlan_list, name='verCicloEnPlan'),
     re_path(r'^verCiclo/(?P<id>\d+)/$', views.ciclo_list, name='verCiclo'),
-    re_path(r'^altaCiclo/(?P<id>\d+)/$', views.ciclo_view,name='altaCiclo'),
+    re_path(r'^altaCiclo/$', views.ciclo_view,name='altaCiclo'),
     
     
     re_path(r'^modificarCiclo/(?P<id_ciclo>\d+)/$', views.ciclo_edit, name='modificarCiclo'),
