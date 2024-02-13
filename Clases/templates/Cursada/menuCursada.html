@@ -49,10 +49,9 @@
               </svg>
             </a>
               <ul class="dropdown-menu text-small">
-                <li><a class="dropdown-item" href="/signin">Iniciar</a></li>
                 <li><hr class="dropdown-divider"></li>
                 {% if user.is_authenticated %}
-                    <li><a class="dropdown-item" href="/logout">Sign out</a></li>
+                    <li><a class="dropdown-item" href="/logout">Cerrar sesion</a></li>
                 {% else %}
                     <li><a class="dropdown-item" href="/signup">Crear</a></li>
                 {% endif %}    

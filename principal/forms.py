@@ -67,8 +67,13 @@ class TaskForm (ModelForm):
         model = Task
         fields = [
             'title', 
+            'user',
             'descripcion', 
             'important',
-            'user'
         ]
-         
+        labels = {
+            'title': 'Titulo', 
+            'descripcion': 'Descripcion', 
+            'important': 'Importante',
+            'user': 'Usuario destinado'
+        }

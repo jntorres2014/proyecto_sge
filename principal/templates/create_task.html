@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
-
-
+{% load bootstrap5 %}
 {% block content %}
-<h1>Create task</h1>
+<h1>Crear Tarea</h1>
 <form class="form-control mb-3" action="/task/create" method="POST">
     {% csrf_token %}
-    {{form.as_p}}
+    {% bootstrap_form form %}
 
     <button>
-        Guardar
+        Crear
     </button>
 </form>
 {% endblock %}

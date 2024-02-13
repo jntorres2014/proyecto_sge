@@ -103,7 +103,7 @@ def importar(request):
     return render(request, 'Core/importar.html', {'result': result})
 ##################################################################
 @login_required
-def localidad_view(request):
+def localidadView(request):
     if request.method == 'POST':
         form = forms.LocalidadForm(request.POST)
         if form.is_valid():
@@ -113,11 +113,11 @@ def localidad_view(request):
         form = forms.LocalidadForm()
     return render(request, 'Core/LocalidadForm.html', {'form': form})
 
-class localidad_list(ListView):
+class localidadList(ListView):
     model = Localidad
     template_name = 'Core/verLocalidad.html'
 @login_required
-def localidad_edit(request, id_localidad):
+def localidadEdit(request, id_localidad):
     localidad = Localidad.objects.get(id=id_localidad)
     if request.method == 'GET':
         form = forms.LocalidadForm(instance= localidad)
@@ -130,7 +130,7 @@ def localidad_edit(request, id_localidad):
 
 ######################ESTUDIANTE DOCENTE##################################################
 @login_required
-def Estudiante_view(request):
+def estudianteView(request):
     if request.method == 'POST':
         form = forms.EstudianteForm(request.POST)
         if form.is_valid():
@@ -143,7 +143,7 @@ def Estudiante_view(request):
     return render(request, 'Core/Persona/EstudianteForm.html', {'form': form})
 
 @login_required
-def docente_view(request):
+def docenteView(request):
     if request.method == 'POST':
         form = forms.DocenteForm(request.POST)
         if form.is_valid():
@@ -154,11 +154,11 @@ def docente_view(request):
     return render(request, 'Core/Persona/DocenteForm.html', {'form': form})
 
 
-class docente_list(ListView):
+class docenteList(ListView):
     model = Docente
     template_name = 'Core/Persona/verDocente.html'
 @login_required
-def docente_edit(request, id_docente):
+def docenteEdit(request, id_docente):
     docente = Docente.objects.get(id=id_docente)
     if request.method == 'GET':
         form = forms.DocenteForm(instance= docente)
@@ -171,7 +171,7 @@ def docente_edit(request, id_docente):
 
 
 @login_required
-def eliminar_estudiante(request, id_estudiante):
+def eliminarEstudiante(request, id_estudiante):
     try:
         estudiante = Estudiante.objects.get(id=id_estudiante)
         estudiante.delete()
@@ -183,7 +183,7 @@ def eliminar_estudiante(request, id_estudiante):
 
 
 @login_required
-def estudiante_edit(request, id_estudiante):
+def estudianteEdit(request, id_estudiante):
     estudiante = Estudiante.objects.get(id=id_estudiante)
     if request.method == 'GET':
         form = forms.EstudianteForm(instance= estudiante)
@@ -195,7 +195,7 @@ def estudiante_edit(request, id_estudiante):
     return render(request, 'Core/Persona/EstudianteForm.html',{'form':form})
 
 
-class estudiante_list(ListView):
+class estudianteList(ListView):
     model = Estudiante
     template_name = 'Core/Persona/verEstudiante.html'
 
@@ -204,7 +204,7 @@ class estudiante_list(ListView):
 ################PLAN##################################
 
 @login_required
-def plan_de_estudios_view(request):
+def planDeEstudiosView(request):
     if request.method == 'POST':
         form = forms.PlanDeEstudiosForm(request.POST)
         if form.is_valid():
@@ -216,7 +216,7 @@ def plan_de_estudios_view(request):
     return render(request, 'Core/Plan/PlanDeEstudios.html', {'form': form})
 
 @login_required    
-def plan_list(request):
+def planList(request):
     planes=PlanDeEstudios.objects.all().order_by('-esActual')
     print(planes)
     return render(request, 'Core/Plan/verPlan.html', {
@@ -224,7 +224,7 @@ def plan_list(request):
     })    
 
 @login_required
-def plan_edit(request, id_plan):
+def planEdit(request, id_plan):
     plan = PlanDeEstudios.objects.get(id=id_plan)
     if request.method == 'GET':
         form = forms.PlanDeEstudiosEditForm(instance=plan)
@@ -235,7 +235,7 @@ def plan_edit(request, id_plan):
             return HttpResponseRedirect("/Core/verPlan")
     return render(request, 'Core/Plan/PlanDeEstudios.html',{'form':form})
 
-def cambiar_actual(request, id_plan):
+def cambiarActual(request, id_plan):
     # Llama al método cambiar_actual de la clase PlanDeEstudios
     PlanDeEstudios.cambiar_actual(request, id_plan)
 
@@ -244,7 +244,7 @@ def cambiar_actual(request, id_plan):
 #########################################################################
 
 @login_required
-def Espacio_view(request,id):
+def espacioView(request,id):
     #id = 1
     print(id)
     plan = PlanDeEstudios.objects.get(id=id)
@@ -267,7 +267,7 @@ def Espacio_view(request,id):
 ###################################
 ###################################
 @login_required
-def espacio_edit(request, id_espacio):
+def espacioEdit(request, id_espacio):
     espacio = EspacioCurricular.objects.get(id=id_espacio)
     if request.method == 'GET':
         form = forms.EspacioCurricularEditForm(instance= espacio)
@@ -322,12 +322,12 @@ def aniosDePlanActual(request):
                                                             'ciclo':ciclo})
 
 
-class Espacio_list(ListView):
+class espacioList(ListView):
     model = EspacioCurricular
     template_name = 'Core/EspacioCurricular/verEspacios.html'
 
 @login_required
-def cargar_espacios(request):
+def cargarEspacios(request):
     anioPlan = request.GET.get('anio')
     espacios = EspacioCurricular.objects.filter(anio_id=anioPlan)
     print(anioPlan,espacios)
@@ -335,7 +335,7 @@ def cargar_espacios(request):
 
 ########## ESTOY ACA #################
 @login_required
-def anio_list(request, id):
+def anioList(request, id):
     print("llegue",id)
     ciclo = Ciclo.objects.get(esActual = 'True')
     print((ciclo))
@@ -345,7 +345,7 @@ def anio_list(request, id):
                                                      'id':ciclo.id})
 
 @login_required
-def ciclo_list(request, id):
+def cicloList(request, id):
     print(id)
     print("VER CICLO Estoy aca")
     anioCicloPlan= Ciclo.objects.filter(plan= id)
@@ -355,7 +355,7 @@ def ciclo_list(request, id):
 
 ######ESTOY ACA####
 @login_required
-def cicloPlan_list(request, id):
+def cicloPlanList(request, id):
     print(id)
     plan = PlanDeEstudios.objects.get(id=id)
     print("VER CICLO estoy aca", plan.id)
@@ -365,7 +365,7 @@ def cicloPlan_list(request, id):
     print (anioCicloPlan)
     return render(request, 'Core/Plan/verCiclo.html',{'ciclo': anioCicloPlan, 'id':id, 'plan':plan })    
 @login_required
-def ciclo_view(request):
+def cicloView(request):
     print('entre acaaaaa',id)
     plan = get_object_or_404(PlanDeEstudios, esActual='True')
     anios = AnioPlan.objects.filter(plan=plan.id)
@@ -382,7 +382,7 @@ def ciclo_view(request):
 
     return render(request, 'Core/Plan/CicloForm.html', {'form': form, 'plan': plan, 'id': id})
 
-def cambiar_actual(request, id_plan):
+def cambiarActual(request, id_plan):
     # Llama al método cambiar_actual de la clase PlanDeEstudios
     PlanDeEstudios.cambiar_actual(request, id_plan)
 
@@ -390,7 +390,7 @@ def cambiar_actual(request, id_plan):
     return HttpResponseRedirect("/Core/verPlan")
     
 @login_required
-def ciclo_edit(request, id_ciclo):
+def cicloEdit(request, id_ciclo):
     ciclo = Ciclo.objects.get(id=id_ciclo)
     if request.method == 'GET':
         form = forms.CicloEditForm(instance=ciclo)
@@ -403,7 +403,7 @@ def ciclo_edit(request, id_ciclo):
 
 ################################################
 @login_required
-def division_list(request, id,idCiclo):
+def divisionList(request, id,idCiclo):
     division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     anio = AnioPlan.objects.get(id=id)
     ciclo = Ciclo.objects.get(esActual= 'True')
@@ -440,78 +440,9 @@ def verDivisionInasistencia(request, id,idCiclo):
     return render(request, 'Core/Plan/verDivisionInasistencia.html',{'divisiones': division,
                                                       'id':id,
                                                       'anio':division[0].anio.id})  
-# @login_required
-# def division_new(request, anio_id, id):
-#     anio = AnioPlan.objects.get(id=anio_id)
-#     ciclo = Ciclo.objects.get(esActual='True')
-#     print("Estoy en division New", request.method)
-#     if request.method == 'GET':
-#         print("etre al post")
-#         # Obtén los datos del formulario y crea la nueva división
-#         codigo = '6'
-#         descripcion = 'Descripción de la división'
-#         nueva_division = Division(ciclo=ciclo, codigo=codigo, descripcion=descripcion, anio=anio)
-#         nueva_division.save()
-#         # Redirige al usuario a la página de listado de divisiones
-#         print("ingrese al post")
-#         return redirect('verDivision/', anio_id=anio_id)
-#         return render(request, 'Core/Plan/divisionForm.html', {
-#         'form': form,
-#         'division': nueva_division,  # Puedes incluir la nueva división si es necesario
-#         'id': id,
-#         'anio': anio,
-#     })
-    
-#     division_list(request, anio.id,ciclo.id)
-    # Renderiza el formulario para agregar divisiones
-    # form = forms.DivisionForm()
-    # return render(request, 'Core/Plan/divisionForm.html', {
-    #     'form': form,
-    #     #'division': nueva_division,  # Puedes incluir la nueva división si es necesario
-    #     #'id': id,
-    #     #'anio': anio,
-    # })
-
-
-    # if request.method == 'POST':
-    #     # Obtén los datos del formulario y crea la nueva división
-    #     ciclo = Ciclo.objects.get(id=id)
-    #     codigo = '6'
-    #     descripcion = 'Descripción de la división'
-    #     anio = AnioPlan.objects.get(id=anio_id)
-    #     nueva_division = Division(ciclo=ciclo, codigo=codigo, descripcion=descripcion, anio=anio)
-    #     nueva_division.save()
-    #     # Después de crear la división, puedes redirigir al usuario nuevamente a la página de listado de divisiones
-    #     return HttpResponseRedirect('/Core/verDivisiones/')    
-    #     return render(request, 'Core/Plan/verDivision.html',{'divisiones': divisiones,
-    #                                                   'id':id,
-    #                                                   'anio':anio})
-    # # Redirige a la página principal u otra página después de agregar la división
-    # #return redirect('/Core/verDivision/'+id)
-
-
-
-    # if request.method == 'POST':
-    #     # form = forms.PlanDeEstudiosForm(request.POST, instance=plan)
-    #     form = forms.DivisionForm(request.POST,)
-    #     print("entre al post")
-    #     if form.is_valid():
-    #         print("era valido")
-    #         form.save()
-    #         pagina = "/Core/verCiclo/" + id
-    #         #print("la pagina",pagina)
-    #     return HttpResponseRedirect("/Core/altaDivision/" + id)
-    # else:
-    #     form = forms.DivisionForm()
-    # return render(request, 'Core/Plan/divisionForm.html', {
-    #     'form': form,
-    #     'division': division,
-    #     'id':id})
-
-
 ################################################
 @login_required
-def inscripciones_alumnnos_ciclo(request, id_ciclo=1):
+def inscripcionDeEstudianteCiclo(request, id_ciclo=1):
     id_ciclo_actual = Ciclo.objects.get(esActual=True)
     inscriptos = [] if not id_ciclo_actual else inscripcionEstudianteCiclo.objects.filter(ciclo=id_ciclo_actual)
     cant_inscriptos = inscriptos.count()
@@ -543,13 +474,13 @@ def estudiantesDeAnioEnCiclo(request, idCiclo):
     estudiantesCiclo=  inscripcionEstudianteCiclo.objects.filter(ciclo = idCiclo)   
     return render(request, 'Core/Persona/estudiantes_por_anio_ciclo.html', {'estudiantes': estudiantesCiclo})
 
-def list_alumno_aula(request,idDivision):
+def listEstudianteAula(request,idDivision):
     aula = Aula.objects.get(division_id=idDivision)
     return render(request, 'Cursada/cargarInasistencia.html',{'inscriptos': list(aula.estudiantes.all()),
                                                                  'idDivision': idDivision})
 
 @login_required
-def AsignarAlumno_Division(request, idAnio, idCiclo):
+def asignarEstudianteDivision(request, idAnio, idCiclo):
     inscriptos = inscripcionEstudianteCiclo.objects.filter(anio = idAnio, ciclo = idCiclo)
     division = Division.objects.filter(anio = idAnio, ciclo = idCiclo)
     print(division)
@@ -574,7 +505,7 @@ def AsignarAlumno_Division(request, idAnio, idCiclo):
                                                                  'inscriptos': inscriptos,
                                                                  'cantAlumnos': cantidadAlumnosInscriptos})
 
-def asignar_estudiante_a_aula(request,id_anio):
+def asignarEstudianteAula(request,id_anio):
     ciclo_actual = Ciclo.objects.get(esActual=True)
     # Obtener las divisiones del año y ciclo actual
     divisiones = Division.objects.filter(anio=id_anio, ciclo=ciclo_actual)
@@ -591,7 +522,7 @@ def asignar_estudiante_a_aula(request,id_anio):
                                                                  'cantDivisiones': cantidadDivisiones})
 
 
-def exportar_historial_pdf(request, estudiante_id):
+def exportarHistorialPdf(request, estudiante_id):
     estudiante = Estudiante.objects.get(pk=estudiante_id)
     inscripciones = inscripcionEstudianteCiclo.objects.filter(estudiante=estudiante).order_by('fecha')
     faltas = Inasistencias.objects.filter(estudiante=estudiante).order_by('dia')
