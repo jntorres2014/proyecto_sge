@@ -17,14 +17,18 @@
                     <div class="col-sm-4 mb-4 plan" data-anio="{{ plan.anio }}">
                         <div class="card" style="width: 18rem; height: 100%;">
                             {% if plan.esActual %}
-                                <h2>Plan actual</h2>
+                                <h5>Plan actual</h2>
                             {% endif %}
                             <h1>{{ plan.codigo }}</h1>
                             <h3>{{ plan.descripcion }}</h3>
                             <h4>{{ plan.anio }}</h4>
                             <h5>{{ plan.orientacion }}</h5>
                             <div class="card-body d-flex flex-column">
-                                {{plan.implementado}}
+                                {% if plan.implementado %}
+                                    <h6 style="color: red;"> implementado</h6>
+                                {% else %}
+                                <h6 style="color: red;"> Sin implementar</h6>
+                                    {% endif %}    
                                 {% if not plan.implementado %}
                                 <a class="btn btn-primary m-2" href="/Core/modificarPlan/{{ plan.id }}">Editar</a>
                                 <a class="btn btn-primary m-2" href="/Core/verEspacioCurricularEnPlan/{{ plan.id }}">Espacios curriculares</a>

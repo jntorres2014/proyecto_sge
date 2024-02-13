@@ -37,12 +37,11 @@ class PasswordResetDoneView(PasswordResetDoneView):
 def home2(request):
     hay_plan=PlanDeEstudios.objects.exists()
     hay_ciclo = Ciclo.objects.exists()
-    print(hay_ciclo)
-    if hay_ciclo:
-        ciclo_activo = Ciclo.objects.get(esActual= 'True').fechaFin >= timezone.now().date()
-        print("ciclo activo",ciclo_activo)
-    else:
-            ciclo_activo='False'
+    try:
+        ciclo_activo =  Ciclo.objects.get(esActual='True').fechaInicio <= timezone.now().date() >= Ciclo.objects.get(esActual='True').fechaInicio
+    except Ciclo.DoesNotExist:
+        ciclo_activo = False
+    print(ciclo_activo)
     return render(request, 'home.html',{'hay_plan': hay_plan,
                                         'ciclo_activo': ciclo_activo} )
 @login_required

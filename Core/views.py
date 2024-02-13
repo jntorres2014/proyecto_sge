@@ -1,5 +1,6 @@
-from datetime import datetime,timezone
+from datetime import timezone
 from io import BytesIO
+from django.utils import timezone
 import string
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
@@ -244,19 +245,20 @@ def cambiar_actual(request, id_plan):
 
 @login_required
 def Espacio_view(request,id):
-    id = 1
+    #id = 1
     print(id)
-    plan = PlanDeEstudios.objects.get(esActual = 'True')
-    espacios = EspacioCurricular.objects.filter(plan = plan.id)
+    plan = PlanDeEstudios.objects.get(id=id)
+    espacios = EspacioCurricular.objects.filter(plan = plan)
     if request.method == 'POST':
         form = forms.EspacioCurricularForm(request.POST, id_plan=id)
         if form.is_valid():
             print("guardando datoss")
             form.save()
+            espacios = EspacioCurricular.objects.filter(plan = plan)
             #return HttpResponseRedirect("/Core/EspacioCurricular/EspaciosCurricularesForm.html")
     else:
         form = forms.EspacioCurricularForm(id_plan=id)
-        
+    
     print("retornando formiulariox")
     return render(request, 'Core/EspacioCurricular/EspaciosCurricularesForm.html', {
         'form': form,
@@ -283,13 +285,14 @@ def menuPlan(request):
 @login_required
 def menuCiclo(request):
     hay_ciclo = Ciclo.objects.exists()
-    print(hay_ciclo)
-    if hay_ciclo:
-        ciclo_activo = Ciclo.objects.get(esActual=True).fechaFin >= datetime.now(timezone.utc).date()
-        print("ciclo activo",ciclo_activo)
-    else:
-            ciclo_activo='False'
+    try:
+        ciclo_activo =  Ciclo.objects.get(esActual='True').fechaInicio <= timezone.now().date() >= Ciclo.objects.get(esActual='True').fechaInicio
+        print("HAY CICLOOOOOOO1",ciclo_activo)
+    except Ciclo.DoesNotExist:
+        ciclo_activo = False
+    print('ciclo',ciclo_activo)
     return render(request, 'Core/Plan/menuCiclo.html',{'cicloActivo':ciclo_activo})
+
 @login_required
 def menuCursada(request):
     return render(request, 'Cursada/menuCursada.html')
@@ -298,6 +301,10 @@ def menuCursada(request):
 def eliminarCiclo(request, idCiclo):
     try:
         ciclo = Ciclo.objects.get(id=idCiclo)
+        if not (Ciclo.objects.filter(Q(plan=ciclo.plan) & ~Q(id=idCiclo)).exists()):
+            plan = PlanDeEstudios.objects.get(id = ciclo.plan.id)
+            plan.implementado = 'False' 
+            plan.save()
         ciclo.delete()
         messages.success(request, 'El Ciclo se eliminó correctamente.')
     except Estudiante.DoesNotExist:
@@ -358,9 +365,9 @@ def cicloPlan_list(request, id):
     print (anioCicloPlan)
     return render(request, 'Core/Plan/verCiclo.html',{'ciclo': anioCicloPlan, 'id':id, 'plan':plan })    
 @login_required
-def ciclo_view(request, id):
-    print('entre acaaaaa')
-    plan = get_object_or_404(PlanDeEstudios, id=id)
+def ciclo_view(request):
+    print('entre acaaaaa',id)
+    plan = get_object_or_404(PlanDeEstudios, esActual='True')
     anios = AnioPlan.objects.filter(plan=plan.id)
 
     form = forms.CicloForm(request.POST) if request.method == 'POST' else forms.CicloForm()
@@ -371,7 +378,7 @@ def ciclo_view(request, id):
         Ciclo.cambiar_actual(request, ciclo.id)
         plan.implementado = True
         plan.save()
-        return redirect('/Core/verCicloEnPlan/'+id)
+        return redirect('/Core/verCicloEnPlan/'+str(plan.id))
 
     return render(request, 'Core/Plan/CicloForm.html', {'form': form, 'plan': plan, 'id': id})
 

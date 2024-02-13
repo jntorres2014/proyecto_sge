@@ -16,9 +16,11 @@
               <li class="nav-item" >                    
                   <a class="nav-link ml-auto text-left" style="color:red" href="/home2"  role="button"  aria-haspopup="true" aria-expanded="false">Home</a>
               </li>
+              {% if not ciclo_activo == False %}
               <li class="nav-item">
                   <a class="nav-link ml-auto text-left" href="/Core/inscripcion"  role="button"  aria-haspopup="true" aria-expanded="false">Inscripciones</a>
               </li> 
+              {% endif %}
                   <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                           Altas</a>
@@ -93,7 +95,7 @@
       </div>
     </div>
     
-    {% if not ciclo_activo == 'False' %}
+    {% if not ciclo_activo == False %}
     <div class="col-md-4">
       <div class="card align-items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-easel" viewBox="0 0 16 16">

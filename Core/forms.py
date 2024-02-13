@@ -168,11 +168,11 @@ class EspacioCurricularEditForm(forms.ModelForm):
 
 class EspacioCurricularForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        print("acaaaaaaaaaaaaaa")
-        # Obtener el plan de estudios y los ciclos desde los kwargs
-        #plan_estudio = kwargs.pop('plan_estudio', None)
-        
+        plan_estudio_id = kwargs.pop('id_plan', None)
+        print('Plan de estudioooo', plan_estudio_id)
         super(EspacioCurricularForm, self).__init__(*args, **kwargs)
+        if plan_estudio_id:
+            self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=plan_estudio_id)
 
     class Meta:
         model= EspacioCurricular
@@ -207,10 +207,12 @@ class EspacioCurricularForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         id_plan = kwargs.pop('id_plan', None)
+        print('Plan de estudioooo',id_plan)
         super(EspacioCurricularForm, self).__init__(*args, **kwargs)
         # Obtener la fecha del sistema
         # Establecer la fecha del sistema en el campo de fecha del formulario
         #self.fields['fecha'].initial = current_date
+        self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=id_plan)
 
         anios_plan_estudio = AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual= 'True'))
         

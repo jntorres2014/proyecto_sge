@@ -39,11 +39,11 @@ urlpatterns = [
     re_path(r'^verAnio/(?P<id>\d+)/$', views.anio_list, name= 'verAnio'),
     
 
-    re_path(r'^altaCiclo/(?P<id>\d+)/$', views.ciclo_view,name='altaCiclo'),
+    re_path(r'^altaCiclo/$', views.ciclo_view,name='altaCiclo'),
     
     re_path(r'^verCicloEnPlan/(?P<id>\d+)/$', views.cicloPlan_list, name='verCicloEnPlan'),
     re_path(r'^verCiclo/(?P<id>\d+)/$', views.ciclo_list, name='verCiclo'),
-    re_path(r'^altaCiclo/$', views.ciclo_view,name='altaCiclo'),
+    #re_path(r'^altaCiclo/$', views.ciclo_view,name='altaCiclo'),
     
     
     re_path(r'^modificarCiclo/(?P<id_ciclo>\d+)/$', views.ciclo_edit, name='modificarCiclo'),
