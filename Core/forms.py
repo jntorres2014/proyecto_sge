@@ -251,12 +251,12 @@ class CicloEditForm(forms.ModelForm):
     
         return fin
 
-
+plan_actual = PlanDeEstudios.objects.get(esActual='True')
 class CicloForm(forms.ModelForm):
 
     class Meta:
         model = Ciclo
-        plan = forms.TextInput(attrs={'value': PlanDeEstudios})
+        #plan = forms.TextInput(attrs={'value': PlanDeEstudios})
         fields = [
             'anioCalendario',
             'fechaInicio',
@@ -267,14 +267,16 @@ class CicloForm(forms.ModelForm):
             'anioCalendario': 'Año Calendario',
             'fechaInicio': 'Fecha de Inicio de ciclo',
             'fechaFin': 'Fecha de fin de ciclo',
-            'plan': 'Plan que implementa'
+            'plan' : 'Plan de estudio'
         }
 
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-        anios_plan_estudio = PlanDeEstudios.objects.filter(esActual='True')
+        anios_plan_estudio = PlanDeEstudios.objects.get(esActual='True')
         widgets = {
         'fechaInicio': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
         'fechaFin': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
+        #'plan': forms.TextInput(attrs={'type': 'text', 'readonly':'True', 'placeholder': plan_actual}),
+        'plan': forms.HiddenInput(attrs={'type':'text' })
         }
     def clean_fechaFin(self):
         inicio = self.cleaned_data.get("fechaInicio")
@@ -288,10 +290,15 @@ class CicloForm(forms.ModelForm):
             raise forms.ValidationError("Hay un ciclo activo para las fechas proporcionadas")
         return fin
     
+    def clean_plan(self):
+        plan = self.cleaned_data.get("plan")
+        print("Este es el plan", plan)
+        return plan.id
+    
     def __init__(self, *args, **kwargs):
         super(CicloForm, self).__init__(*args, **kwargs)
-        anios_plan_estudio = PlanDeEstudios.objects.filter(esActual='True')
-        self.fields['plan'].queryset = anios_plan_estudio
+        #anios_plan_estudio = PlanDeEstudios.objects.filter(esActual='True')
+        #self.fields['plan'].queryset = anios_plan_estudio
 
 PRIMERA = '1ra'
 SEGUNDA = '2da'

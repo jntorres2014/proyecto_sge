@@ -31,6 +31,7 @@ from dal import autocomplete
 
 class MateriaAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
+        print("self",self.kwargs)
         qs = EspacioCurricular.objects.all()
         print(qs)
         if self.q:
@@ -373,6 +374,7 @@ def cicloView(request):
     form = forms.CicloForm(request.POST) if request.method == 'POST' else forms.CicloForm()
 
     if request.method == 'POST' and form.is_valid():
+        print("Entre aca era valido")
         ciclo = form.save()
         ciclo.crear_division_para_anio_ciclo(ciclo, anios)
         Ciclo.cambiar_actual(request, ciclo.id)

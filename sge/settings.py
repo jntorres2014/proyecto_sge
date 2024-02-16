@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'sge.middlewares.AgregarPlanAlContextoMiddleware'
 ]
 
 ROOT_URLCONF = 'sge.urls'

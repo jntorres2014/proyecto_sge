@@ -145,7 +145,7 @@ class PlanDeEstudios(models.Model):
     
 
     def __str__(self):
-        return "{0}, {1}".format(self.anio, self.orientacion)
+        return "Plan de estudios del año {0}, Orientacion {1}".format(self.anio, self.orientacion)
 
     @staticmethod
     def crear_anios_plan(self):
@@ -438,7 +438,7 @@ class Ciclo (models.Model):
 
     
     def __str__(self):
-        return "{0}".format(self.anioCalendario)
+        return "{0} Vigente desde {1} hasta {2}".format(self.anioCalendario,self.fechaInicio, self.fechaFin)
     @staticmethod
     def crear_division_para_anio_ciclo(self,anios):
         print("Entre a diviones para anios ciclos")
