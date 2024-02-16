@@ -15,8 +15,10 @@ class UsuarioForm(UserCreationForm):
         self.fields['first_name'].widget.attrs['class'] = 'form-control'
         self.fields['last_name'].widget.attrs['class'] = 'form-control'
         self.fields['password1'].widget.attrs['class'] = 'form-control'
+        self.fields['password1'].widget.attrs['id'] = 'id_password1'
         self.fields['password1'].help_text = 'Su contraseña debe contener por lo menos 8 caracteres y al menos una letra, un número y un carácter especial'
         self.fields['password2'].widget.attrs['class'] = 'form-control'
+        self.fields['password2'].widget.attrs['id'] = 'id_password2'
         self.fields['email'].widget.attrs['class'] = 'form-control'
             
     def clean_email(self):

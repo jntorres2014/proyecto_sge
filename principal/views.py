@@ -173,4 +173,4 @@ def signin(request):
         })
     else:
         login(request, user)
-        return redirect('home2')
+        return redirect('/')

@@ -20,8 +20,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.signin, name= 'login' ),
-    path('home2', views.home2, name= 'home2' ),
+    path('login', views.signin, name= 'login' ),
+    path('', views.home2, name= '' ),
     # path('reset_password/', auth_views.PasswordResetView.as_view(), name='reset_password'),
     path('reset_password/', views.CustomPasswordChangeView.as_view(),  name='reset_password'),
     path('reset_password_done/', views.PasswordResetDoneView.as_view(), name='reset_password_done'),

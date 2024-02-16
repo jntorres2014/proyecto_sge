@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
-{% block header %}
-{% endblock header %}
+
+{% load static %}
 {% load bootstrap5 %}
-
-
 
 {% block content %}
 {{ form.media }}
@@ -16,7 +14,7 @@
             {{ error }}
             </div>
             {% endif %}
-                <form class="form " method="post">
+                <form class="form " method="post" id="user-form" >
                 {% csrf_token %}
                 {% bootstrap_form form %}
 
@@ -33,5 +31,10 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% load static %}
+{% block scripts %}
+
+
 
 {% endblock %}

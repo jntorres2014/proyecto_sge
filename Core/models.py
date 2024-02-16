@@ -83,7 +83,7 @@ class PlanDeEstudios(models.Model):
 
 
     codigo= models.CharField(
-        help_text="codigo plan estudio",
+        help_text="Ej: 123456",
         unique=True,
         max_length=MAXCODIGO,
         null=False,
@@ -94,7 +94,7 @@ class PlanDeEstudios(models.Model):
         }
     )
     anio = models.CharField(
-        help_text="año actual del plan de estudio",
+        help_text="Ej: 2024",
         unique=False,
         max_length=MAXANIO,
         null=True,
@@ -105,7 +105,7 @@ class PlanDeEstudios(models.Model):
         }
     )
     orientacion = models.CharField(
-        help_text="orientacion del plan de estudio",
+        help_text="Ej: Profesorado de educacion primaria",
         unique=False,
         max_length=MAXORIENTACION,
         null=False,
@@ -116,7 +116,7 @@ class PlanDeEstudios(models.Model):
         }
     )
     nivel = models.CharField(
-        help_text="nivel ",
+        help_text="Ej: Primario",
         unique=False,
         max_length= MAXORIENTACION,
         null=False,
@@ -126,7 +126,7 @@ class PlanDeEstudios(models.Model):
         }
     )
     descripcion = models.CharField(
-        help_text="descripcion",
+        help_text="Ej: descripcion del plan de estudios",
         unique=False,
         max_length= MAXDESCRIPCION,
         null=False,
@@ -187,7 +187,7 @@ class Persona(models.Model):
     MAXTELEFONO = 10
 
     Nombre = models.CharField(
-        help_text= "Nombre",
+        help_text="Ej: Juan",
         max_length = MAXNOMBRE,
         unique= False,
         null= False,
@@ -200,7 +200,7 @@ class Persona(models.Model):
     )
 
     Apellido = models.CharField(
-        help_text="Apellido",
+        help_text="Ej: Perez",
         max_length=MAXAPELLIDO,
         unique=False,
         null=False,
@@ -213,7 +213,7 @@ class Persona(models.Model):
     )
 
     Dni= models.CharField(
-        help_text= "ingrese DNI",
+        help_text="Ej: 12345678",
         max_length = MAXDNI,
         unique= True,
         null= False,
@@ -229,37 +229,35 @@ class Persona(models.Model):
         null=False,
         blank=False,
         on_delete=models.CASCADE,
-        help_text="Ingrese Localidad",
+        help_text="Ej: Trelew",
         error_messages={
         }
     )
 
     Direccion=models.CharField(
-        help_text= "Direccion",
+        help_text="Ej: Calle falsa 123",
         max_length = MAXDIRECCION,
         unique= False,
         null= False,
         blank= False,
         error_messages= {
-            'max_length': "El dni puede tener a lo sumo {} caracteres".format(MAXDNI),
-            'unique': "El dni ingresado ya existe",
-            'blank': "El dni es obligatorio"
+            'blank': "La direccion es obligatoria"
         }
     )
 
     Email = models.EmailField(
-        help_text="Ingrese email valido",
+        help_text="Ej: asd@asd.com",
         unique=True,
         null=True,
         blank=True,
         primary_key=False,
         error_messages={
-            'unique': "Otra persona tiene ese email",
+            'unique': "El email no esta disponible",
         }
     )
 
     Telefono= models.CharField(
-        help_text="Telefono ",
+        help_text="Ej: 0123456789 ",
         max_length=MAXTELEFONO,
         unique=False,
         null=True,
@@ -284,7 +282,10 @@ class Estudiante(Persona):
             raise ValidationError('La fecha ingresada es mayor a la actual')
         return value
 
-    legajo = models.CharField(max_length= 50,unique= True)
+    legajo = models.CharField(
+        help_text="Ej: asd123",
+        max_length= 50,unique= True,
+        )
     fechaInscripcion = models.DateField(default = now,validators=[dia_futuro])
 
     @classmethod
@@ -322,7 +323,8 @@ class AnioPlan(models.Model):
     CANTMAXPORANIO= 50
     MAXDESCRIPCION = 50
 
-    codigo = models.CharField(help_text="codigo",
+    codigo = models.CharField(
+        help_text="Ej: ",
         max_length= MAXCODIGO,
         null=False,
         blank=False,
@@ -348,22 +350,30 @@ class AnioPlan(models.Model):
 
 
     def __str__(self):
-        return "{0}, {1}".format(self.codigo, 'Año')
+        return "{0}{1}".format(self.codigo, '°')
 
 
 class EspacioCurricular(models.Model):
     class Meta:
         unique_together = [['anio', 'codigo']]
 
-    anio = models.ForeignKey(AnioPlan, on_delete= models.CASCADE)
+    anio = models.ForeignKey(
+        AnioPlan, on_delete= models.CASCADE,
+        help_text="Ej: Elija un año del plan",)
 
-    codigo = models.CharField(max_length= 50,unique= True)
+    codigo = models.CharField(
+        help_text="Ej: MAT-035",
+        max_length= 50,
+        unique= True)
 
-    cantidadModulos = models.PositiveIntegerField()
+    cantidadModulos = models.PositiveIntegerField(
+        help_text="Ej: 5",)
 
-    nombre = models.CharField(max_length= 50)
+    nombre = models.CharField(help_text="Ej: Matematica"
+                              ,max_length= 50)
 
-    contenido = models.CharField(max_length=50)
+    contenido = models.CharField(help_text="Ej: Sumas y restas basicas"
+                                 ,max_length=50)
     
     plan = models.ForeignKey(PlanDeEstudios, on_delete=models.CASCADE)
 
@@ -417,13 +427,17 @@ class Ciclo (models.Model):
     #         raise ValidationError('La fecha ingresada es mayor a la actual')
     #     return
     
-    anioCalendario = models.CharField(max_length=4,unique= True)
+    anioCalendario = models.CharField(
+        help_text="Ej: 2024",
+        max_length=4,
+        unique= True)
 
-    fechaInicio = models.DateField(default=now)
+    fechaInicio = models.DateField(help_text="Ej: 16/02/2024",
+                                   default=now)
 
     plan = models.ForeignKey(PlanDeEstudios, blank=False, on_delete=models.CASCADE)
 
-    fechaFin = models.DateField()
+    fechaFin = models.DateField(help_text="Ej: 28/11/2024",)
     
     esActual = models.BooleanField(
         default= True
@@ -439,11 +453,10 @@ class Ciclo (models.Model):
     
     def __str__(self):
         return "{0} Vigente desde {1} hasta {2}".format(self.anioCalendario,self.fechaInicio.strftime("%d-%m-%Y"), self.fechaFin.strftime("%d-%m-%Y"))
+    
     @staticmethod
     def crear_division_para_anio_ciclo(self,anios):
-        print("Entre a diviones para anios ciclos")
         for a in anios.all():
-            print('entro')
             division=Division.objects.create(ciclo=self,
                                              codigo='A',
                                              descripcion="{} {}".format(a, 'Division A'),
@@ -573,12 +586,6 @@ class Horario(models.Model):
 
     division = models.ForeignKey(Division, on_delete=models.CASCADE, related_name='horarios',blank=False)
 
-    #espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
-
-    #dia = MultiSelectField(unique=True, null= False)
-    #dia= models.CharField(max_length=10)
-    #hora = MultiSelectField(unique=True, null= False)
-    #hora = models.CharField(max_length=10)
     cantidad_modulo = models.PositiveSmallIntegerField(null=False, blank=False, default=1)
 
     docente = models.ForeignKey(
@@ -607,9 +614,10 @@ class Horario(models.Model):
 class Detalle_Horario(models.Model):
     horario= models.ForeignKey(Horario,on_delete = models.CASCADE)
     espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
-    dia= models.CharField(max_length=10)
-    #hora = MultiSelectField(unique=True, null= False)
-    hora = models.CharField(max_length=10)
+    dia= models.CharField(help_text="Lunes",max_length=10)
+    hora = models.CharField(help_text="Ej: Modulo 1",max_length=10)
+    
+    
     class Meta:
         unique_together = ('horario','espacioCurricular','dia','hora')
     
@@ -621,20 +629,23 @@ class inscripcionEstudianteCiclo(models.Model):
     estudiante = models.ForeignKey(
         Estudiante,
         null=True,
+        help_text="Ej: Juan Perez",
         on_delete=models.CASCADE,
     )
     
     ciclo = models.ForeignKey(
         Ciclo,
         null=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        help_text="Ej: Actual",
     )
 
     anio = models.ForeignKey(
         AnioPlan,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        help_text="Ej: 1,año",
     )
-    fecha = models.DateTimeField(default=now)
+    fecha = models.DateTimeField(default=now,help_text="Ej: 16/02/2024",)
 
     class Meta:
         unique_together = ['estudiante', 'ciclo', 'anio']

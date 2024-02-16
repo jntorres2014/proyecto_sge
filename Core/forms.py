@@ -40,6 +40,13 @@ class PlanDeEstudiosEditForm(forms.ModelForm):
             'nivel',
             'descripcion',
         ]
+        placeholder ={
+            'codigo': 'Ej. 687197716',
+            'anio' : 'Ej. 2024',
+            'orientacion': 'Ej. Programacion Orientada a objetos',
+            'nivel': 'Ej Primario',
+            'descripcion' : '',
+        }
 
 class PlanDeEstudiosForm(forms.ModelForm):
     class Meta:
@@ -373,15 +380,15 @@ class inscripcionAlumnoForm(forms.ModelForm):
         labels = {
             'anio': 'Año'
         }
-        widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'class': 'input-group mb-3'})
+        widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'type':'text','class': 'form-label' })
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
         ciclo = Ciclo.objects.get(esActual = 'True')
      
         widgets = {
             'estudiante': widgets_estudiante,
-            'fecha': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
+            'fecha': forms.TextInput(attrs={'class': ' form-label datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
+            'anio': forms.Select(attrs={'class': 'form-control input-group mb-3 '}),
             'ciclo': forms.TextInput(attrs={'type': 'hidden', 'readonly':'True', 'Value': ciclo.id}),
-            'anio': forms.Select(attrs={'class': 'form-label input-group mb-3 '}),
             
         }
     def clean_fecha(self):
