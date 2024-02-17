@@ -45,9 +45,9 @@ class Detalle_HorarioForm(forms.ModelForm):
         
      
         widgets = {
-            'horario': forms.Select(attrs={'class': 'input-group con-mv-4', 'id':'id_division','onchange':'cargarDatosHorario()'}),
+            'horario': forms.Select(attrs={'type':'hidden', 'class': 'input-group con-mv-4', 'id':'id_division','onchange':'cargarDatosHorario()'}),
             'hora': forms.Select(attrs={'class': 'input-group con-mv-4'}),
-            'espacioCurricular': widgets_espacio,
+            #'espacioCurricular': widgets_espacio,
           
             'dia': forms.TextInput(attrs={'class': 'input-group mb-3'}),   
 

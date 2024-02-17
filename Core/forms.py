@@ -61,6 +61,12 @@ class PlanDeEstudiosForm(forms.ModelForm):
             'cantidadAnios': 'Cantidad de años',
             'descripcion': 'Descripcion',
         }
+
+    def clean_cantidadAnios(self):
+        anios = self.cleaned_data.get("cantidadAnios")
+        if anios < 1:
+            raise forms.ValidationError("La cantidad de años ingresadas debe ser mayor a cero")
+        return anios
 class LocalidadForm(forms.ModelForm):
 
     class Meta:
@@ -255,6 +261,7 @@ plan_actual = PlanDeEstudios.objects.get(esActual='True')
 class CicloForm(forms.ModelForm):
 
     class Meta:
+        anios_plan_estudio = PlanDeEstudios.objects.get(esActual='True')
         model = Ciclo
         #plan = forms.TextInput(attrs={'value': PlanDeEstudios})
         fields = [
@@ -267,7 +274,7 @@ class CicloForm(forms.ModelForm):
             'anioCalendario': 'Año Calendario',
             'fechaInicio': 'Fecha de Inicio de ciclo',
             'fechaFin': 'Fecha de fin de ciclo',
-            'plan' : 'Plan de estudio'
+            'plan' : anios_plan_estudio
         }
 
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
@@ -275,8 +282,8 @@ class CicloForm(forms.ModelForm):
         widgets = {
         'fechaInicio': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
         'fechaFin': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
-        #'plan': forms.TextInput(attrs={'type': 'text', 'readonly':'True', 'placeholder': plan_actual}),
-        'plan': forms.HiddenInput(attrs={'type':'text' })
+        'plan': forms.TextInput(attrs={'type': 'hidden', 'readonly':'True', 'Value': anios_plan_estudio.id}),
+        #'plan': forms.HiddenInput(attrs={'type':'hid' })
         }
     def clean_fechaFin(self):
         inicio = self.cleaned_data.get("fechaInicio")
@@ -292,8 +299,10 @@ class CicloForm(forms.ModelForm):
     
     def clean_plan(self):
         plan = self.cleaned_data.get("plan")
+        plan = PlanDeEstudios.objects.get(esActual = 'True')
         print("Este es el plan", plan)
-        return plan.id
+
+        return plan
     
     def __init__(self, *args, **kwargs):
         super(CicloForm, self).__init__(*args, **kwargs)

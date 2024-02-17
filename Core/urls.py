@@ -58,13 +58,14 @@ urlpatterns = [
     re_path(r'^verEspacios$', views.espacioList.as_view(), name='verEspacios'),
     re_path(r'^modificarEspacio/(?P<id_espacio>\d+)/$', views.espacioEdit, name='modificarEspacio'),
     path('ajax/cargar-espacios/', views.cargarEspacios, name='ajax_cargar_espacios'),
+    re_path(r'^eliminarInscripcion/(?P<id_estudiante>\d+)/$', views.eliminarInscripcion, name='eliminarInscripcion'),
     
     
     re_path(r'^verDivision/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.divisionList, name='verDivision'),
     re_path(r'^verDivisionInasistencia/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.verDivisionInasistencia, name='verDivisionInasistencia'),
     re_path(r'^verAlumnoInasistencia/(?P<idDivision>\d+)/$', views.listEstudianteAula, name='verAlumnoInasistencia'),
      
-    re_path(r'^inscripcion$', views.inscripcionEstudianteCiclo,name='inscripcion'),
+    re_path(r'^inscripcion$', views.inscripcionDeEstudianteCiclo,name='inscripcion'),
         
     re_path(r'^estudiantesDeAnioEnCiclo$', views.estudiantesDeAnioEnCiclo,name='estudiantesDeAnioEnCiclo'),
 

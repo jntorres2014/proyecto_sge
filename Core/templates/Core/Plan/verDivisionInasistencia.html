@@ -1,4 +1,4 @@
-    {% extends 'Cursada/menuCursada.html' %}
+{% extends 'home.html' %}
     {% load bootstrap5 %}
 
     {% block content %}
@@ -33,12 +33,7 @@
                                             </svg>
                                             Inasistencias
                                             </a>
-                                        <button type="button" class="btn btn-success" href="/">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-text-fill" viewBox="0 0 16 16">
-                                                <path d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2M5 4h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1m-.5 2.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5M5 8h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1m0 2h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1"/>
-                                            </svg>
-                                            Notas
-                                        </button>
+                                    
                                         <a type="button" class="btn btn-success" href="/Clases/crear_horario/{{division.id}}">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
                                                 <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>

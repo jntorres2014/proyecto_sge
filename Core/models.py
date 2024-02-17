@@ -438,7 +438,7 @@ class Ciclo (models.Model):
 
     
     def __str__(self):
-        return "{0} Vigente desde {1} hasta {2}".format(self.anioCalendario,self.fechaInicio, self.fechaFin)
+        return "{0} Vigente desde {1} hasta {2}".format(self.anioCalendario,self.fechaInicio.strftime("%d-%m-%Y"), self.fechaFin.strftime("%d-%m-%Y"))
     @staticmethod
     def crear_division_para_anio_ciclo(self,anios):
         print("Entre a diviones para anios ciclos")

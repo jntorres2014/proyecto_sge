@@ -16,32 +16,43 @@
               <li class="nav-item" >                    
                   <a class="nav-link ml-auto text-left" style="color:red" href="/home2"  role="button"  aria-haspopup="true" aria-expanded="false">Home</a>
               </li>
-              {% if not ciclo_activo == False %}
+              {% if ciclo_activo  %}
               <li class="nav-item">
                   <a class="nav-link ml-auto text-left" href="/Core/inscripcion"  role="button"  aria-haspopup="true" aria-expanded="false">Inscripciones</a>
               </li> 
               {% endif %}
-                  <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Altas</a>
-                      <ul class="dropdown-menu">   
-                          <li><a class="dropdown-item" href="/Core/altaEstudiante">Estudiante </a></li>
-                          <li><a class="dropdown-item" href="/Core/altaDocente">Docente </a></li>
-                          <li><a class="dropdown-item" href="/Cursada/altaDivision">Division </a></li>
-                          <li><a class="dropdown-item" href="/Cursada/altaHorario">Horario </a></li>
-                      </ul>
-                  </li>
-                
-                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Ver </a>
-                      <ul class="dropdown-menu">   
-                          <li><a class="dropdown-item" href="/Core/verEstudiantes">Estudiantes</a> </li>
-                          <li><a class="dropdown-item" href="/Core/verDocentes">Docentes</a> </li>
-                          <li><a class="dropdown-item" href="/Cursada/verDivision">Divisiones</a> </li>
-                          <li><a class="dropdown-item" href="/Cursada/verHorario">Horario</a> </li>
-                          <li><a class="dropdown-item" href="#">Ayudas</a></li>
-                      </ul>
-                  </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Estudiantes</a>
+                <ul class="dropdown-menu">   
+                    <li><a class="dropdown-item" href="/Core/altaEstudiante">Alta estudiante </a></li>
+                    <li><a class="dropdown-item" href="/Core/inscripcion">Inscripciones </a></li>
+                    <li><a class="dropdown-item" href="/Core/verEstudiantes">Listar estudiantes</a> </li>                          
+                </ul>
+            </li>
+          
+           <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Plan de estudios </a>
+                <ul class="dropdown-menu">   
+                    <li><a class="dropdown-item" href="/Core/menuPlanDeEstudio">Menu</a> </li>
+                    <li><a class="dropdown-item" href="/Core/verPlan">Listar Planes</a> </li>
+                    <li><a class="dropdown-item" href="/Core/altaPlan">Alta Plan de estudios</a> </li>
+                    <li><a class="dropdown-item" href="#">Ayudas</a></li>
+                </ul>
+            </li>
+
+                      
+           <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Ciclos </a>
+                <ul class="dropdown-menu">   
+                    <li><a class="dropdown-item" href="/Core/menuCiclo">Menu</a> </li>
+                    <li><a class="dropdown-item" href="/Core/verAnio/1">Ver Ciclo actual</a> </li>
+                    <li><a class="dropdown-item" href="/Core/altaCiclo">Alta Plan de estudios</a> </li>
+                    <li><a class="dropdown-item" href="#">Ayudas</a></li>
+                </ul>
+            </li>
+
               </li>
           </ul>  
             <div class="dropdown text-end">
@@ -71,8 +82,9 @@
         
 <div class="container">
   <h1>Bienvenido: {{ request.user.username }}</h1>
-
-    <p>Correo electrónico: {{ request.user.mail}}</p>
+    <small>Correo electrónico: {{ request.user.email }}</small>
+    <br>
+    <small>Ultimo login: {{ request.user.last_login }}</small>
     <!-- Otros detalles del perfil del usuario -->
   <div class="row">
     <div class="col-md-4">
@@ -111,8 +123,4 @@
 </div>
 
 
-
-{{ request.plan }} 
-<br>
-{{ request.ciclo }}
 {% endblock %}

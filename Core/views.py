@@ -32,6 +32,11 @@ from dal import autocomplete
 class MateriaAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         print("self",self.kwargs)
+        print("El objeto rarooo",self.forwarded)
+        horario_id = self.forwarded.get('horario.id',None)
+        division_id = self.forwarded.get('division', None)
+        print("Horario a ver que trae",horario_id)
+        print("Divisio",division_id)
         qs = EspacioCurricular.objects.all()
         print(qs)
         if self.q:
@@ -182,6 +187,18 @@ def eliminarEstudiante(request, id_estudiante):
     
     return HttpResponseRedirect("/Core/verEstudiantes")
 
+
+@login_required
+def eliminarInscripcion(request, id_estudiante):
+    try:
+        inscripcion = inscripcionEstudianteCiclo.objects.get(estudiante_id=id_estudiante)
+        inscripcion.delete()
+        messages.success(request, 'El estudiante se eliminó correctamente.')
+    except Estudiante.DoesNotExist:
+        messages.error(request, 'No se encontró el estudiante que intentas eliminar.')
+    
+    return HttpResponseRedirect("/Core/inscripcion",
+                                'correcto', 'Se elimino la inscripcion del alumno')
 
 @login_required
 def estudianteEdit(request, id_estudiante):

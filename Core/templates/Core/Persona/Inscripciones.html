@@ -14,7 +14,8 @@
 {{form.media}}
 
 <div class="container">
-    <h2> Inscripciones </h2> 
+    <button onclick="goBack()">Volver</button>
+    <h2> Inscripciones Ciclo {{ ciclo.anioCalendario }} </h2> 
     <a data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-slide-to="0">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
@@ -64,8 +65,7 @@
                             <td>{{ insc.ciclo }}</td>
                             <td>{{ insc.anio }}</td>
                             <td>{{ insc.fecha }}</td>
-                            <td> <a class="btn btn-danger">Eliminar </a>  
-                                <a class="btn btn-primary">Modificar </a>
+                            <td> <a class="btn btn-danger" href="/Core/eliminarInscripcion/{{insc.estudiante.id}}">Eliminar </a>  
                             </td> 
                         </tr>
                     {% endfor %} 
@@ -87,7 +87,7 @@
           <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
               <div class="carousel-item active">
-                <img src="https://via.placeholder.com/800x400?text=Imagen+1" class="d-block w-100" alt="...">
+                <img src="https://via.placeho      window.history.back();lder.com/800x400?text=Imagen+1" class="d-block w-100" alt="...">
               </div>
               <div class="carousel-item">
                 <img src="https://via.placeholder.com/800x400?text=Imagen+2" class="d-block w-100" alt="...">
@@ -199,6 +199,10 @@
     });
 });
 </script>
-
+<script>
+    function goBack() {
+        window.location.replace(document.referrer);
+    }
+    </script>
 <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
 {% endblock %}
