@@ -560,18 +560,18 @@ class Horario(models.Model):
     MODSIETE = 7
     MODOCHO = 8
     CHOICES_HORA = (
-        (MODUNO, '7:30'),
-        (MODDOS, '8:10'),
-        (MODTRES, '8:50'),
-        (MODCUATRO, '9:10'),
-        (MODCINCO, '9:50'),
-        (MODSEIS,'10:20'),
-        (MODOCHO, '11:00'))
+        (MODUNO, '1'),
+        (MODDOS, '2'),
+        (MODTRES, '3'),
+        (MODCUATRO, '4'),
+        (MODCINCO, '5'),
+        (MODSEIS,'6'),
+        (MODOCHO, '7'))
 
     class Meta:
         unique_together = (('division'),)
 
-    division = models.ForeignKey(Division, on_delete=models.CASCADE, related_name='horarios')
+    division = models.ForeignKey(Division, on_delete=models.CASCADE, related_name='horarios',blank=False)
 
     #espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
 

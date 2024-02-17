@@ -35,9 +35,17 @@ class InasistenciasForm(forms.ModelForm):
 class Detalle_HorarioForm(forms.ModelForm):
     class Meta:
         model= Detalle_Horario
-        fields='__all__'
+        fields=[
+            'horario',
+            'espacioCurricular',
+            'dia',
+            'hora',
+            
+        ]
+        
         labels={
-            'espacioCurricular': 'Espacio Curricular'
+            'espacioCurricular': 'Espacio Curricular',
+            'hora': 'Modulo'
         }
 
         widgets_espacio = autocomplete.ModelSelect2(url='core:espacio-autocomplete',attrs={'class': 'input-group mb-3'})
@@ -45,7 +53,8 @@ class Detalle_HorarioForm(forms.ModelForm):
         
      
         widgets = {
-            'horario': forms.Select(attrs={'type':'hidden', 'class': 'input-group con-mv-4', 'id':'id_division','onchange':'cargarDatosHorario()'}),
+            
+            #'horario': forms.TextInput(attrs={'type':'hidden', 'class': 'input-group con-mv-4', 'id':'id_division','onchange':'cargarDatosHorario()'}),
             'hora': forms.Select(attrs={'class': 'input-group con-mv-4'}),
             #'espacioCurricular': widgets_espacio,
           

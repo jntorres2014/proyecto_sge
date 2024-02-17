@@ -375,12 +375,12 @@ class inscripcionAlumnoForm(forms.ModelForm):
         }
         widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'class': 'input-group mb-3'})
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-        
+        ciclo = Ciclo.objects.get(esActual = 'True')
      
         widgets = {
             'estudiante': widgets_estudiante,
             'fecha': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
-            'ciclo': forms.Select(attrs={'class': 'input-group mb-3'}),
+            'ciclo': forms.TextInput(attrs={'type': 'hidden', 'readonly':'True', 'Value': ciclo.id}),
             'anio': forms.Select(attrs={'class': 'form-label input-group mb-3 '}),
             
         }

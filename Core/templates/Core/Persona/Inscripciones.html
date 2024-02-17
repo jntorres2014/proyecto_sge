@@ -48,7 +48,6 @@
                     <tr>
                         <th>Dni</th>
                         <th>Estudiante</th>
-                        <th>Ciclo lectivo</th>
                         <th>Ciclo Año</th>
                         <th>Fecha de inscripcion</th>
                         <th> Acciones</th>
@@ -62,7 +61,6 @@
                         <tr>
                             <td>{{ insc.estudiante.Dni }}  </td>
                             <td>{{ insc.estudiante.Nombre }}&nbsp;{{ insc.estudiante.Apellido }}</td>
-                            <td>{{ insc.ciclo }}</td>
                             <td>{{ insc.anio }}</td>
                             <td>{{ insc.fecha }}</td>
                             <td> <a class="btn btn-danger" href="/Core/eliminarInscripcion/{{insc.estudiante.id}}">Eliminar </a>  

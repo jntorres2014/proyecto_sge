@@ -129,7 +129,7 @@ class inasistencia_list(ListView):
     
 @login_required
 def crear_horario(request,idDivision):
-    print("*******entre aca**** ",idDivision)
+    print("*******entre aca**** ",idDivision,request.method)
 
     horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division_id=idDivision))
     if request.method == "POST":
@@ -137,11 +137,13 @@ def crear_horario(request,idDivision):
         print("requesst",request.POST)
         division = Division.objects.get(id=idDivision)
         form = Detalle_HorarioForm(request.POST, division=division)
-        print("El formulario",form)
         if form.is_valid():
             print("Era valido")
             form.save()
-        return redirect("/Clases/crear_horario/" + idDivision)
+            mensaje = 'Horario cargado correctamente'
+        else:
+            mensaje = 'No se cargo el horario'
+        return redirect("/Clases/crear_horario/" + idDivision, {'mensaje' : mensaje})
     print("Horarios",horarios)
     form = Detalle_HorarioForm(division = Division.objects.get(id=idDivision))
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
