@@ -18,8 +18,8 @@
                     {% if object_list %}
                         {% for localidad in object_list %}
                             <tr>
-                              <td>{{ localidad.CodigoPosta}}</td>
-                              <td>{{ localidad.NombreLocalidad }}</td>
+                              <td>{{ localidad.codigoPostal}}</td>
+                              <td>{{ localidad.nombre }}</td>
                             </tr>
                          {% endfor %}
                     {% else %}

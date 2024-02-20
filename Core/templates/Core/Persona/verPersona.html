@@ -8,12 +8,12 @@
                 {% block tr %}
                     {% if object_list %}
                         {% for docente in object_list %}
-                              <td>{{ docente.Dni }}</td>
-                              <td>{{ docente.Apellido }}</td>
-                              <td>{{ docente.Nombre}}</td>
-                              <td>{{ docente.Direccion }}</td>
-                              <td>{{ docente.Localidad.NombreLocalidad}}</td>
-                              <td>{{ docente.Email}}</td>
+                              <td>{{ docente.dni }}</td>
+                              <td>{{ docente.apellido }}</td>
+                              <td>{{ docente.nombre}}</td>
+                              <td>{{ docente.direccion }}</td>
+                              <td>{{ docente.localidad.nombre}}</td>
+                              <td>{{ docente.email}}</td>
                               <td>{{ docente.tituloHabilitante}}</td>
 
                          {% endfor %}

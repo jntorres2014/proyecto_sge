@@ -26,15 +26,15 @@
                         {% if object_list %}
                             {% for docente in object_list %}
                               <tr>
-                                  <td>{{ docente.Dni }}</td>
-                                  <td>{{ docente.Apellido }}</td>
-                                  <td>{{ docente.Nombre}}</td>
-                                  <td>{{ docente.Direccion }}</td>
-                                  <td>{{ docente.Localidad.NombreLocalidad}}</td>
-                                  <td>{{ docente.Email}}</td>
+                                  <td>{{ docente.dni }}</td>
+                                  <td>{{ docente.apellido }}</td>
+                                  <td>{{ docente.nombre}}</td>
+                                  <td>{{ docente.direccion }}</td>
+                                  <td>{{ docente.localidad.nombre}}</td>
+                                  <td>{{ docente.email}}</td>
                                   <td>{{ docente.tituloHabilitante}}</td>
                                   <td>
-                                    <a  class="btn btn-primary" href="/Core/modificarDocente/{{ docente.id }}/">Editar </a>
+                                    <a  class="btn btn-primary" href="/Core/docente/modificar/{{ docente.id }}/">Editar </a>
                                     <a  class="btn btn-danger" href="/Core/eliminarDocente/{{ docente.id }}/">Eliminar </a>
                                     </td>
                                </tr>
@@ -45,7 +45,7 @@
                        {% endblock tabla %}
                     </tbody>
                 </table>
-                   <a  class="btn btn-primary" href="/Core/altaDocente">Nuevo </a>
+                   <a  class="btn btn-primary" href="/Core/docente/alta">Nuevo </a>
                 </div>
             </div>
             <ul class="pager"></ul>

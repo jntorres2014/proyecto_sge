@@ -18,8 +18,8 @@
           {% if inscriptos %}
             {% for estudiante in inscriptos %}
               <tr>
-                <td>{{ estudiante.Nombre }}</td>
-                <td>{{ estudiante.Apellido }}</td>
+                <td>{{ estudiante.nombre }}</td>
+                <td>{{ estudiante.apellido }}</td>
                 <td>
                   <input type="checkbox" name="inasistencias_seleccionadas" value="{{ estudiante.id }}" class="falta-checkbox">
                 </td>

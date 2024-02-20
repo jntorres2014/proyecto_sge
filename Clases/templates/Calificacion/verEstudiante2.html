@@ -23,15 +23,15 @@
                     {% if object_list %}
                         {% for estudiante in object_list %}
                             <tr>
-                              <td>{{ estudiante.Dni }}</td>
-                              <td>{{ estudiante.Apellido }}</td>
-                              <td>{{ estudiante.Nombre}}</td>
-                              <td>{{ estudiante.Direccion }}</td>
-                              <td>{{ estudiante.Localidad.NombreLocalidad}}</td>
-                              <td>{{ estudiante.Email}}</td>
+                              <td>{{ estudiante.dni }}</td>
+                              <td>{{ estudiante.apellido }}</td>
+                              <td>{{ estudiante.nombre}}</td>
+                              <td>{{ estudiante.direccion }}</td>
+                              <td>{{ estudiante.localidad.nombre}}</td>
+                              <td>{{ estudiante.email}}</td>
                               <td>{{ estudiante.legajo}}</td>
                               <td>{{ estudiante.fechaInscripcion}}</td>
-                              <td><a  class="btn btn-primary" href="{% url 'modificarEstudiante' estudiante.id %}">Editar </a>
+                              <td><a  class="btn btn-primary" href="{% url 'estudiante/modificar' estudiante.id %}">Editar </a>
                               <a  class="btn btn-primary" href="{% url 'altaCalificacion' estudiante.id %}"
                                    >Calificar </a>
                               <a  class="btn btn-primary" href="{% url 'altaInasistencia' estudiante.id %}"
@@ -45,7 +45,7 @@
                     </tbody>
                 </table>
                 </div>
-        <a  class="btn btn-primary" href="{% url 'altaEstudiante' %}">Editar </a>
+        <a  class="btn btn-primary" href="{% url 'estudiante/alta' %}">Editar </a>
             </div>
         </div>
 {%endblock %}

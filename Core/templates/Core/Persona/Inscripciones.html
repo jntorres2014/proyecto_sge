@@ -58,11 +58,11 @@
                     {% for insc in inscriptos %}
                   
                         <tr>
-                            <td>{{ insc.estudiante.Dni }}  </td>
-                            <td>{{ insc.estudiante.Nombre }}&nbsp;{{ insc.estudiante.Apellido }}</td>
+                            <td>{{ insc.estudiante.dni }}  </td>
+                            <td>{{ insc.estudiante.nombre }}&nbsp;{{ insc.estudiante.apellido }}</td>
                             <td>{{ insc.anio }}</td>
                             <td>{{ insc.fecha }}</td>
-                            <td> <a class="btn btn-danger" href="/Core/eliminarInscripcion/{{insc.estudiante.id}}">Eliminar </a>  
+                            <td> <a class="btn btn-danger" href="/Core/estudiante/eliminarInscripcion/{{insc.estudiante.id}}">Eliminar </a>  
                             </td> 
                         </tr>
                     {% endfor %} 

@@ -18,7 +18,7 @@ class Localidad (models.Model):
     REGEX_NOMBRE = '^[0-9a-zA-Z-_ .]{3,100}$'
     MAXNOMBRELOCALIDAD=70
 
-    CodigoPosta = models.CharField(
+    codigoPostal = models.CharField(
         help_text="cp",
         max_length=MAXNUMEROPOSTAL,
         unique=False,
@@ -31,8 +31,8 @@ class Localidad (models.Model):
         }
     )
 
-    NombreLocalidad= models.CharField(
-        help_text= "Nombre Localidad ",
+    nombre= models.CharField(
+        help_text= "Trelew ",
         max_length = MAXNOMBRELOCALIDAD,
         unique= False,
         null= False,
@@ -45,7 +45,7 @@ class Localidad (models.Model):
     )
 
     def __str__(self):
-        return "{1} - {0}".format( self.NombreLocalidad,self.CodigoPosta)
+        return "{1} - {0}".format( self.nombre,self.codigoPostal)
     
     
     def altaLocalidadExcel():
@@ -56,8 +56,8 @@ class Localidad (models.Model):
         # Iterar sobre filas y crear instancias de Localidad
             try:
                 localidad = Localidad(
-                    CodigoPosta=row['Codigo Postal'],
-                    NombreLocalidad=row['Localidad'],
+                    codigoPostal=row['Codigo Postal'],
+                    nombre=row['Localidad'],
                 )
                 localidad.save()
             except IntegrityError:
@@ -69,8 +69,8 @@ class Localidad (models.Model):
         faker = Faker()
         for  n in range(0,n):
             Localidad.objects.create(
-                CodigoPosta = n,
-                NombreLocalidad = faker.name()
+                codigoPostal = n,
+                nombre = faker.name()
             )
 
 class PlanDeEstudios(models.Model):
@@ -186,7 +186,7 @@ class Persona(models.Model):
     MAXDIRECCION = 100
     MAXTELEFONO = 10
 
-    Nombre = models.CharField(
+    nombre = models.CharField(
         help_text="Ej: Juan",
         max_length = MAXNOMBRE,
         unique= False,
@@ -199,7 +199,7 @@ class Persona(models.Model):
         }
     )
 
-    Apellido = models.CharField(
+    apellido = models.CharField(
         help_text="Ej: Perez",
         max_length=MAXAPELLIDO,
         unique=False,
@@ -212,7 +212,7 @@ class Persona(models.Model):
         }
     )
 
-    Dni= models.CharField(
+    dni= models.CharField(
         help_text="Ej: 12345678",
         max_length = MAXDNI,
         unique= True,
@@ -224,7 +224,7 @@ class Persona(models.Model):
             'blank': "El dni es obligatorio"
         }
     )
-    Localidad=models.ForeignKey(
+    localidad=models.ForeignKey(
         Localidad,
         null=False,
         blank=False,
@@ -234,7 +234,7 @@ class Persona(models.Model):
         }
     )
 
-    Direccion=models.CharField(
+    direccion=models.CharField(
         help_text="Ej: Calle falsa 123",
         max_length = MAXDIRECCION,
         unique= False,
@@ -245,7 +245,7 @@ class Persona(models.Model):
         }
     )
 
-    Email = models.EmailField(
+    email = models.EmailField(
         help_text="Ej: asd@asd.com",
         unique=True,
         null=True,
@@ -256,7 +256,7 @@ class Persona(models.Model):
         }
     )
 
-    Telefono= models.CharField(
+    telefono= models.CharField(
         help_text="Ej: 0123456789 ",
         max_length=MAXTELEFONO,
         unique=False,
@@ -270,7 +270,7 @@ class Persona(models.Model):
     )
 
     def __str__(self):
-        return "{0}, {1}, {2}".format(self.Dni, self.Apellido, self.Nombre)
+        return "{0}, {1}, {2}".format(self.dni, self.apellido, self.nombre)
 
 
 
@@ -294,13 +294,13 @@ class Estudiante(Persona):
         localidad = Localidad.objects.get_or_create(id=1)[0]
         for  n in range(0,n):
             Estudiante.objects.create(
-                Nombre= fake.first_name(),
-                Apellido= fake.last_name(),
-                Dni= fake.unique.random_number(digits=8),
-                Localidad = localidad,
-                Email = fake.email(),
-                Telefono = 123345,
-                Direccion = fake.address(),
+                nombre= fake.first_name(),
+                apellido= fake.last_name(),
+                dni= fake.unique.random_number(digits=8),
+                localidad = localidad,
+                email = fake.email(),
+                telefono = 123345,
+                direccion = fake.address(),
                 legajo=fake.unique.random_number(digits=5),
                 fechaInscripcion=fake.date_between(start_date='-365d', end_date='today'),  # fecha aleatoria en el último año
             )
@@ -625,7 +625,7 @@ class Detalle_Horario(models.Model):
         return "{0}".format(self.horario.division)
 
 
-class inscripcionEstudianteCiclo(models.Model):
+class Inscripcion(models.Model):
     estudiante = models.ForeignKey(
         Estudiante,
         null=True,
@@ -656,7 +656,7 @@ class inscripcionEstudianteCiclo(models.Model):
         ciclo_actual = Ciclo.objects.get(esActual='True')
         
         # Obtener todos los estudiantes que no están inscritos en el ciclo actual
-        estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcionestudianteciclo__ciclo=ciclo_actual)
+        estudiantes_sin_inscripcion = Estudiante.objects.exclude(Inscripcion__ciclo=ciclo_actual)
         
         # Verificar si hay suficientes estudiantes disponibles para seleccionar aleatoriamente
         if estudiantes_sin_inscripcion.count() < n:
@@ -668,7 +668,7 @@ class inscripcionEstudianteCiclo(models.Model):
         
         # Crear inscripciones para los estudiantes seleccionados
         for estudiante in estudiantes_aleatorios:
-            inscripcionEstudianteCiclo.objects.create(
+            Inscripcion.objects.create(
                 estudiante=estudiante,
                 ciclo=ciclo_actual,
                 anio=random.choice(list(AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual='True')))),

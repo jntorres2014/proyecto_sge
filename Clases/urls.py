@@ -12,6 +12,8 @@ urlpatterns  = [
     re_path(r'^modificarInasistencia/(?P<id_inasistencia>\d+)/$', views.calificacion_edit, name='modificarInasistencia'),
     
     re_path(r'^altaHorario$', views.crear_horario),
+     #****************************** Cursada ****************************** # 
+    re_path(r'^clases/menu$', views.menuCursada,name='clases/menu'),
 
     re_path(r'^cargarInasistencia/(?P<idAnio>\d+)/$', views.registrarInasistencia, name= 'registrarInasistencia'),
     re_path(r'^asignar_alumno_a_aula/(?P<idAnio>\d+)$', views.asignar_alumno_a_aula, name= 'asignar_alumno_a_aula'),

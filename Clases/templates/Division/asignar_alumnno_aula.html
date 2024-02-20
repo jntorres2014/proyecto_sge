@@ -57,15 +57,15 @@
         <ul id="alumnos-list">
             {% for estudiante in estudiantes %}
                 <li class="alumno" draggable="true" ondragstart="handleDragStart(event, 
-                '{{ estudiante.estudiante.Dni }}', 
+                '{{ estudiante.estudiante.dni }}', 
                 '{{ estudiante.estudiante.id }}', 
-                '{{ estudiante.estudiante.Nombre }}',
-                '{{ estudiante.estudiante.Apellido }}')" 
+                '{{ estudiante.estudiante.nombre }}',
+                '{{ estudiante.estudiante.apellido }}')" 
                 data-id="{{ estudiante.estudiante.id }}" 
-                data-dni="{{ estudiante.estudiante.Dni }}" 
-                data-nombre="{{ estudiante.estudiante.Nombre }}"
-                data-apellido="{{ estudiante.estudiante.Apellido }}">
-                {{ estudiante.estudiante.Dni  }}: &nbsp {{ estudiante.estudiante.Nombre  }}&nbsp {{estudiante.estudiante.Apellido}}</li>
+                data-dni="{{ estudiante.estudiante.dni }}" 
+                data-nombre="{{ estudiante.estudiante.nombre }}"
+                data-apellido="{{ estudiante.estudiante.apellido }}">
+                {{ estudiante.estudiante.dni  }}: &nbsp {{ estudiante.estudiante.nombre  }}&nbsp {{estudiante.estudiante.apellido}}</li>
             {% endfor %}
         </ul>
     </div>
@@ -80,7 +80,7 @@
                             {% if estudiante_id == aula.id %}
                                 {% for e in estudiante %}
                                     <li>
-                                        <h6> {{e.Dni}}: {{ e.Nombre }} {{ e.Apellido }}  
+                                        <h6> {{e.dni}}: {{ e.nombre }} {{ e.apellido }}  
                                         <button class="btn btn-danger btn-sm" onclick="eliminarAlumno('{{ aula.id }}', '{{ e.id }}')">
 
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
@@ -186,9 +186,9 @@
     // Crear un nuevo elemento para el estudiante
     var estudiante = document.createElement("p");
     estudiante.className = "alumnos-list";
-    estudiante.dataset.Dni = dni;
-    estudiante.dataset.Nombre = nombre;
-    estudiante.dataset.Apellido = apellido;
+    estudiante.dataset.dni = dni;
+    estudiante.dataset.nombre = nombre;
+    estudiante.dataset.apellido = apellido;
     estudiante.dataset.id = id;
     estudiante.innerText = "Estudianteas " + dni+ nombre+ apellido;
 

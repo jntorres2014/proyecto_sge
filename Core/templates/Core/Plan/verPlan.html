@@ -30,10 +30,10 @@
                                 <h6 style="color: red;"> Sin implementar</h6>
                                     {% endif %}    
                                 {% if not plan.implementado %}
-                                <a class="btn btn-primary m-2" href="/Core/modificarPlan/{{ plan.id }}">Editar</a>
-                                <a class="btn btn-primary m-2" href="/Core/verEspacioCurricularEnPlan/{{ plan.id }}">Espacios curriculares</a>
+                                <a class="btn btn-primary m-2" href="/Core/plan/modificar/{{ plan.id }}">Editar</a>
+                                <a class="btn btn-primary m-2" href="/Core/espacio/verEnPlan/{{ plan.id }}">Espacios curriculares</a>
                                 {% else %}
-                                <a class="btn btn-primary m-2" href="/Core/verCicloEnPlan/{{ plan.id }}">Ver Ciclos implementados</a>
+                                <a class="btn btn-primary m-2" href="/Core/ciclo/verEnPlan/{{ plan.id }}">Ver Ciclos implementados</a>
                                 {% endif %}
                                 {% if not plan.esActual %}
                                 <a class="btn btn-primary m-2" href="/Core/cambiar_actual/{{ plan.id }}">Cambiar PlanActual</a>
@@ -49,7 +49,7 @@
             {% endif %}
         </div>
         <div class="container-fluid p-5 bg-secondary text-center">
-            <a class="btn btn-primary" href="/Core/altaPlan">Alta Plan de Estudio</a>
+            <a class="btn btn-primary" href="/Core/plan/alta">Alta Plan de Estudio</a>
         </div>
     </div>
 </div>

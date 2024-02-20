@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Estudiante,inscripcionEstudianteCiclo
+from .models import Estudiante,Inscripcion
 
 class EstudianteAdmin(admin.ModelAdmin):
     #readonly_fields = ("created",)
@@ -12,6 +12,6 @@ class inscripcionAdmin(admin.ModelAdmin):
 
 admin.site.register(Estudiante,EstudianteAdmin)
 
-admin.site.register(inscripcionEstudianteCiclo,inscripcionAdmin)
+admin.site.register(Inscripcion,inscripcionAdmin)
 
 # Register your models here.

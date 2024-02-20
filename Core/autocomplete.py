@@ -5,6 +5,6 @@ import autocomplete_light as al
 from .models import Estudiante
 
 class MiModeloAutocomplete(al.AutocompleteModelBase):
-    search_fields = ['Localidad']
+    search_fields = ['localidad']
 
 al.register(Estudiante, MiModeloAutocomplete)

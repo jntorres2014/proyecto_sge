@@ -26,7 +26,7 @@
                                 <td>{{ espacio.nombre }}</td>
                                 <td>{{ espacio.cantidadModulos}}</td>
                                 <td>{{ espacio.contenido }}</td>
-                                <td><a  class="btn btn-primary" href="/Core/modificarEspacio/{{espacio.id }}">Editar </a></td>
+                                <td><a  class="btn btn-primary" href="/Core/espacio/modificar/{{espacio.id }}">Editar </a></td>
                             </tr>
                          {% endfor %}
                     {% else %}
@@ -36,7 +36,7 @@
                 </tbody>
                 </table>
                 </div>
-                <td><a  class="btn btn-primary" href="/Core/verPlan">Listar Planes</a></td>
+                <td><a  class="btn btn-primary" href="/Core/plan/ver">Listar Planes</a></td>
             </div>
 
         </div>

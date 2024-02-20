@@ -10,7 +10,7 @@ from Clases.models import Inasistencias
 from Core import forms
 from django.urls import reverse
 from Core.resource import LocalidadResource
-from .models import Aula, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,inscripcionEstudianteCiclo, Division
+from .models import Aula, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
 from django.views.generic import ListView,TemplateView
 from django.db.models import Q
 from tablib import Dataset 
@@ -20,7 +20,7 @@ from django.http import HttpResponse
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from .models import Estudiante, inscripcionEstudianteCiclo
+from .models import Estudiante, Inscripcion
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import styles,colors
 from reportlab.lib.styles import getSampleStyleSheet
@@ -40,8 +40,8 @@ class MateriaAutocomplete(autocomplete.Select2QuerySetView):
         qs = EspacioCurricular.objects.all()
         print(qs)
         if self.q:
-            qs = qs.filter( Q(nombre__icontains=self.q) |    # Buscar en el atributo "nombre"
-                Q(codigo__icontains=self.q) )           # Buscar en el atributo "Dni"
+            qs = qs.filter( Q(nombre__icontains=self.q) |    
+                Q(codigo__icontains=self.q) )           
         return qs
 
 
@@ -51,8 +51,8 @@ class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
         qs = Localidad.objects.all()
         print(qs)
         if self.q:
-            qs = qs.filter( Q(NombreLocalidad__icontains=self.q) |    # Buscar en el atributo "nombre"
-                Q(CodigoPostal__icontains=self.q) )           # Buscar en el atributo "Dni"
+            qs = qs.filter( Q(nombre__icontains=self.q) |    
+                Q(codigoPostal__icontains=self.q) )           
         return qs
 class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
@@ -60,16 +60,16 @@ class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
         ciclo_actual = Ciclo.objects.get(esActual=True)
         # Filtra los estudiantes que no están inscritos en el ciclo actual
         qs = Estudiante.objects.exclude(
-            id__in=inscripcionEstudianteCiclo.objects.filter(
+            id__in=Inscripcion.objects.filter(
                 ciclo=ciclo_actual
             ).values('estudiante')
             )
         #qs = Estudiante.objects.all()
         print("Entreee",qs)
         if self.q:
-            qs = qs.filter( Q(Nombre__icontains=self.q) |    # Buscar en el atributo "nombre"
-                Q(Apellido__icontains=self.q) |       # Buscar en el atributo "apellido"
-                Q(Dni__icontains=self.q))           # Buscar en el atributo "Dni"
+            qs = qs.filter( Q(Nombre__icontains=self.q) |    
+                Q(apellido__icontains=self.q) |       
+                Q(dni__icontains=self.q))           
         return qs
     
 
@@ -131,7 +131,7 @@ def localidadEdit(request, id_localidad):
         form = forms.LocalidadForm(request.POST, instance= localidad)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect("/Core/verLocalidad")
+            return HttpResponseRedirect("/Core/localidad/ver")
     return render(request, 'Core/LocalidadForm.html',{'form': form})
 
 ######################ESTUDIANTE DOCENTE##################################################
@@ -142,7 +142,7 @@ def estudianteView(request):
         if form.is_valid():
             print(form.cleaned_data)
             form.save()
-            return HttpResponseRedirect("/Core/verEstudiantes")
+            return HttpResponseRedirect("/Core/estudiante/ver")
     else:
         form = forms.EstudianteForm()
 
@@ -154,7 +154,7 @@ def docenteView(request):
         form = forms.DocenteForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect("/Core/verDocentes")
+            return HttpResponseRedirect("/Core/docente/ver")
     else:
         form = forms.DocenteForm()
     return render(request, 'Core/Persona/DocenteForm.html', {'form': form})
@@ -162,7 +162,7 @@ def docenteView(request):
 
 class docenteList(ListView):
     model = Docente
-    template_name = 'Core/Persona/verDocente.html'
+    template_name = 'Core/Persona/docente/ver.html'
 @login_required
 def docenteEdit(request, id_docente):
     docente = Docente.objects.get(id=id_docente)
@@ -172,7 +172,7 @@ def docenteEdit(request, id_docente):
         form = forms.DocenteForm(request.POST, instance= docente)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect("/Core/verDocentes")
+            return HttpResponseRedirect("/Core/docente/ver")
     return render(request, 'Core/Persona/DocenteForm.html',{'form': form})
 
 
@@ -185,19 +185,19 @@ def eliminarEstudiante(request, id_estudiante):
     except Estudiante.DoesNotExist:
         messages.error(request, 'No se encontró el estudiante que intentas eliminar.')
     
-    return HttpResponseRedirect("/Core/verEstudiantes")
+    return HttpResponseRedirect("/Core/estudiante/ver")
 
 
 @login_required
 def eliminarInscripcion(request, id_estudiante):
     try:
-        inscripcion = inscripcionEstudianteCiclo.objects.get(estudiante_id=id_estudiante)
+        inscripcion = Inscripcion.objects.get(estudiante_id=id_estudiante)
         inscripcion.delete()
         messages.success(request, 'El estudiante se eliminó correctamente.')
     except Estudiante.DoesNotExist:
         messages.error(request, 'No se encontró el estudiante que intentas eliminar.')
     
-    return HttpResponseRedirect("/Core/inscripcion",
+    return HttpResponseRedirect("/Core/estudiante/inscripcion",
                                 'correcto', 'Se elimino la inscripcion del alumno')
 
 @login_required
@@ -209,7 +209,7 @@ def estudianteEdit(request, id_estudiante):
         form = forms.EstudianteForm(request.POST, instance= estudiante)
         if form.is_valid():
             form.save()
-        return HttpResponseRedirect("/Core/verEstudiantes")
+        return HttpResponseRedirect("/Core/estudiante/ver")
     return render(request, 'Core/Persona/EstudianteForm.html',{'form':form})
 
 
@@ -228,7 +228,7 @@ def planDeEstudiosView(request):
         if form.is_valid():
            plan= form.save()
            plan.crear_anios_plan(plan)
-           return HttpResponseRedirect("verPlan")
+           return HttpResponseRedirect("plan/ver")
     else:
         form = forms.PlanDeEstudiosForm()
     return render(request, 'Core/Plan/PlanDeEstudios.html', {'form': form})
@@ -250,7 +250,7 @@ def planEdit(request, id_plan):
         form = forms.PlanDeEstudiosEditForm(request.POST, instance=plan)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect("/Core/verPlan")
+            return HttpResponseRedirect("/Core/plan/ver")
     return render(request, 'Core/Plan/PlanDeEstudios.html',{'form':form})
 
 def cambiarActual(request, id_plan):
@@ -258,7 +258,7 @@ def cambiarActual(request, id_plan):
     PlanDeEstudios.cambiar_actual(request, id_plan)
 
     # Redirige a la página deseada después de realizar el cambio
-    return HttpResponseRedirect("/Core/verPlan")
+    return HttpResponseRedirect("/Core/plan/ver")
 #########################################################################
 
 @login_required
@@ -293,7 +293,7 @@ def espacioEdit(request, id_espacio):
         form = forms.EspacioCurricularEditForm(request.POST, instance= espacio)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect("/Core/verEspacios")
+            return HttpResponseRedirect("/Core/espacio/ver")
     return render(request, 'Core/EspacioCurricular/EspaciosCurricularesForm.html',{'form':form})
 
 @login_required
@@ -312,10 +312,6 @@ def menuCiclo(request):
     return render(request, 'Core/Plan/menuCiclo.html',{'cicloActivo':ciclo_activo})
 
 @login_required
-def menuCursada(request):
-    return render(request, 'Cursada/menuCursada.html')
-
-@login_required
 def eliminarCiclo(request, idCiclo):
     try:
         ciclo = Ciclo.objects.get(id=idCiclo)
@@ -328,7 +324,7 @@ def eliminarCiclo(request, idCiclo):
     except Estudiante.DoesNotExist:
         messages.error(request, 'No se encontró el Ciclo que intentas eliminar.')
     
-    return HttpResponseRedirect("/Core/verPlan")
+    return HttpResponseRedirect("/Core/plan/ver")
 
 def aniosDePlanActual(request):
     ciclo = Ciclo.objects.get(esActual=True)
@@ -397,7 +393,7 @@ def cicloView(request):
         Ciclo.cambiar_actual(request, ciclo.id)
         plan.implementado = True
         plan.save()
-        return redirect('/Core/verCicloEnPlan/'+str(plan.id))
+        return redirect('/Core/ciclo/verEnPlan/'+str(plan.id))
 
     return render(request, 'Core/Plan/CicloForm.html', {'form': form, 'plan': plan, 'id': id})
 
@@ -406,7 +402,7 @@ def cambiarActual(request, id_plan):
     PlanDeEstudios.cambiar_actual(request, id_plan)
 
     # Redirige a la página deseada después de realizar el cambio
-    return HttpResponseRedirect("/Core/verPlan")
+    return HttpResponseRedirect("/Core/plan/ver")
     
 @login_required
 def cicloEdit(request, id_ciclo):
@@ -417,7 +413,7 @@ def cicloEdit(request, id_ciclo):
         form = forms.CicloEditForm(request.POST, instance= ciclo)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect("/Core/verPlan")
+            return HttpResponseRedirect("/Core/plan/ver")
     return render(request, 'Core/Plan/CicloForm.html',{'form': form})
 
 ################################################
@@ -426,7 +422,7 @@ def divisionList(request, id,idCiclo):
     division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     anio = AnioPlan.objects.get(id=id)
     ciclo = Ciclo.objects.get(esActual= 'True')
-    alumnos= inscripcionEstudianteCiclo.objects.filter(anio = anio,ciclo = ciclo)
+    alumnos= Inscripcion.objects.filter(anio = anio,ciclo = ciclo)
     print('cantidad de alumnos',alumnos.count())
     print("VER Division")
     #division= list(Division.objects.filter(anio = id))
@@ -463,7 +459,7 @@ def verDivisionInasistencia(request, id,idCiclo):
 @login_required
 def inscripcionDeEstudianteCiclo(request, id_ciclo=1):
     id_ciclo_actual = Ciclo.objects.get(esActual=True)
-    inscriptos = [] if not id_ciclo_actual else inscripcionEstudianteCiclo.objects.filter(ciclo=id_ciclo_actual)
+    inscriptos = [] if not id_ciclo_actual else Inscripcion.objects.filter(ciclo=id_ciclo_actual)
     cant_inscriptos = inscriptos.count()
 
     if request.method == 'GET':
@@ -490,7 +486,7 @@ def inscripcionDeEstudianteCiclo(request, id_ciclo=1):
                                                                'ciclo': id_ciclo_actual})
 @login_required
 def estudiantesDeAnioEnCiclo(request, idCiclo):
-    estudiantesCiclo=  inscripcionEstudianteCiclo.objects.filter(ciclo = idCiclo)   
+    estudiantesCiclo=  Inscripcion.objects.filter(ciclo = idCiclo)   
     return render(request, 'Core/Persona/estudiantes_por_anio_ciclo.html', {'estudiantes': estudiantesCiclo})
 
 def listEstudianteAula(request,idDivision):
@@ -500,7 +496,7 @@ def listEstudianteAula(request,idDivision):
 
 @login_required
 def asignarEstudianteDivision(request, idAnio, idCiclo):
-    inscriptos = inscripcionEstudianteCiclo.objects.filter(anio = idAnio, ciclo = idCiclo)
+    inscriptos = Inscripcion.objects.filter(anio = idAnio, ciclo = idCiclo)
     division = Division.objects.filter(anio = idAnio, ciclo = idCiclo)
     print(division)
     cantidadAlumnosInscriptos = inscriptos.count()
@@ -530,9 +526,9 @@ def asignarEstudianteAula(request,id_anio):
     divisiones = Division.objects.filter(anio=id_anio, ciclo=ciclo_actual)
 
     # Obtener los estudiantes inscritos al año y ciclo actual
-    estudiantes = inscripcionEstudianteCiclo.objects.filter(anio=id_anio, ciclo=ciclo_actual)
+    estudiantes = Inscripcion.objects.filter(anio=id_anio, ciclo=ciclo_actual)
     #divisiones = Division.objects.filter(anio = id_anio,ciclo=1)
-    #estudiantes = inscripcionEstudianteCiclo.objects.filter(anio = id_anio)
+    #estudiantes = Inscripcion.objects.filter(anio = id_anio)
     print(estudiantes)
     cantidadInscriptos =estudiantes.count()
     cantidadDivisiones = divisiones.count()
@@ -543,7 +539,7 @@ def asignarEstudianteAula(request,id_anio):
 
 def exportarHistorialPdf(request, estudiante_id):
     estudiante = Estudiante.objects.get(pk=estudiante_id)
-    inscripciones = inscripcionEstudianteCiclo.objects.filter(estudiante=estudiante).order_by('fecha')
+    inscripciones = Inscripcion.objects.filter(estudiante=estudiante).order_by('fecha')
     faltas = Inasistencias.objects.filter(estudiante=estudiante).order_by('dia')
     
     # Crear un buffer de bytes en memoria para el PDF
@@ -559,7 +555,7 @@ def exportarHistorialPdf(request, estudiante_id):
     # Encabezado
     elements.append(Paragraph("Historial del Estudiante", styles['Title']))
     elements.append(Spacer(1, 12))
-    elements.append(Paragraph(f"Estudiante: {estudiante.Nombre} {estudiante.Apellido}", styles['Normal']))
+    elements.append(Paragraph(f"Estudiante: {estudiante.nombre} {estudiante.apellido}", styles['Normal']))
     elements.append(Paragraph(f"Fecha de alta: {(estudiante.fechaInscripcion).strftime('%d-%m-%Y')}", styles['Normal']))
     elements.append(Spacer(1, 12))
 

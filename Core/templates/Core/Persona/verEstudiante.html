@@ -28,19 +28,19 @@
                             {% if object_list %}
                                 {% for estudiante in object_list %}
                                     <tr>
-                                        <td>{{ estudiante.Dni }}</td>
+                                        <td>{{ estudiante.dni }}</td>
                                         <td>{{ estudiante.legajo}}</td>
-                                        <td>{{ estudiante.Apellido }}</td>
-                                        <td>{{ estudiante.Nombre}}</td>
-                                        <td>{{ estudiante.Direccion }}</td>
-                                        <td>{{ estudiante.Localidad.NombreLocalidad}}</td>
-                                        <td>{{ estudiante.Email}}</td>
+                                        <td>{{ estudiante.apellido }}</td>
+                                        <td>{{ estudiante.nombre}}</td>
+                                        <td>{{ estudiante.direccion }}</td>
+                                        <td>{{ estudiante.localidad.nombre}}</td>
+                                        <td>{{ estudiante.email}}</td>
                                         <td>{{ estudiante.fechaInscripcion}}</td>
                                         <td>
-                                            <a class="btn btn-primary btn-sm" href="/Core/modificarEstudiante/{{ estudiante.id }}/">
+                                            <a class="btn btn-primary btn-sm" href="/Core/estudiante/modificar/{{ estudiante.id }}/">
                                                 Editar
                                             </a>
-                                            <a class="btn btn-danger btn-sm" href="/Core/eliminarEstudiante/{{ estudiante.id }}/">
+                                            <a class="btn btn-danger btn-sm" href="/Core/estudiante/eliminar/{{ estudiante.id }}/">
                                                 Eliminar
                                             </a>
                                                 <a href="/Core/estudiante/{{estudiante.id}}/exportar-pdf"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-file-earmark-pdf" viewBox="0 0 16 16">

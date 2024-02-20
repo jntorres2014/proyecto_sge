@@ -1,7 +1,7 @@
 from django import forms
 from django.utils import timezone
 from Core.models import PlanDeEstudios, EspacioCurricular,AnioPlan,Localidad
-from Core.models import Persona,Docente,Estudiante,Ciclo,Division, inscripcionEstudianteCiclo
+from Core.models import Persona,Docente,Estudiante,Ciclo,Division, Inscripcion
 from dal import autocomplete
 from datetime import datetime
 
@@ -80,8 +80,8 @@ class LocalidadForm(forms.ModelForm):
         model = Localidad
 
         fields= [
-            'CodigoPosta',
-            'NombreLocalidad',
+            'codigoPostal',
+            'nombre',
         ]
 
 
@@ -90,13 +90,13 @@ class PersonaForm(forms.ModelForm):
     class Meta:
         model = Persona
         fields= [
-            'Dni',
-            'Nombre',
-            'Apellido',
-            'Direccion',
-            'Localidad',
-            'Email',
-            'Telefono'
+            'dni',
+            'nombre',
+            'apellido',
+            'direccion',
+            'localidad',
+            'email',
+            'telefono'
         ]
 
 
@@ -104,13 +104,13 @@ class DocenteForm(forms.ModelForm):
     class Meta():
         model = Docente
         fields = [
-            'Dni',
-            'Nombre',
-            'Apellido',
-            'Direccion',
-            'Localidad',
-            'Email',
-            'Telefono',
+            'dni',
+            'nombre',
+            'apellido',
+            'direccion',
+            'localidad',
+            'email',
+            'telefono',
             'tituloHabilitante',
         ]
 
@@ -125,14 +125,14 @@ class EstudianteForm(forms.ModelForm):
     
     class Meta:
         model = Estudiante
-        fields = ['Nombre',
-                  'Apellido',
-                  'Dni',
+        fields = ['nombre',
+                  'apellido',
+                  'dni',
                   'legajo',
-                  'Localidad',
-                  'Direccion',
-                  'Email',
-                  'Telefono',
+                  'localidad',
+                  'direccion',
+                  'email',
+                  'telefono',
                   ]
 
         print("acaaaaaaaaaaaaaaasdasdas")
@@ -166,7 +166,7 @@ class EspacioCurricularEditForm(forms.ModelForm):
         labels = {
             'codigo': 'Codigo',
             'cantidadModulos': 'Cantidad de modulos',
-            'nombre' : 'Nombre',
+            'nombre' : 'nombre',
             'contenido': 'Contenido',
         }
         widgets = { 
@@ -203,7 +203,7 @@ class EspacioCurricularForm(forms.ModelForm):
             'anio': 'Año',
             'codigo': 'Codigo de Espacio Curricular',
             'cantidadModulos': 'Cantidad de modulos',
-            'nombre': 'Nombre',
+            'nombre': 'nombre',
             'contenido': 'Contenido',
         }
         widgets = { 
@@ -375,7 +375,7 @@ estudiante = forms.DateField(
 class inscripcionAlumnoForm(forms.ModelForm):
 
     class Meta:
-        model = inscripcionEstudianteCiclo
+        model = Inscripcion
         fields= '__all__'
         labels = {
             'anio': 'Año'

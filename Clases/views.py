@@ -4,7 +4,7 @@ from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
-from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, PlanDeEstudios, inscripcionEstudianteCiclo,Division
+from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, PlanDeEstudios, Inscripcion,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
@@ -20,6 +20,10 @@ def calificacion_view(request):
 
     return render(request, 'Calificacion/calificacionForm.html', {'form': form})
 
+
+@login_required
+def menuCursada(request):
+    return render(request, 'Cursada/menuCursada.html')
 
 # Create your views here.
 @login_required
@@ -88,7 +92,7 @@ def consultar_faltas(request):
         inasistencias = Inasistencias.objects.filter(consulta_faltas)
 
         # Serializar los resultados si es necesario
-        resultados = [{'nombre_alumno': falta.estudiante.Nombre, 'fecha': falta.dia} for falta in inasistencias]
+        resultados = [{'nombre_alumno': falta.estudiante.nombre, 'fecha': falta.dia} for falta in inasistencias]
 
         return JsonResponse({'resultados': resultados})
 
@@ -195,7 +199,7 @@ def asignar_alumno_a_aula(request, idAnio):
     print("asignar alumno", idAnio)
     ciclo = Ciclo.objects.get(esActual = 'True')
     divisiones = Division.objects.filter(anio_id=idAnio,ciclo=ciclo)
-    estudiantes_inscritos = inscripcionEstudianteCiclo.objects.filter(anio=idAnio,ciclo = ciclo)
+    estudiantes_inscritos = Inscripcion.objects.filter(anio=idAnio,ciclo = ciclo)
     print("estudiuantes inscriptos",estudiantes_inscritos)
     # Verificar si las aulas existen para cada división
     for division in divisiones:
@@ -235,7 +239,7 @@ def obtener_alumnos(request, idEstudiante):
     print("Obteniendo las inscripciones del estudiante")
 
     # Obtener las inscripciones del estudiante
-    alumnos_inscripciones = inscripcionEstudianteCiclo.objects.filter(estudiante_id=idEstudiante)
+    alumnos_inscripciones = Inscripcion.objects.filter(estudiante_id=idEstudiante)
     alumno = Estudiante.objects.get(id=alumnos_inscripciones[0].estudiante_id)
     # Diccionario para almacenar la información
     info_alumnos = {}
@@ -311,7 +315,7 @@ def actualizar_relacion(request):
         alumno_id = data.get('estudiante_id')
         aula_nombre = data.get('aula_nombre')
         print("recuperados", alumno_id, aula_nombre)
-        estudiante = Estudiante.objects.get(Dni=alumno_id)
+        estudiante = Estudiante.objects.get(dni=alumno_id)
         print("estudiantes", estudiante)
 
         # Obtener el aula específica
