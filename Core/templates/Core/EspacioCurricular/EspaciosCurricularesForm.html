@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'home.html' %}
 {% load bootstrap5 %}
 
 
@@ -49,7 +49,7 @@
                             <td>{{ insc.cantidadModulos }}</td>
                             <td>{{ insc.fecha }}</td>
                             <td><a href="/Core/espacio/modificar/{{insc.id }}" class="btn btn-info"> Editar</a>
-                                <a href="eliminar_edit/{{insc.codigo }}" class="btn btn-danger"> Eliminar</a></td>
+                                <a href="/Core/espacio/eliminar/{{insc.id }}" class="btn btn-danger"> Eliminar</a></td>
                                 <!-- Agrega más celdas según los campos que quieras mostrar -->
                             </tr>
                             {% endfor %}

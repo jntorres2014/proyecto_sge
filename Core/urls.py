@@ -37,6 +37,7 @@ urlpatterns = [
     re_path(r'^plan/alta$', views.planDeEstudiosView,name='plan/alta'),
     re_path(r'^plan/menu$', views.menuPlan,name='plan/menu'),
     re_path(r'^plan/ver$', views.planList, name= 'plan/ver'),
+    re_path(r'^plan/verDetalle/(?P<id_plan>\d+)/$', views.planDetalle, name= 'plan/verDetalle'),
     re_path(r'^plan/modificar/(?P<id_plan>\d+)/$', views.planEdit, name='plan/modificar'),
     re_path(r'^cambiar_actual/(?P<id_plan>\d+)/$', views.cambiarActual, name='cambiar_actual'),
 
@@ -67,6 +68,7 @@ urlpatterns = [
     re_path(r'^espacio/verEnPlan/(?P<id>\d+)/$', views.espacioView, name='espacio/verEnPlan'),
     re_path(r'^espacio/ver$', views.espacioList.as_view(), name='espacio/ver'),
     re_path(r'^espacio/modificar/(?P<id_espacio>\d+)/$', views.espacioEdit, name='espacio/modificar'),
+    re_path(r'^espacio/eliminar/(?P<id_espacio>\d+)/$', views.espacioEliminar, name='espacio/eliminar'),
         
     
 

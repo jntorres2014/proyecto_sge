@@ -241,6 +241,17 @@ def planList(request):
         'planes': planes,
     })    
 
+@login_required    
+def planDetalle(request,id_plan):
+
+    plan=PlanDeEstudios.objects.get(id = id_plan)
+    print(type(plan.cantidadAnios))
+    espaciosCurriculares = EspacioCurricular.objects.filter(plan = plan).order_by('anio')
+    return render(request, 'Core/Plan/verDetallePlan.html', {
+        'plan': plan,
+        'espaciosCurriculares' : espaciosCurriculares
+    })    
+
 @login_required
 def planEdit(request, id_plan):
     plan = PlanDeEstudios.objects.get(id=id_plan)
@@ -282,6 +293,19 @@ def espacioView(request,id):
         'form': form,
         'plan': plan,
         'espacios': espacios})
+
+
+@login_required
+def espacioEliminar(request, id_espacio):
+    try:
+        espacio = EspacioCurricular.objects.get(id=id_espacio)
+        espacio.delete()
+        messages.success(request, 'El espacio curricular se eliminó correctamente.')
+    except Estudiante.DoesNotExist:
+        messages.error(request, 'No se encontró el Ciclo que intentas eliminar.')
+    
+    return HttpResponseRedirect("/Core/plan/ver")
+
 ###################################
 ###################################
 @login_required

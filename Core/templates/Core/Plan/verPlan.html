@@ -29,6 +29,7 @@
                                 {% else %}
                                 <h6 style="color: red;"> Sin implementar</h6>
                                     {% endif %}    
+                                    <a class="btn btn-primary m-2" href="/Core/plan/verDetalle/{{ plan.id }}">Ver</a>
                                 {% if not plan.implementado %}
                                 <a class="btn btn-primary m-2" href="/Core/plan/modificar/{{ plan.id }}">Editar</a>
                                 <a class="btn btn-primary m-2" href="/Core/espacio/verEnPlan/{{ plan.id }}">Espacios curriculares</a>

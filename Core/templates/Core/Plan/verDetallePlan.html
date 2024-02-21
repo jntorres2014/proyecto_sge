@@ -1,0 +1,25 @@
+{% extends 'home.html' %}
+{% load bootstrap5 %}
+
+
+{% block content %}
+
+<div class="container">
+
+Plan de estudios
+    <table class="table table-bordered">
+
+            {% for espacio in espaciosCurriculares %}
+                {% if espacio.Anio == num %} 
+                <tr>
+                    <td> {{ espacio.nombre }}</td>
+                    <td> {{ espacio.anio }}</td>                 
+                </tr>
+                    {% endif %}
+            {% endfor %}
+
+    </table>
+</div>
+
+
+{% endblock content%}

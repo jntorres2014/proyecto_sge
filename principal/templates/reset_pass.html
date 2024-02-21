@@ -1,16 +1,26 @@
-{% extends 'base.html' %}
+{% extends 'signin.html' %}
 {% load bootstrap5 %}
-{% block header %}
-{% endblock header %}
-{% block content %}
-<div class="container">
-  <h2>Cambiar Contraseña</h2>
 
-    <form method="post">
-      {% csrf_token %}
-      {% bootstrap_form form %}
-      <button class="btn btn-primary" type="submit">Cambiar Contraseña</button>
-    </form>
+{% block content %}
+
+
+
+<div class="row justify-content-center mt-5">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        Restablecer contraseña
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% bootstrap_form form %}
+          <button class="btn btn-primary" type="submit">Cambiar Contraseña</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
     
   </div>
 <div class="modal" tabindex="-1">

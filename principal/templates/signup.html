@@ -2,9 +2,21 @@
 
 {% load static %}
 {% load bootstrap5 %}
+{% block header %}
+<header class="p-3 text-bg-dark">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+      <a href="/" class="nav-link px-2">
+        Sistema de Gestión Escolar SGE
+      </a>
+    </div>
+  </div>
+  </header>
+  {% endblock %}
 
 {% block content %}
 {{ form.media }}
+
 <div class="container">
     <h1 class="text-center">Alta de usuario</h1>
     <div class="row justify-content-center">
