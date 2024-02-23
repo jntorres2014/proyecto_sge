@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Inasistencias</title>
+</head>
+<body>
+    <h1>Reporte de Inasistencias</h1>
+    
+    <!-- Agregar controles de selección o filtros -->
+    <form method="GET">
+        <label for="mes">Mes:</label>
+        <select name="mes" id="mes">
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <!-- Agregar el resto de los meses -->
+        </select>
+        
+        <!-- Agregar más filtros según tus necesidades -->
+        
+        <button type="submit">Filtrar</button>
+    </form>
+    
+    <!-- Mostrar el gráfico generado -->
+    {{ grafico_html | safe }}
+</body>
+</html>

@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'Clases',
     'bootstrap5',
     'import_export',
-    'reportlab'  
+    'reportlab',
+    'plotly'
     
 ]
 

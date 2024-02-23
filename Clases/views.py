@@ -9,6 +9,11 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
 # Create your views here.
+from django.shortcuts import render
+from .models import Inasistencias
+import plotly.graph_objs as go
+
+
 @login_required
 def calificacion_view(request):
     if request.method == 'POST':
@@ -390,3 +395,34 @@ def eliminarAlumno(request):
 @login_required
 def reporte_alumno(request):
      return render(request, 'Cursada/reporte_alumno.html')
+
+
+def reporte_inasistencias(request):
+    # Lógica para manejar las solicitudes del usuario y filtrar los datos
+    # Puedes usar los parámetros de la URL o un formulario para recibir los filtros
+    
+    # Por ejemplo, supongamos que los usuarios pueden filtrar por mes y aula
+    mes = request.GET.get('mes')
+    aula_id = request.GET.get('aula')
+    
+    # Filtrar las inasistencias según los filtros seleccionados
+    inasistencias = Inasistencias.objects.all()  # Obtener todas las inasistencias inicialmente
+    
+    if mes:
+        inasistencias = inasistencias.filter(dia__month=mes)
+        print(inasistencias)
+    
+    if aula_id:
+        inasistencias = inasistencias.filter(aula_id=aula_id)
+    
+    # Obtener los datos necesarios para el gráfico
+    # Esto dependerá de cómo estructures tus datos y de la biblioteca de gráficos que elijas
+
+    # Generar el gráfico con Plotly
+    # Aquí hay un ejemplo básico, debes adaptarlo a tus necesidades específicas
+    grafico = go.Figure(data=[go.Bar(x=['Categoria1', 'Categoria2'], y=[10, 20])])
+
+    # Convertir el gráfico a HTML para mostrarlo en el template
+    grafico_html = grafico.to_html(full_html=False, default_height=500, default_width=700)
+
+    return render(request, 'Cursada/graficoInasistencia.html', {'grafico_html': grafico_html})

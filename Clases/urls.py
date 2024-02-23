@@ -10,7 +10,7 @@ urlpatterns  = [
     re_path(r'^altaInasistencia$', views.inasistencia_view),
     re_path(r'^verInasistencia$', views.inasistencia_list.as_view(), name='verInasistencia'),
     re_path(r'^modificarInasistencia/(?P<id_inasistencia>\d+)/$', views.calificacion_edit, name='modificarInasistencia'),
-    
+     path('reporte/inasistencias/', views.reporte_inasistencias, name='reporte_inasistencias'),
     re_path(r'^altaHorario$', views.crear_horario),
      #****************************** Cursada ****************************** # 
     re_path(r'^clases/menu$', views.menuCursada,name='clases/menu'),
