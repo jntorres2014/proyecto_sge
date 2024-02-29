@@ -214,7 +214,7 @@ def asignar_alumno_a_aula(request, idAnio):
 
     # Obtener las aulas después de verificar o crear
     aulas = Aula.objects.filter(division__in=divisiones)
-
+    print("Estoy en aulaaass",aulas[0].estudiantes.all())
     estudiantes_aula = {}  # Cambiaremos a un diccionario para asociar estudiantes con aulas
     for aula in aulas:
         estudiantes_aula[aula.id] = aula.estudiantes.all()
@@ -426,3 +426,23 @@ def reporte_inasistencias(request):
     grafico_html = grafico.to_html(full_html=False, default_height=500, default_width=700)
 
     return render(request, 'Cursada/graficoInasistencia.html', {'grafico_html': grafico_html})
+
+def reporte_inasistencias_por_aula(request):
+    aulas = Aula.objects.all()
+    print(aulas)
+    data = []
+    for aula in aulas:
+        inasistencias = Inasistencias.objects.filter(estudiante__aula=aula)
+        print(inasistencias)
+        data.append({
+            'aula': aula.division,
+            'inasistencias': inasistencias.count()
+        })
+    return render(request, 'Cursada/inasistencia.html', {'data': data})
+
+def consultar_faltas(request):
+    if request.method == 'POST':
+        fecha_consulta = request.POST.get('fecha_consulta')
+        faltas = Inasistencias.objects.filter(fecha=fecha_consulta)
+        return render(request, 'faltas.html', {'faltas': faltas})
+    return render(request, 'Cursada/consulta_faltas.html')

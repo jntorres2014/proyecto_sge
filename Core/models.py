@@ -675,14 +675,11 @@ class Inscripcion(models.Model):
                 fecha=fake.date_between(start_date='-365d', end_date='today'),  # fecha aleatoria en el último año
             )
 
-
-from django.db import models
-
 class Aula(models.Model):
     estudiantes = models.ManyToManyField(
         'Estudiante',
         blank=True,
-        related_name="aulas_del_estudiante",
+        related_name="estudiantes",
     )   
     
     division = models.ForeignKey(

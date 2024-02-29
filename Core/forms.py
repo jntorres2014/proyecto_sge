@@ -264,13 +264,11 @@ class CicloEditForm(forms.ModelForm):
     
         return fin
 
-plan_actual = PlanDeEstudios.objects.get(esActual='True')
+#plan_actual = PlanDeEstudios.objects.get(esActual='True')
 class CicloForm(forms.ModelForm):
 
     class Meta:
-        anios_plan_estudio = PlanDeEstudios.objects.get(esActual='True')
         model = Ciclo
-        #plan = forms.TextInput(attrs={'value': PlanDeEstudios})
         fields = [
             'anioCalendario',
             'fechaInicio',
@@ -281,40 +279,38 @@ class CicloForm(forms.ModelForm):
             'anioCalendario': 'Año Calendario',
             'fechaInicio': 'Fecha de Inicio de ciclo',
             'fechaFin': 'Fecha de fin de ciclo',
-            'plan' : anios_plan_estudio
+            'plan': 'Plan de Estudios',
+        }
+        widgets = {
+            'fechaInicio': forms.DateInput(attrs={'type': 'date'}),
+            'fechaFin': forms.DateInput(attrs={'type': 'date'}),
+            'plan': forms.HiddenInput(),
         }
 
-        fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-        anios_plan_estudio = PlanDeEstudios.objects.get(esActual='True')
-        widgets = {
-        'fechaInicio': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
-        'fechaFin': forms.TextInput(attrs={'type': 'date', 'value': fecha}),
-        'plan': forms.TextInput(attrs={'type': 'hidden', 'readonly':'True', 'Value': anios_plan_estudio.id}),
-        #'plan': forms.HiddenInput(attrs={'type':'hid' })
-        }
     def clean_fechaFin(self):
         inicio = self.cleaned_data.get("fechaInicio")
         fin = self.cleaned_data.get("fechaFin")
         if inicio >= fin:
-            raise forms.ValidationError("fecha ingresada debe ser mayor a la fecha de inicio")
+            raise forms.ValidationError("La fecha de fin debe ser posterior a la fecha de inicio.")
         # Verificar si hay ciclos activos para las fechas proporcionadas
         ciclos_activos = Ciclo.objects.filter(fechaInicio__lte=fin, fechaFin__gte=inicio).exclude(id=self.instance.id)
-        print("ciclos activooooosss", ciclos_activos)
         if ciclos_activos.exists():
-            raise forms.ValidationError("Hay un ciclo activo para las fechas proporcionadas")
+            raise forms.ValidationError("Hay un ciclo activo para las fechas proporcionadas.")
         return fin
     
     def clean_plan(self):
         plan = self.cleaned_data.get("plan")
-        plan = PlanDeEstudios.objects.get(esActual = 'True')
-        print("Este es el plan", plan)
-
+        if not plan:
+            # Si el plan no se proporciona, obtener el plan actual
+            plan = PlanDeEstudios.objects.get(esActual=True)
         return plan
     
     def __init__(self, *args, **kwargs):
         super(CicloForm, self).__init__(*args, **kwargs)
-        #anios_plan_estudio = PlanDeEstudios.objects.filter(esActual='True')
-        #self.fields['plan'].queryset = anios_plan_estudio
+        # Obtener el plan de estudios actual y establecerlo como valor inicial para el campo 'plan'
+        plan_actual = PlanDeEstudios.objects.get(esActual=True)
+        self.fields['plan'].initial = plan_actual.id
+        self.fields['plan'].widget.attrs['readonly'] = True
 
 PRIMERA = '1ra'
 SEGUNDA = '2da'
@@ -382,13 +378,13 @@ class inscripcionAlumnoForm(forms.ModelForm):
         }
         widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'type':'text','class': 'form-label' })
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-        ciclo = Ciclo.objects.get(esActual = 'True')
+        #ciclo = Ciclo.objects.get(esActual = 'True')
      
         widgets = {
             'estudiante': widgets_estudiante,
             'fecha': forms.TextInput(attrs={'class': ' form-label datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
             'anio': forms.Select(attrs={'class': 'form-control input-group mb-3 '}),
-            'ciclo': forms.TextInput(attrs={'type': 'hidden', 'readonly':'True', 'Value': ciclo.id}),
+            'ciclo': forms.TextInput(attrs={'type': 'hidden', 'readonly':'True', 'Value': 2}),
             
         }
     def clean_fecha(self):

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout,authenticate
+from django.contrib.auth import login, logout, authenticate
 
 from Core.models import Ciclo, PlanDeEstudios
 from .forms import TaskForm, UsuarioForm
@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 
-from django.contrib.auth.views import PasswordResetView,PasswordResetDoneView,PasswordResetConfirmView
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView
 from django.urls import reverse_lazy
 
 class CustomPasswordChangeView(PasswordResetView):
@@ -29,42 +29,43 @@ class PasswordResetCompleteView(PasswordResetDoneView):
 class PasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'reset_pass_confirm.html'  # Plantilla personalizada
     email_template_name = 'custom_reset_password_email.html'  # Plantilla de correo electrónico personalizada    
+
 class PasswordResetDoneView(PasswordResetDoneView):
     template_name = 'reset_password_done.html'  # Plantilla personalizada
-        
 
 @login_required
 def home2(request):
-    hay_plan=PlanDeEstudios.objects.exists()
+    hay_plan = PlanDeEstudios.objects.exists()
     hay_ciclo = Ciclo.objects.exists()
     try:
-        ciclo_activo =  Ciclo.objects.get(esActual='True').fechaInicio <= timezone.now().date() >= Ciclo.objects.get(esActual='True').fechaInicio
+        ciclo_activo = Ciclo.objects.get(esActual=True).fechaInicio <= timezone.now().date() >= Ciclo.objects.get(esActual=True).fechaInicio
     except Ciclo.DoesNotExist:
         ciclo_activo = False
     print(ciclo_activo)
-    return render(request, 'home.html',{'hay_plan': hay_plan,
-                                        'ciclo_activo': ciclo_activo} )
+    return render(request, 'home.html', {'hay_plan': hay_plan,
+                                          'ciclo_activo': ciclo_activo})
+
 @login_required
 def inscripciones(request):
-       return render(request, ' inscripciones.html')
+    return render(request, 'inscripciones.html')
 
 @login_required
 def create_task(request):
     if request.method == 'GET':      
-        return render(request, 'create_task.html',{
+        return render(request, 'create_task.html', {
             'form': TaskForm,
         })
     else:
         try:
-            form= TaskForm(request.POST)
-            tarea= form.save(commit=False)
-            tarea.user= request.user
+            form = TaskForm(request.POST)
+            tarea = form.save(commit=False)
+            tarea.user = request.user
             tarea.save()
             return redirect(principal)
         except ValueError:
-            return render(request, 'create_task.html',{
+            return render(request, 'create_task.html', {
             'form': TaskForm,
-            'error': 'Ingresar datos validos',
+            'error': 'Ingresar datos válidos',
         })
 
 def signup(request):
@@ -75,14 +76,6 @@ def signup(request):
             if request.POST['password1'] == request.POST['password2']:
                 form.save()
                 try:
-                    # user = User.objects.create_user(
-                    #     username=request.POST['username'],
-                    #     password=request.POST['password1'],
-                    #     email=request.POST['email'],
-                    #     first_name=request.POST['first_name'],
-                    #     last_name=request.POST['last_name']
-                    # )
-                    
                     return redirect('login')  # Redireccion a una página de registro exitoso
                 except:
                     return render(request, 'signup.html', {
@@ -96,7 +89,6 @@ def signup(request):
                 })
         else:
             return render(request, 'signup.html', {
-                #'error': form,
                 'form': form
             })
     else:
@@ -106,20 +98,16 @@ def signup(request):
 
 @login_required
 def principal(request):
-    tareas=Task.objects.all()
-    #Tareas del usuario que esta logeado
-    #tareas = Task.objects.filter(user= request.user)
+    tareas = Task.objects.all()
     return render(request, 'principal.html', {
         'tareas': tareas
     })
     
 @login_required
-def principal_detail(request,id):
-    #task = Task.objects.get(pk= id)
+def principal_detail(request, id):
     if request.method == 'GET':
-        print("entre")
-        task =  get_object_or_404(Task, pk= id)
-        form = TaskForm(instance= task)
+        task =  get_object_or_404(Task, pk=id)
+        form = TaskForm(instance=task)
         return render(request, 'principal_detail.html',{
             'task': task,
             'form': form
@@ -129,7 +117,6 @@ def principal_detail(request,id):
             task = get_object_or_404(Task, pk=id)
             form = TaskForm(request.POST, instance=task)
             form.save()
-            print('guarade')
             return redirect('principal') 
         except ValueError:
             return render(request, 'principal_detail.html',{
@@ -137,8 +124,9 @@ def principal_detail(request,id):
              'form': form,
              'error': 'Error al actualizar',
          })
+
 @login_required
-def complete(request,id):
+def complete(request, id):
     task = get_object_or_404(Task, pk=id)
     if request.method == 'POST':
         task.datecompleted = timezone.now()
@@ -146,18 +134,15 @@ def complete(request,id):
         return redirect('principal')
 
 @login_required    
-def delete(request,id):
+def delete(request, id):
     task = get_object_or_404(Task, pk=id)
     if request.method == 'POST':
         task.delete()        
         return redirect('principal')
-    
-
 
 def signout(request):
     logout(request)
     return redirect('login')
-
 
 def signin(request):
     if request.method == 'GET':
