@@ -42,7 +42,7 @@ def home2(request):
     except Ciclo.DoesNotExist:
         ciclo_activo = False
     print(ciclo_activo)
-    return render(request, 'home.html', {'hay_plan': hay_plan,
+    return render(request, 'index.html', {'hay_plan': hay_plan,
                                           'ciclo_activo': ciclo_activo})
 
 @login_required
