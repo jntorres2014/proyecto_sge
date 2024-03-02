@@ -31,14 +31,16 @@ from dal import autocomplete
 
 class MateriaAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        print("self",self.kwargs)
-        print("El objeto rarooo",self.forwarded)
-        horario_id = self.forwarded.get('horario.id',None)
-        division_id = self.forwarded.get('division', None)
-        print("Horario a ver que trae",horario_id)
-        print("Divisio",division_id)
-        qs = EspacioCurricular.objects.all()
+        idDiv = self.forwarded.get('horario')
+        division = Division.objects.get(id = idDiv)
+        anio = AnioPlan.objects.get(id = division.anio_id)
+        print(anio)
+        if anio:
+            qs = EspacioCurricular.objects.filter(anio = anio)
+        else:
+            qs = EspacioCurricular.objects.all()
         print(qs)
+
         if self.q:
             qs = qs.filter( Q(nombre__icontains=self.q) |    
                 Q(codigo__icontains=self.q) )           
@@ -277,6 +279,7 @@ def espacioView(request,id):
     #id = 1
     print(id)
     plan = PlanDeEstudios.objects.get(id=id)
+    
     espacios = EspacioCurricular.objects.filter(plan = plan)
     if request.method == 'POST':
         form = forms.EspacioCurricularForm(request.POST, id_plan=id)
