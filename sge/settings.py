@@ -9,29 +9,32 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-import os
-from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'
+from pathlib import Path
+import os
+# import dj_database_url
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key')
+SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
 
-# Add Render's external hostname if available
+
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
+
 INSTALLED_APPS = [
     'dal',
     'dal_select2',
@@ -49,6 +52,7 @@ INSTALLED_APPS = [
     'import_export',
     'reportlab',
     'plotly'
+    
 ]
 
 MIDDLEWARE = [
@@ -82,21 +86,26 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'sge.wsgi.application'
-IMPORT_EXPORT_USE_TRANSACTIONS = True
+IMPORT_EXPORT_USE_TRANSACTIONS = True  
+
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
+    
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'sge.db',
+        'NAME': os.path.join(BASE_DIR, 'sge.db'),
     }
+
     # 'default': dj_database_url.config(
     #         default= 'postgresql://postgres:postgres@localhost/postgres',
     #         conn_max_age=600
     #     )
+    
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -116,6 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -125,27 +135,25 @@ TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# Additional locations of static files
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    os.path.join(BASE_DIR, 'static')
 ]
 
-# Static root for production
-if not DEBUG:
-    STATIC_ROOT = '/home/seginf/Documentos/proyecto_sge/staticfiles'
 
+if not DEBUG:    # Tell Django to copy statics to the `staticfiles` directory
+    # in your application directory on Render.
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # and creating unique names for each version so they can safely be cached forever.
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Login URL
 LOGIN_URL = '/login'
 
 # Default primary key field type
@@ -153,7 +161,6 @@ LOGIN_URL = '/login'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Crispy forms template pack
 CRISPY_TEMPLATE_PACK = 'bootstrap'
 
 EMAIL_USE_TLS = True
