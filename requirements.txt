@@ -19,7 +19,7 @@ numpy==1.24.4
 odfpy==1.4.1
 openpyxl==3.1.2
 packaging==23.2
-pandas==2.1.4
+pandas==2.0.3
 pillow==10.2.0
 plotly==5.19.0
 python-dateutil==2.8.2
