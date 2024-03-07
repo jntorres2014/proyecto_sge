@@ -1,6 +1,6 @@
 from django import forms
 from django.utils import timezone
-from Core.models import PlanDeEstudios, EspacioCurricular,AnioPlan,Localidad
+from Core.models import InscripcionDocente, PlanDeEstudios, EspacioCurricular,AnioPlan,Localidad
 from Core.models import Persona,Docente,Estudiante,Ciclo,Division, Inscripcion
 from dal import autocomplete
 from datetime import datetime
@@ -103,16 +103,11 @@ class PersonaForm(forms.ModelForm):
 class DocenteForm(forms.ModelForm):
     class Meta():
         model = Docente
-        fields = [
-            'dni',
-            'nombre',
-            'apellido',
-            'direccion',
-            'localidad',
-            'email',
-            'telefono',
-            'tituloHabilitante',
-        ]
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(DocenteForm, self).__init__(*args, **kwargs)
+        self.fields['rol'].widget.attrs['class'] = 'form-control'  
 
 
 class EstudianteForm(forms.ModelForm):
@@ -368,40 +363,59 @@ estudiante = forms.DateField(
     },
     validators=[],
 )
+      
 class inscripcionAlumnoForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)
+        # Obtener el ciclo actual y asignarlo al campo 'ciclo'
+        ciclo_actual = Ciclo.objects.get(esActual=True)
+        self.fields['ciclo'] = forms.ModelChoiceField(queryset=Ciclo.objects.all(), initial=ciclo_actual, widget=forms.HiddenInput())
 
     class Meta:
         model = Inscripcion
-        fields= '__all__'
+        fields = '__all__'
         labels = {
             'anio': 'Año'
         }
         widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'type':'text','class': 'form-label' })
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-        #ciclo = Ciclo.objects.get(esActual = 'True')
      
         widgets = {
             'estudiante': widgets_estudiante,
             'fecha': forms.TextInput(attrs={'class': ' form-label datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
             'anio': forms.Select(attrs={'class': 'form-control input-group mb-3 '}),
-            'ciclo': forms.TextInput(attrs={'type': 'hidden', 'readonly':'True', 'Value': 2}),
-            
         }
+
     def clean_fecha(self):
         fecha = self.cleaned_data.get("fecha")
         if fecha > timezone.now():
             raise forms.ValidationError("La fecha ingresada es mayor al día de hoy")
         return fecha
-
+    
+class inscripcionDocenteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)
-        # Obtener la fecha del sistema
-        current_date = datetime.now().strftime("%d de %B del %Y")
-        # Establecer la fecha del sistema en el campo de fecha del formulario
-        #self.fields['fecha'].initial = current_date
-        anios_plan_estudio = AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual= 'True'))
-        self.fields['ciclo'].queryset = Ciclo.objects.filter(esActual = 'True')
-        self.fields['anio'].queryset = anios_plan_estudio
-        
+        super(inscripcionDocenteForm, self).__init__(*args, **kwargs)
+        # Obtener el ciclo actual y asignarlo al campo 'ciclo'
+        ciclo_actual = Ciclo.objects.get(esActual=True)
+        self.fields['ciclo'] = forms.ModelChoiceField(queryset=Ciclo.objects.all(), initial=ciclo_actual, widget=forms.HiddenInput())
 
-   
+    class Meta:
+        model = InscripcionDocente
+        fields = '__all__'
+        labels = {
+            'anio': 'Año'
+        }
+        widgets_docente = autocomplete.ModelSelect2(url='core:docente-autocomplete',attrs={'type':'text','class': 'form-label' })
+        fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+     
+        widgets = {
+            'docente': widgets_docente,
+            'fecha': forms.TextInput(attrs={'class': ' form-label datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
+            'anio': forms.Select(attrs={'class': 'form-control input-group mb-3 '}),
+        }
+
+    def clean_fecha(self):
+        fecha = self.cleaned_data.get("fecha")
+        if fecha > timezone.now():
+            raise forms.ValidationError("La fecha ingresada es mayor al día de hoy")
+        return fecha

@@ -10,7 +10,7 @@ from Clases.models import Inasistencias
 from Core import forms
 from django.urls import reverse
 from Core.resource import LocalidadResource
-from .models import Aula, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
+from .models import Aula, InscripcionDocente, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
 from django.views.generic import ListView,TemplateView
 from django.db.models import Q
 from tablib import Dataset 
@@ -46,6 +46,23 @@ class MateriaAutocomplete(autocomplete.Select2QuerySetView):
                 Q(codigo__icontains=self.q) )           
         return qs
 
+class DocenteHoraAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        idDiv = self.forwarded.get('horario')
+        division = Division.objects.get(id = idDiv)
+        anio = AnioPlan.objects.get(id = division.anio_id)
+        print('Añoooooo',anio)
+        if anio:
+            qs = InscripcionDocente.objects.filter(anio = anio)
+        else:
+            qs = InscripcionDocente.objects.all()
+        print(qs)
+
+        if self.q:
+            qs = qs.filter( Q(nombre__icontains=self.q) |    
+                Q(codigo__icontains=self.q) )           
+        return qs
+
 
 
 class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
@@ -69,7 +86,25 @@ class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
         #qs = Estudiante.objects.all()
         print("Entreee",qs)
         if self.q:
-            qs = qs.filter( Q(Nombre__icontains=self.q) |    
+            qs = qs.filter( Q(nombre__icontains=self.q) |    
+                Q(apellido__icontains=self.q) |       
+                Q(dni__icontains=self.q))           
+        return qs
+    
+class DocenteAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        print('ENTRE A AUTOCOMPLETE******')
+        ciclo_actual = Ciclo.objects.get(esActual=True)
+        # Filtra los estudiantes que no están inscritos en el ciclo actual
+        qs = Docente.objects.exclude(
+            id__in=InscripcionDocente.objects.filter(
+                ciclo=ciclo_actual
+            ).values('docente')
+            )
+        #qs = Estudiante.objects.all()
+        print("Entreee",qs)
+        if self.q:
+            qs = qs.filter( Q(nombre__icontains=self.q) |    
                 Q(apellido__icontains=self.q) |       
                 Q(dni__icontains=self.q))           
         return qs
@@ -161,10 +196,51 @@ def docenteView(request):
         form = forms.DocenteForm()
     return render(request, 'Core/Persona/DocenteForm.html', {'form': form})
 
+################################################
+@login_required
+def inscripcionDeDocenteCiclo(request, id_ciclo=1):
+    id_ciclo_actual = Ciclo.objects.get(esActual=True)
+    inscriptos = [] if not id_ciclo_actual else InscripcionDocente.objects.filter(ciclo=id_ciclo_actual)
+    cant_inscriptos = inscriptos.count()
+    print("Entre a inscripcion docente")
 
+    if request.method == 'GET':
+        form = forms.inscripcionDocenteForm()
+    else:
+        form = forms.inscripcionDocenteForm(request.POST)
+        print(form.data.get('docente'))
+        print(form.data.get('fecha'))
+        print(form.data.get('ciclo'))
+        print(form.data.get('anio'))
+        print(form.data.get('plan'))
+        print(form.is_valid())
+        if form.is_valid():
+            form.save()
+            print("Era valido y se guardo bien")
+            correcto = 'Docente Inscripto correctamente'
+            return render(request, 'Core/Persona/inscripcionesDocente.html', {'form': form,
+                                                                       'ciclo': id_ciclo_actual,
+                                                                       'inscriptos': inscriptos,
+                                                                       'cant_inscriptos': cant_inscriptos,
+                                                                       'correcto': correcto
+                                                                       })
+        else:
+            errors = form.errors.as_data()
+            for field, error_list in errors.items():
+        # field contiene el nombre del campo con error
+        # error_list contiene una lista de errores para ese campo
+                for error in error_list:
+            # Muestra cada error en el campo
+                    print(f"Error en el campo {field}: {error}")
+
+    return render(request, 'Core/Persona/inscripcionesDocente.html', {'form': form,
+                                                               'inscriptos': inscriptos,
+                                                               'ciclo': id_ciclo_actual})
+
+############################                                                               
 class docenteList(ListView):
     model = Docente
-    template_name = 'Core/Persona/docente/ver.html'
+    template_name = 'Core/Persona/verDocente.html'
 @login_required
 def docenteEdit(request, id_docente):
     docente = Docente.objects.get(id=id_docente)

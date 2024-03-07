@@ -55,7 +55,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="/">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Menu Principal</span></a>
             </li>
@@ -122,8 +122,9 @@
                 <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Inscripciones al ciclo actual:</h6>
-                        <a class="collapse-item" href="/Core/estudiante/inscripcion">Inscripciones</a>
+                        <h6 class="collapse-header">Inscripciones:</h6>
+                        <a class="collapse-item" href="/Core/estudiante/inscripcion">Estudiantes</a>
+                        <a class="collapse-item" href="/Core/docente/inscripcion">Docentes</a>
                         
                     </div>
                 </div>
@@ -134,7 +135,7 @@
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                Addons
+                Inciales
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
@@ -142,34 +143,46 @@
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
                     aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-folder"></i>
-                    <span>Pages</span>
+                    <span>Personas</span>
                 </a>
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Login Screens:</h6>
-                        <a class="collapse-item" href="login.html">Login</a>
-                        <a class="collapse-item" href="register.html">Register</a>
-                        <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
+                        <h6 class="collapse-header">Alta personas</h6>
+                        <a class="collapse-item" href="/Core/estudiante/alta">Estudiante</a>
+                        <a class="collapse-item" href="/Core/docente/alta">Docente</a>
+                        <a class="collapse-item" href="/Core/localidad/alta">Localidad</a>
                         <div class="collapse-divider"></div>
-                        <h6 class="collapse-header">Other Pages:</h6>
-                        <a class="collapse-item" href="404.html">404 Page</a>
-                        <a class="collapse-item" href="blank.html">Blank Page</a>
                     </div>
                 </div>
             </li>
-
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseList"
+                    aria-expanded="true" aria-controls="collapsePages">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>Listados</span>
+                </a>
+                <div id="collapseList" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Alta personas</h6>
+                        <a class="collapse-item" href="/Core/estudiante/ver">Estudiante</a>
+                        <a class="collapse-item" href="/Core/docente/ver">Docente</a>
+                        <a class="collapse-item" href="/Core/localidad/ver">Localidad</a>
+                        <div class="collapse-divider"></div>
+                    </div>
+                </div>
+            </li>
             <!-- Nav Item - Charts -->
             <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Charts</span></a>
+                    <span>Reportes</span></a>
             </li>
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
                 <a class="nav-link" href="tables.html">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>Tables</span></a>
+                    <span>Listados</span></a>
             </li>
 
             <!-- Divider -->
@@ -192,6 +205,13 @@
             <!-- Main Content -->
             
             <div id="content">
+                    <!-- Topbar Search -->
+                        <div class="input-group">
+                                <small>{{request.plan}} &nbsp;</small>
+                                <br>
+                                <small> Ciclo: {{request.ciclo}}</small>
+                        </div>
+                    
 
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -609,15 +629,15 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Cierre de sesion</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-body">¿Esta seguro que desea cerrar sesión?</div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="/logout">Logout</a>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <a class="btn btn-primary" href="/logout">Cerrar sesion</a>
                 </div>
             </div>
         </div>
@@ -655,16 +675,16 @@
     <!-- Custom scripts for all pages-->
 
     <!-- Page level plugins -->
-    <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static '/vendor/chart.js/Chart.min.js' %}"></script>
 
 
 
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+    <!-- Page level custom scripts -->
+    <script src= "{% static 'js/demo/chart-area-demo.js' %}"></script>
+    <script src="{% static 'js/demo/chart-pie-demo.js' %}"></script>
     {% block scripts %}
-        <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
-        <!-- Page level custom scripts -->
-        <script src= "{% static 'js/demo/chart-area-demo.js' %}"></script>
-        <script src="{% static 'js/demo/chart-pie-demo.js' %}"></script>
     
     <!-- Agregar tu código JavaScript personalizado aquí -->
     {% endblock scripts %}

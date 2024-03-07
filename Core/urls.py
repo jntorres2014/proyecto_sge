@@ -8,7 +8,8 @@ urlpatterns = [
     path('estudiante-autocomplete', views.EstudianteAutocomplete.as_view(), name='estudiante-autocomplete'),
     path('localidad-autocomplete', views.LocalidadAutocomplete.as_view(), name='localidad-autocomplete'),
     path('espacio-autocomplete', views.MateriaAutocomplete.as_view(), name='espacio-autocomplete'),
-    
+    path('docente-autocomplete', views.DocenteAutocomplete.as_view(), name='docente-autocomplete'),
+    path('docenteHora-autocomplete', views.DocenteHoraAutocomplete.as_view(), name='docenteHora-autocomplete'),
     #****************************** LOCALIDAD ****************************** # 
     re_path(r'^localidad/alta$', views.localidadView, name='localidad/alta'),
     re_path(r'^localidad/ver$', views.localidadList.as_view(), name='localidad/ver'),
@@ -19,7 +20,7 @@ urlpatterns = [
     re_path(r'^docente/alta$', views.docenteView, name='docente/alta'),
     re_path(r'^docente/ver$', views.docenteList.as_view(), name='docente/ver'),
     re_path(r'^docente/modificar/(?P<id_docente>\d+)/$', views.docenteEdit, name='docente/modificar'),
-    
+    re_path(r'^docente/inscripcion$', views.inscripcionDeDocenteCiclo,name='docente/inscripcion'),
     #****************************** ESTUDIANTE ****************************** # 
     re_path(r'^estudiante/alta$', views.estudianteView, name='estudiante/alta'),
     re_path(r'^estudiante/ver$', views.estudianteList.as_view(),name='estudiante/ver'),

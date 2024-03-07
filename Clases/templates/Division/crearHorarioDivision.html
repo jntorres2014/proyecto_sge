@@ -59,7 +59,10 @@
                                         {% for horario in horarios %}
                                             {% if horario.hora == modulo and horario.dia == dia %}
                                             <div id="datos">
-                                                <h6>{{ horario.espacioCurricular.nombre }}</h6>
+                                                <small>{{ horario.espacioCurricular.nombre }}
+                                                    {{horario.docente.nombre}}
+                                                </small>
+
                                                 <button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario({{horario.id}})">
                                                     <i class="fas fa-times"></i>
                                                 </button>

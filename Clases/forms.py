@@ -40,6 +40,7 @@ class Detalle_HorarioForm(forms.ModelForm):
             'espacioCurricular',
             'dia',
             'hora',
+            'docente'
             
         ]
         
@@ -47,8 +48,8 @@ class Detalle_HorarioForm(forms.ModelForm):
             'espacioCurricular': 'Espacio Curricular',
             'hora': 'Modulo'
         }
-
-        widgets_espacio = autocomplete.ModelSelect2(url='core:espacio-autocomplete',forward=['horario'],attrs={'class': 'input-group mb-3'})
+        widgets_docente = autocomplete.ModelSelect2(url='core:docenteHora-autocomplete',forward=['horario'],attrs={'class': 'form-select'})
+        widgets_espacio = autocomplete.ModelSelect2(url='core:espacio-autocomplete',forward=['horario'],attrs={'class': 'form-select'})
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
         
      
@@ -57,7 +58,7 @@ class Detalle_HorarioForm(forms.ModelForm):
             #'horario': forms.TextInput(attrs={'type':'hidden', 'class': 'input-group con-mv-4', 'id':'id_division','onchange':'cargarDatosHorario()'}),
             'hora': forms.Select(attrs={'class': 'input-group con-mv-4'}),
             'espacioCurricular': widgets_espacio,
-          
+            'docente': widgets_docente,
             'dia': forms.TextInput(attrs={'class': 'input-group mb-3'}),   
 
         }

@@ -176,7 +176,14 @@ class PlanDeEstudios(models.Model):
 def ajustar_actual(sender, instance, **kwargs):
    if instance.esActual:
         PlanDeEstudios.objects.exclude(pk=instance.pk).update(esActual=False)
+
+class Rol(models.Model):
+    nombre = models.CharField(max_length = 100, unique = True,default = 'Docente')
     
+
+    def __str__(self):
+        return self.nombre
+
 class Persona(models.Model):
     MAXNOMBRE = 50
     MAXAPELLIDO = 50
@@ -314,6 +321,7 @@ class Estudiante(Persona):
 
 class Docente(Persona):
     tituloHabilitante = models.CharField(max_length= 50)
+    rol = models.ForeignKey(Rol, on_delete = models.CASCADE, default = 'Docente')
 
 class Preceptor(Persona):
     pass
@@ -616,6 +624,7 @@ class Detalle_Horario(models.Model):
     espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
     dia= models.CharField(help_text="Lunes",max_length=10)
     hora = models.CharField(help_text="Ej: Modulo 1",max_length=10)
+    docente = models.ForeignKey(Docente, on_delete = models.CASCADE, null = True)
     
     
     class Meta:
@@ -624,6 +633,30 @@ class Detalle_Horario(models.Model):
     def __str__(self):
         return "{0}".format(self.horario.division)
 
+class InscripcionDocente(models.Model):
+    docente = models.ForeignKey(
+        Docente,
+        null=True,
+        help_text="Ej: Juan Perez",
+        on_delete=models.CASCADE,
+    )
+    
+    ciclo = models.ForeignKey(
+        Ciclo,
+        null=True,
+        on_delete=models.CASCADE,
+        help_text="Ej: Actual",
+    )
+
+    anio = models.ForeignKey(
+        AnioPlan,
+        on_delete=models.CASCADE,
+        help_text="Ej: 1,año",
+    )
+    fecha = models.DateTimeField(default=now,help_text="Ej: 16/02/2024",)
+
+    class Meta:
+        unique_together = ['docente', 'ciclo']
 
 class Inscripcion(models.Model):
     estudiante = models.ForeignKey(
