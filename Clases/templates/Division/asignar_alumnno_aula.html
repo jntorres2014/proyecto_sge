@@ -71,68 +71,33 @@
     </div>
     <div id="aulas-container">
         <h1>Aulas</h1>
-        <ul id="aulas-list">
-            {% for aula in aulas %}
+        {% for aula in aulas %}
+        <div id="aulas-list">
                 <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">
                     {{ aula.division }}
                     <ul>
                         {% for estudiante_id, estudiante in estudiantes_aula.items %}
                             {% if estudiante_id == aula.id %}
                                 {% for e in estudiante %}
-                                    <li>
-                                        <h6> {{e.dni}}: {{ e.nombre }} {{ e.apellido }}  
-                                        <button class="btn btn-danger btn-sm" onclick="eliminarAlumno('{{ aula.id }}', '{{ e.id }}')">
+                                        <li class="border alumnos-list">
+                                            <small> {{e.dni}}: {{ e.nombre }} {{ e.apellido }}  
+                                                <button class="btn btn-danger btn-sm" onclick="eliminarAlumno('{{ aula.id }}', '{{ e.id }}')">
+                                                    
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
+                                                        <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                                    </svg>
+                                                </button>
+                                            </li>
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
-                                                <path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
-                                                <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-                                              </svg>
-                                        </button></h6>
-                                        
-                                    </li>
                                 {% endfor %}
                             {% endif %}
                         {% endfor %}
                     </ul>
                 </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Imágenes de Ayuda</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-              <div class="carousel-item active">
-                <img src="https://via.placeholder.com/800x400?text=Asignar alumno a aula+1" class="d-block w-100" alt="...">
-              </div>
-              <div class="carousel-item">
-                <img src="{% static 'asignar_alumno_aula_1.jpg' %}" alt="Descripción de la imagen">
-              </div>
-              <div class="carousel-item">
-                <img src="https://via.placeholder.com/800x400?text=Imagen+3" class="d-block w-100" alt="...">
-              </div>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Anterior</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Siguiente</span>
-            </button>
-          </div>
-        </div>
-      </div>
+            {% endfor %}
     </div>
-  </div>
-        
         
     <script>
         // Define la función drag en el alcance global
@@ -184,13 +149,13 @@
     var aulaId2 = aula2.dataset.id;
 
     // Crear un nuevo elemento para el estudiante
-    var estudiante = document.createElement("p");
+    var estudiante = document.createElement("h6");
     estudiante.className = "alumnos-list";
     estudiante.dataset.dni = dni;
     estudiante.dataset.nombre = nombre;
     estudiante.dataset.apellido = apellido;
     estudiante.dataset.id = id;
-    estudiante.innerText = "Estudianteas " + dni+ nombre+ apellido;
+
 
     // Agregar el estudiante al aula
     aula.appendChild(estudiante);

@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 
-from Core.models import Ciclo, PlanDeEstudios
+from Core.models import Ciclo, Docente, PlanDeEstudios
 from .forms import TaskForm, UsuarioForm
 from .models import Task
 from django.utils import timezone
@@ -158,4 +158,7 @@ def signin(request):
         })
     else:
         login(request, user)
+        if hasattr(user, 'docente'):
+            print("Era docente")
+            return redirect('Core/Persona/menuDocente.html')
         return redirect('/')

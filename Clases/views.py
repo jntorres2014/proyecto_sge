@@ -4,7 +4,7 @@ from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
-from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, PlanDeEstudios, Inscripcion,Division
+from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, InscripcionDocente, PlanDeEstudios, Inscripcion,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
@@ -28,7 +28,18 @@ def calificacion_view(request):
 
 @login_required
 def menuCursada(request):
-    return render(request, 'Cursada/menuCursada.html')
+    ciclo = Ciclo.objects.get(esActual = True)
+    inscriptos = Inscripcion.objects.filter(ciclo = ciclo)
+    cantInscriptos = inscriptos.count()
+    cantDocInsciptos = InscripcionDocente.objects.filter(ciclo = ciclo).count()
+
+    return render(request, 'Cursada/menuCursada.html',{
+        'ciclo ': ciclo,
+        'cantInscriptos' : cantInscriptos,
+        'cantDocInscriptos' : cantDocInsciptos,
+        'total' : cantInscriptos + cantDocInsciptos
+
+    })
 
 # Create your views here.
 @login_required
