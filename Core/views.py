@@ -294,6 +294,18 @@ def eliminarInscripcion(request, id_estudiante):
                                 'correcto', 'Se elimino la inscripcion del alumno')
 
 @login_required
+def eliminarInscripcionDocente(request, id_docente):
+    try:
+        inscripcion = InscripcionDocente.objects.get(docente_id=id_docente)
+        inscripcion.delete()
+        messages.success(request, 'El docente se eliminó correctamente.')
+    except Docente.DoesNotExist:
+        messages.error(request, 'No se encontró el estudiante que intentas eliminar.')
+    
+    return HttpResponseRedirect("/Core/docente/inscripcion",
+                                'correcto', 'Se elimino la inscripcion del alumno')
+
+@login_required
 def estudianteEdit(request, id_estudiante):
     estudiante = Estudiante.objects.get(id=id_estudiante)
     if request.method == 'GET':
@@ -425,15 +437,21 @@ def menuDocente(request):
     docente = Docente.objects.get(dni = dni)
     inscripciones = InscripcionDocente.objects.filter(docente = docente)
     horarios = Detalle_Horario.objects.filter(docente = docente)
-    aulas = horarios[0].horario.division
-    estudiantes = Aula.objects.get(division = aulas)
-    print(estudiantes.estudiantes.all())
+    aulas = []
+    print(horarios)
+    for hora in horarios:
+        aulas.append(hora.horario)
+
+    # aulasDesignadas = Aula.objects.filter(division = aulas)
+    print("AULAAAAAS",aulas)
+    # [aulas.append(aula) for aula in aulasDesignadas if aula not in aulas]
+    # print(aulasDesignadas[0].estudiantes.all())
     
 
     return render(request, 'Core/Persona/menuDocente.html',{ 'inscripciones': inscripciones,
-                                                           'horarios' : horarios,
-                                                            'estudiantes': estudiantes.estudiantes.all() })
-
+                                                            'aulas': aulas,
+                                                           'horarios' : horarios,})
+    
 @login_required
 def menuCiclo(request):
     hay_ciclo = Ciclo.objects.exists()

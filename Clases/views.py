@@ -4,7 +4,7 @@ from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
-from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Estudiante, Horario, InscripcionDocente, PlanDeEstudios, Inscripcion,Division
+from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Docente, Estudiante, Horario, InscripcionDocente, PlanDeEstudios, Inscripcion,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
@@ -463,3 +463,22 @@ def consultar_faltas(request):
         faltas = Inasistencias.objects.filter(fecha=fecha_consulta)
         return render(request, 'faltas.html', {'faltas': faltas})
     return render(request, 'Cursada/consulta_faltas.html')
+
+
+
+@login_required
+def horarioDocente(request,idDocente):
+    print("*******entre aca**** ",idDocente,request.method)
+    ciclo_actual = Ciclo.objects.get(isActual = True)
+    docente = Docente.objects.get(id= idDocente)
+    horarios = Horario.objects.filter(division__ciclo=ciclo_actual, docente=docente)
+    print("hasta aca va,oms?")
+   # El formulario no es válido, imprimir los mensajes de error
+    print("Horarios",horarios)
+    dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
+    modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]
+    print(dias,modulos)
+    
+    return render(request, "    html", {"horarios": horarios,
+                                                                  "dias": dias,
+                                                                  'modulos': modulos,})

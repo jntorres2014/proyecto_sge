@@ -23,7 +23,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="menuDocente">
+                <a class="nav-link" href="/Core/docente/menu">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Menu Principal</span></a>
             </li>
@@ -64,19 +64,32 @@
             </li>
         
         </ul>
-{% endblock sidebar %}
+        {% endblock sidebar %}
+        
+        
+        {% block content %}
+        <h1>
+            Dias
+        </h1>
+        {% for horario in horarios %}
+        Dias:{{horario.espacioCurricular}}
+        <hr>
+        
+        {% endfor %}
+    
+        {% for insc in inscripciones %}
 
+    <h1>Aulas</h1>
+    {% for aula in aulas %}
+    <button class="btn bg-gradient-primary"> Notas</button>
+    {{aula.division.descripcion}}
+    <hr>
+    {% endfor %}
+    {{inscripciones.ciclo}}
+    <h2>
+        Aulas asignadas
+    </h2>
 
-{% block content %}
-<h1>
-    Cargar notas Aulas
-    {{horarios}}
-</h1>
-
-
-{{inscripciones.ciclo}}
-<h2>
-    Aulas asignadas
-</h2>
-{{estudiantes}}
+    {{insc.anio}}
+    {% endfor %}
 {% endblock %}

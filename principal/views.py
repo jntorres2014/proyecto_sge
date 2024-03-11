@@ -1,3 +1,4 @@
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -35,6 +36,9 @@ class PasswordResetDoneView(PasswordResetDoneView):
 
 @login_required
 def home2(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
+        print("tengo que echarlo")
     hay_plan = PlanDeEstudios.objects.exists()
     hay_ciclo = Ciclo.objects.exists()
     try:
@@ -158,7 +162,7 @@ def signin(request):
         })
     else:
         login(request, user)
-        if user.is_staff:
+        if not user.is_staff:
             print("Era docente")
-            return redirect('docente/menuDocente')
+            return redirect('/Core/docente/menu')
         return redirect('/')

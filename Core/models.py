@@ -655,8 +655,6 @@ class InscripcionDocente(models.Model):
     )
     fecha = models.DateTimeField(default=now,help_text="Ej: 16/02/2024",)
 
-    class Meta:
-        unique_together = ['docente', 'ciclo']
         
 
 class Inscripcion(models.Model):

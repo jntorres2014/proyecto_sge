@@ -22,6 +22,7 @@ urlpatterns = [
     re_path(r'^docente/modificar/(?P<id_docente>\d+)/$', views.docenteEdit, name='docente/modificar'),
     re_path(r'^docente/inscripcion$', views.inscripcionDeDocenteCiclo,name='docente/inscripcion'),
     re_path(r'^docente/menu$', views.menuDocente,name='docente/menu'),
+    re_path(r'^docente/eliminarInscripcionDocente/(?P<id_docente>\d+)/$', views.eliminarInscripcionDocente, name='docente/eliminarInscripcionDocente'),
     #****************************** ESTUDIANTE ****************************** # 
     re_path(r'^estudiante/alta$', views.estudianteView, name='estudiante/alta'),
     re_path(r'^estudiante/ver$', views.estudianteList.as_view(),name='estudiante/ver'),
