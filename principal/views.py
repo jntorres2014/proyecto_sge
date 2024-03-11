@@ -158,7 +158,7 @@ def signin(request):
         })
     else:
         login(request, user)
-        if hasattr(user, 'docente'):
+        if user.is_staff:
             print("Era docente")
-            return redirect('Core/Persona/menuDocente.html')
+            return redirect('docente/menuDocente')
         return redirect('/')

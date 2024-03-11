@@ -10,7 +10,7 @@ from Clases.models import Inasistencias
 from Core import forms
 from django.urls import reverse
 from Core.resource import LocalidadResource
-from .models import Aula, InscripcionDocente, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
+from .models import Aula, Detalle_Horario, InscripcionDocente, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
 from django.views.generic import ListView,TemplateView
 from django.db.models import Q
 from tablib import Dataset 
@@ -25,7 +25,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib import styles,colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
-
+from django.contrib.auth.models import User
 
 from dal import autocomplete
 
@@ -57,11 +57,15 @@ class DocenteHoraAutocomplete(autocomplete.Select2QuerySetView):
         else:
             qs = InscripcionDocente.objects.all()
         print(qs)
+        docentes= []
+        for inscripcion in qs:
+            docentes.append(inscripcion.docente)
+            print(docentes)
 
         if self.q:
-            qs = qs.filter( Q(nombre__icontains=self.q) |    
-                Q(codigo__icontains=self.q) )           
-        return qs
+            docentes = docentes.filter( Q(nombre__icontains=self.q) |    
+                Q(apellido__icontains=self.q) )           
+        return docentes
 
 
 
@@ -190,7 +194,18 @@ def docenteView(request):
     if request.method == 'POST':
         form = forms.DocenteForm(request.POST)
         if form.is_valid():
-            form.save()
+            nuevo_docente = form.save()
+            # Crear un nuevo usuario asociado al docente
+            username = nuevo_docente.dni  # Utiliza el DNI como nombre de usuario
+            password = 'Clave2024#'  # Genera una contraseña aleatoria
+            email = nuevo_docente.email 
+            # Crear el nuevo usuario
+            nuevo_usuario = User.objects.create_user(username=username, password=password, email=email)
+
+            # Asociar el usuario al docente
+            nuevo_docente.usuario = nuevo_usuario
+            nuevo_docente.save()
+
             return HttpResponseRedirect("/Core/docente/ver")
     else:
         form = forms.DocenteForm()
@@ -402,6 +417,22 @@ def espacioEdit(request, id_espacio):
 @login_required
 def menuPlan(request):
     return render(request, 'Core/Plan/menuPlan.html')
+
+@login_required
+def menuDocente(request):
+    print("Usuariooooo:",type(request.user.username))
+    dni = int(request.user.username)
+    docente = Docente.objects.get(dni = dni)
+    inscripciones = InscripcionDocente.objects.filter(docente = docente)
+    horarios = Detalle_Horario.objects.filter(docente = docente)
+    aulas = horarios[0].horario.division
+    estudiantes = Aula.objects.get(division = aulas)
+    print(estudiantes.estudiantes.all())
+    
+
+    return render(request, 'Core/Persona/menuDocente.html',{ 'inscripciones': inscripciones,
+                                                           'horarios' : horarios,
+                                                            'estudiantes': estudiantes.estudiantes.all() })
 
 @login_required
 def menuCiclo(request):

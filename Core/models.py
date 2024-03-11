@@ -657,6 +657,7 @@ class InscripcionDocente(models.Model):
 
     class Meta:
         unique_together = ['docente', 'ciclo']
+        
 
 class Inscripcion(models.Model):
     estudiante = models.ForeignKey(

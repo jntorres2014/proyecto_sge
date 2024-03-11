@@ -161,9 +161,15 @@ def crear_horario(request,idDivision):
             print("Era valido")
             form.save()
             mensaje = 'Horario cargado correctamente'
+        
         else:
-            mensaje = 'No se cargo el horario'
-        return redirect("/Clases/crear_horario/" + idDivision, {'mensaje' : mensaje})
+    # El formulario no es válido, imprimir los mensajes de error
+            errors = form.errors.as_data()
+            for field, field_errors in errors.items():
+                for error in field_errors:
+                    print(f"Error en el campo '{field}': {error}")
+                    mensaje = 'No se cargo el horario'
+            return redirect("/Clases/crear_horario/" + idDivision, {'mensaje' : mensaje})
     print("Horarios",horarios)
     form = Detalle_HorarioForm(division = Division.objects.get(id=idDivision))
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
