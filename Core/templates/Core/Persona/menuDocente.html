@@ -81,7 +81,8 @@
 
     <h1>Aulas</h1>
     {% for aula in aulas %}
-    <button class="btn bg-gradient-primary"> Notas</button>
+    <button class="btn bg-gradient-primary">
+        <a href="Core/docente/notas/{{aula.division.id}}"> Notas</button></a>
     {{aula.division.descripcion}}
     <hr>
     {% endfor %}

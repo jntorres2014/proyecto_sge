@@ -688,7 +688,7 @@ class Inscripcion(models.Model):
         ciclo_actual = Ciclo.objects.get(esActual='True')
         
         # Obtener todos los estudiantes que no están inscritos en el ciclo actual
-        estudiantes_sin_inscripcion = Estudiante.objects.exclude(Inscripcion__ciclo=ciclo_actual)
+        estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcion__ciclo=ciclo_actual)
         
         # Verificar si hay suficientes estudiantes disponibles para seleccionar aleatoriamente
         if estudiantes_sin_inscripcion.count() < n:

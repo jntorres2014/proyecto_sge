@@ -294,9 +294,9 @@ def eliminarInscripcion(request, id_estudiante):
                                 'correcto', 'Se elimino la inscripcion del alumno')
 
 @login_required
-def eliminarInscripcionDocente(request, id_docente):
+def eliminarInscripcionDocente(request, id_docente,id_anio,id_ciclo):
     try:
-        inscripcion = InscripcionDocente.objects.get(docente_id=id_docente)
+        inscripcion = InscripcionDocente.objects.get(docente_id=id_docente,anio_id= id_anio,ciclo_id= id_ciclo)
         inscripcion.delete()
         messages.success(request, 'El docente se eliminó correctamente.')
     except Docente.DoesNotExist:

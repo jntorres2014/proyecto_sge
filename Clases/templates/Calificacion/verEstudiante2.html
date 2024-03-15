@@ -1,54 +1,11 @@
-{% extends 'VerBase.html' %}
-{% block container %}
-<div class="contenedor-tabla">
-            <div><h1><a href="/">Lista Estudiantes</a></h1></div>
-            <div class="hidden orden-listado">
-               <div class="flex-md-column-reverse" >
-                 <table class="table-bordered table-hover  " id="table_id" >
-                   <thead class="hidden orden-listado">
-                        <tr class="table-hover">
-                            <th>DNI</th>
-                            <th>Apellido</th>
-                            <th>Nombre</th>
-                            <th>Direccion</th>
-                            <th>Localidad</th>
-                            <th>Email</th>
-                            <th>legajo</th>
-                            <th>fecha Inscripcion</th>
-                            <th></th>
-                        </tr>
-                   </thead>
-                <tbody >
-                    {% block tabla %}
-                    {% if object_list %}
-                        {% for estudiante in object_list %}
-                            <tr>
-                              <td>{{ estudiante.dni }}</td>
-                              <td>{{ estudiante.apellido }}</td>
-                              <td>{{ estudiante.nombre}}</td>
-                              <td>{{ estudiante.direccion }}</td>
-                              <td>{{ estudiante.localidad.nombre}}</td>
-                              <td>{{ estudiante.email}}</td>
-                              <td>{{ estudiante.legajo}}</td>
-                              <td>{{ estudiante.fechaInscripcion}}</td>
-                              <td><a  class="btn btn-primary" href="{% url 'estudiante/modificar' estudiante.id %}">Editar </a>
-                              <a  class="btn btn-primary" href="{% url 'altaCalificacion' estudiante.id %}"
-                                   >Calificar </a>
-                              <a  class="btn btn-primary" href="{% url 'altaInasistencia' estudiante.id %}"
-                                   >Inasistencia </a></td>
-                            </tr>
-                         {% endfor %}
-                    {% else %}
-                        <h1>NO HAY ESTUDIANTES PARA LISTAR</h1>
-                        {% endif %}
-                       {% endblock tabla %}
-                    </tbody>
-                </table>
-                </div>
-        <a  class="btn btn-primary" href="{% url 'estudiante/alta' %}">Editar </a>
-            </div>
-        </div>
-{%endblock %}
+{% extends 'index.html' %}
+{% block content %}
+{% for est in estudiantes %}
+
+{{est}} 
+<br>
+{% endfor %}
+{% endblock %}
 {% block scripts %}
 
 {% comment %} <!--script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script--> {% endcomment %}

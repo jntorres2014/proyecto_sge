@@ -377,7 +377,7 @@ class inscripcionAlumnoForm(forms.ModelForm):
         labels = {
             'anio': 'Año'
         }
-        widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'type':'text','class': 'form-label' })
+        widgets_estudiante = autocomplete.ModelSelect2(url='core:estudiante-autocomplete',attrs={'type':'text','class': 'form-control form-label' })
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
      
         widgets = {

@@ -20,7 +20,7 @@ urlpatterns  = [
     re_path(r'^crear_horario/(?P<idDivision>\d+)/$', views.crear_horario, name= 'crear_horario'),
     re_path(r'^consultar_faltas/$', views.consultar_faltas, name='consultar_faltas'),
     re_path(r'^obtener_alumnos/(?P<idEstudiante>\d+)/$', views.obtener_alumnos, name='obtener_alumnos'),
-
+    re_path(r'^docente/notas/(?P<id_division>\d+)/$', views.estudiantes_aulas, name='docente/notas'),
     path('obtenerHorarios/', views.obtenerHorarios, name='obtenerHorarios'),
     # path('obtener_aulas/', views.obtener_aulas, name='obtener_aulas'),
     path('reporte_alumno/', views.reporte_alumno, name='reporte_alumno'),

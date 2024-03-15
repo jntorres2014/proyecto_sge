@@ -1,6 +1,6 @@
 import json
 from django.http import JsonResponse
-from django.shortcuts import HttpResponseRedirect, get_object_or_404
+from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
@@ -12,6 +12,8 @@ from django.db.models import Q
 from django.shortcuts import render
 from .models import Inasistencias
 import plotly.graph_objs as go
+from django.utils import timezone
+from datetime import datetime
 
 
 @login_required
@@ -28,17 +30,24 @@ def calificacion_view(request):
 
 @login_required
 def menuCursada(request):
+    fecha_str = str(timezone.now())
+    print(fecha_str)
+    fecha_iso = fecha_str.split(" ")[0]  # Obtiene solo la parte de la fecha (AAAA-MM-DD)
+    fecha_hoy = datetime.fromisoformat(fecha_iso)
     ciclo = Ciclo.objects.get(esActual = True)
     inscriptos = Inscripcion.objects.filter(ciclo = ciclo)
     cantInscriptos = inscriptos.count()
     cantDocInsciptos = InscripcionDocente.objects.filter(ciclo = ciclo).count()
-
+    estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcion__ciclo=ciclo).count()
+    inasistencias_hoy = Inasistencias.objects.filter(dia = fecha_hoy).count()
+    print("ACAAAAAAAAA INASISTENCIAS",inasistencias_hoy)
     return render(request, 'Cursada/menuCursada.html',{
         'ciclo ': ciclo,
         'cantInscriptos' : cantInscriptos,
         'cantDocInscriptos' : cantDocInsciptos,
-        'total' : cantInscriptos + cantDocInsciptos
-
+        'total' : cantInscriptos + cantDocInsciptos,
+        'sinInscripcion' : estudiantes_sin_inscripcion,
+        'inasistencias' : inasistencias_hoy,
     })
 
 # Create your views here.
@@ -185,6 +194,7 @@ def crear_horario(request,idDivision):
 
 @login_required
 def registrarInasistencia(request, idAnio):
+    ciclo = Ciclo.objects.get(esActual= True)
     #ACa deberia trer los alumnos de un anio especifico de un ciclo especifico
     if request.method == "POST":
         print("entre al post")
@@ -200,7 +210,7 @@ def registrarInasistencia(request, idAnio):
             justificado_key = f'justificado_{estudiante_id}'
             justificado = request.POST.get(justificado_key, False)
             estudiante = Estudiante.objects.get(id=estudiante_id)
-            nueva_inasistencia = Inasistencias(estudiante=estudiante, falta=falta, justificacion=justificado)
+            nueva_inasistencia = Inasistencias(ciclo=ciclo,estudiante=estudiante, falta=falta, justificacion=justificado)
             nueva_inasistencia.save()
            #Inasistencias.create()
         
@@ -256,6 +266,14 @@ def asignar_alumno_a_aula(request, idAnio):
                                                                 'estudiantes_aula': estudiantes_aula,
                                                                 'estudiantes_no_en_aula': estudiantes_no_en_aula})
 
+
+def estudiantes_aulas(request, id_division):
+    aula = Aula.objects.get(division_id = id_division)
+    estudiantes = aula.estudiantes.all()
+    print(estudiantes)
+    return render (request, 'Calificacion/verEstudiante2.html',{
+        'estudiantes': estudiantes
+    })
 
 def obtener_alumnos(request, idEstudiante):
     print("Obteniendo las inscripciones del estudiante")
