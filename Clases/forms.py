@@ -12,14 +12,12 @@ class CalificacionForm(forms.ModelForm):
         model = Calificacion
 
         fields= [
-            'tipo',
             'espacioCurricular',
-            'docente',
             'estudiante',
             'nota',
-
-        ]
-
+            'tipo'
+         ]
+       
 
 class InasistenciasForm(forms.ModelForm):
     class Meta:

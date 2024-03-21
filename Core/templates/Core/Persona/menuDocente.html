@@ -69,7 +69,7 @@
         
         {% block content %}
         <h1>
-            Dias
+            Horarios
         </h1>
         {% for horario in horarios %}
         Dias:{{horario.espacioCurricular}}
@@ -82,7 +82,7 @@
     <h1>Aulas</h1>
     {% for aula in aulas %}
     <button class="btn bg-gradient-primary">
-        <a href="Core/docente/notas/{{aula.division.id}}"> Notas</button></a>
+        <a href="/Clases/docente/notas/{{aula.division.id}}"> Notas</button></a>
     {{aula.division.descripcion}}
     <hr>
     {% endfor %}

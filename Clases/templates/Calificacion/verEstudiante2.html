@@ -1,11 +1,71 @@
-{% extends 'index.html' %}
-{% block content %}
-{% for est in estudiantes %}
-
-{{est}} 
-<br>
-{% endfor %}
+{% extends 'Core/Persona/menuDocente.html' %}
+{% load static %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+{% block css %} 
+<link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
+<!-- CSS de DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 {% endblock %}
+
+
+{% block content %}
+
+{% load bootstrap5 %}
+
+{{form.media}}
+<div class="container">
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    {{ form.espacioCurricular }}
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    {{ form.estudiante }}
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    {{ form.nota }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group">
+                {{ form.tipo }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+</div>
+<div class="container">
+    <table class="table " id="table_id">
+        <thead>
+            <tr>
+                <th>Dni</th>
+                <th>Estudiante</th> 
+                <th> </th>
+
+            </tr>
+        </thead>
+        <tbody> 
+            {% for est in estudiantes %}          
+                <tr>
+                    <td>{{ est.estudiante.dni }}  </td>
+                    <td>{{ est.estudiante.nombre }}&nbsp;{{ est.estudiante.apellido }}</td>
+                    <td> <a class="btn btn-danger" href="/Core/estudiante/eliminarInscripcion/{{insc.estudiante.id}}">- </a>  
+                    </td> 
+                </tr>
+            {% endfor %} 
+        </tbody>
+    </table>
+</div>
+{% endblock content %}
+
 {% block scripts %}
 
 {% comment %} <!--script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script--> {% endcomment %}
@@ -13,10 +73,51 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
+
+
 <script>
-    $(document).ready(function() {
-        $('#table_id').DataTable();
+    $(document).ready(function () {
+        // Clonar las celdas del encabezado y agregar filtros a todas excepto la última
+        $('#table_id thead tr th').each(function (index) {
+            if (index < $('#table_id thead tr th').length - 1) {
+                $(this).clone(true)
+                    .addClass('form-label filters')
+                    .appendTo($(this));
+            }
+        });
+    
+        var table = $('#table_id').DataTable({
+            orderCellsTop: true,
+            fixedHeader: true,
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+            },
+            initComplete: function () {
+                var api = this.api();
+                // Agregar filtros a todas las celdas clonadas excepto la última
+                $('.filters').each(function (index) {
+                    if (index < api.columns().count() - 1) {
+                        var title = $(this).text();
+                        $(this).html('<input type="text" class="container" placeholder="' + title + '" />');
+                        $('input', this).on('keyup change', function () {
+                            if (api.column(index).search() !== this.value) {
+                                api
+                                    .column(index)
+                                    .search(this.value)
+                                    .draw();
+                            }
+                        });
+                    }
+                });
+            }
+        });
     });
-</script>
+    
+    </script>
+    <script>
+        function goBack() {
+            window.location.replace(document.referrer);
+        }
+        </script>
 {% endblock %}
 

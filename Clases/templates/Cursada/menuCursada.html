@@ -115,7 +115,36 @@
       </div>
   </div>
 
+   <!-- Pending Requests Card Example -->
+   <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="cuatrimestre" value="{{ cuatrimestre }}">
+                        <input type="hidden" name="habilitar" value="{{ habilitar }}">
+                        {% if habilitar %}
+                        <div class="card-header py-3">
+
+                            <button class="m-0 font-weight-bold text-primary" type="submit">Deshabilitar Calificaciones para {{ cuatrimestre }}</button>
+                        </div>
+                        {% else %}
+                        <div class="card-header py-3">
+                            <button class="m-0 font-weight-bold text-primary" type="submit">Habilitar Calificaciones para {{ cuatrimestre }}</button>
+                        </div>
+                        
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+</div>
+
 
 <!-- Graficos -->
 

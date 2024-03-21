@@ -1,6 +1,6 @@
 import random
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator,MinValueValidator, MaxValueValidator
 from django.utils.timezone import now
 from datetime import date, timezone
 from django.core.exceptions import ValidationError
@@ -401,7 +401,7 @@ class Calificacion(models.Model):
 
     tipo= models.PositiveIntegerField(choices = CHOICES_TIPO)
 
-    nota = models.PositiveSmallIntegerField()
+    nota = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
 
     docente = models.ForeignKey(
         Docente,

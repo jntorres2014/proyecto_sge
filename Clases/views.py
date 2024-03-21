@@ -270,9 +270,19 @@ def asignar_alumno_a_aula(request, idAnio):
 def estudiantes_aulas(request, id_division):
     aula = Aula.objects.get(division_id = id_division)
     estudiantes = aula.estudiantes.all()
+    print("Aulaaaa",aula.division.id)
     print(estudiantes)
+    if request.method == 'GET':
+        form = CalificacionForm(instance= aula.division)
+    else:
+        form = CalificacionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            #return HttpResponseRedirect("Calificacion/verEstudiante2.html")
+
     return render (request, 'Calificacion/verEstudiante2.html',{
-        'estudiantes': estudiantes
+        'estudiantes': estudiantes,
+        'form': form
     })
 
 def obtener_alumnos(request, idEstudiante):
