@@ -1,6 +1,6 @@
 from datetime import datetime
 from django import forms
-from Core.models import Calificacion, Detalle_Horario, EspacioCurricular, Estudiante, Horario,Division
+from Core.models import Calificacion, Detalle_Horario, EspacioCurricular, Estudiante, Horario,Division, Instancia
 from dal import autocomplete
 from Clases.models import Inasistencias
 from django.utils import timezone
@@ -10,14 +10,32 @@ class CalificacionForm(forms.ModelForm):
 
     class Meta:
         model = Calificacion
-
-        fields= [
+        fields= {
             'espacioCurricular',
             'estudiante',
             'nota',
-            'tipo'
-         ]
-       
+            'tipo',
+            'instancia'
+        }
+        
+    def __init__(self, *args, **kwargs):
+        espacios = kwargs.pop('espacios', None)
+        estudiantes = kwargs.pop('estudiantes', None)
+        super(CalificacionForm, self).__init__(*args, **kwargs)
+        print('Espacioooos',espacios)
+        if espacios:
+            choices = [(espacio.id, espacio.espacioCurricular) for espacio in espacios]
+            self.fields['espacioCurricular'].widget.choices = choices
+        if estudiantes:
+            choices = [(estudiante.id, estudiante.nombre) for estudiante in estudiantes]
+            self.fields['estudiante'].widget.choices = choices
+
+class HabilitarInstanciaForm(forms.ModelForm):
+    fecha_fin = forms.DateField(label='Fecha Fin', widget=forms.TextInput(attrs={'type': 'date'}))
+
+    class Meta:
+        model = Instancia
+        fields = ['fecha_fin']        
 
 class InasistenciasForm(forms.ModelForm):
     class Meta:
@@ -29,6 +47,30 @@ class InasistenciasForm(forms.ModelForm):
             'justificacion',
 
         }
+class InstanciaForm(forms.ModelForm):
+    class Meta:
+        model= Instancia
+        fields={
+        'nombre',
+        'fecha_inicio',
+        'fecha_fin',
+        'disponible',        
+        'ciclo'
+        }
+        labels={
+            'nombre': 'Nombre',
+            'fecha_inicio': 'Fecha de inicio',
+            'fecha_fin': 'Fecha de finalizacion',
+            'disponible': 'Disponible',            
+            'ciclo': 'Ciclo actual'
+        }
+        fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+        widgets = {
+            'fecha_inicio': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
+            'fecha_fin': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),  
+        }
+        
+ 
 
 class Detalle_HorarioForm(forms.ModelForm):
     class Meta:

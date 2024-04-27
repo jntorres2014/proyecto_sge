@@ -392,38 +392,10 @@ class EspacioCurricular(models.Model):
         return "{0}, {1}".format(self.codigo, self.nombre)
 
 
-class Calificacion(models.Model):
-    FINAL = 1
-    PARCIAL = 2
-    CHOICES_TIPO = (
-        (FINAL, 'final'),
-        (PARCIAL, 'parcial'))
-
-    tipo= models.PositiveIntegerField(choices = CHOICES_TIPO)
-
-    nota = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
-
-    docente = models.ForeignKey(
-        Docente,
-        null=True,
-        blank=False,
-        on_delete=models.CASCADE,
-        related_name="docente")
-
-    espacioCurricular = models.ForeignKey(
-        EspacioCurricular,
-        null=True,
-        blank=False,
-        on_delete=models.CASCADE,
-        related_name="espacioCurricular")
-
-    estudiante= models.ForeignKey(
-        Estudiante,
-        null= True,
-        blank= False,
-        on_delete= models.CASCADE
-    )
     
+
+    
+     
 #__________________-------------------------________________________-----------------------__________
 
 class Ciclo (models.Model):
@@ -500,8 +472,62 @@ class Ciclo (models.Model):
 def ajustarCicloactual(sender, instance, **kwargs):
    if instance.esActual:
         Ciclo.objects.exclude(pk=instance.pk).update(esActual=False)
+#___________________________________________________________________
+            
+class Instancia(models.Model):
+    ciclo = models.ForeignKey(Ciclo, on_delete=models.CASCADE)
+    nombre = models.CharField(help_text="Ej: Nota Final"
+                              ,max_length= 50)    
+    disponible = models.BooleanField(default = False)
     
+    fecha_inicio = models.DateField(help_text="Ej: 16/02/2024",
+                                   default=now)
     
+    fecha_fin = models.DateField(help_text="Ej: 16/02/2024")
+
+    def __str__(self):
+        return "Instancia: {0}, disponible hasta: {1}".format(self.nombre, self.fecha_fin)
+
+class Calificacion(models.Model):
+    FINAL = 1
+    PARCIAL = 2
+    CHOICES_TIPO = (
+        (FINAL, 'final'),
+        (PARCIAL, 'parcial'))
+
+    tipo= models.PositiveIntegerField(choices = CHOICES_TIPO)
+
+    instancia = models.ForeignKey(
+        Instancia,
+        null=True,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name="docente")
+
+    nota = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
+
+    docente = models.ForeignKey(
+        Docente,
+        null=True,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name="docente")
+
+    espacioCurricular = models.ForeignKey(
+        EspacioCurricular,
+        null=True,
+        blank=False,
+        on_delete=models.CASCADE,
+        related_name="espacioCurricular")
+
+    estudiante= models.ForeignKey(
+        Estudiante,
+        null= True,
+        blank= False,
+        on_delete= models.CASCADE,
+        
+    )
+        
 #--------------------------------------------------------------------------
 
 class Division(models.Model):

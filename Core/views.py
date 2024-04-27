@@ -10,7 +10,7 @@ from Clases.models import Inasistencias
 from Core import forms
 from django.urls import reverse
 from Core.resource import LocalidadResource
-from .models import Aula, Detalle_Horario, InscripcionDocente, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
+from .models import Aula, Detalle_Horario, Horario, InscripcionDocente, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
 from django.views.generic import ListView,TemplateView
 from django.db.models import Q
 from tablib import Dataset 
@@ -437,20 +437,23 @@ def menuDocente(request):
     docente = Docente.objects.get(dni = dni)
     inscripciones = InscripcionDocente.objects.filter(docente = docente)
     horarios = Detalle_Horario.objects.filter(docente = docente)
+    horarios = list(set(horarios))
     aulas = []
-    print(horarios)
     for hora in horarios:
         aulas.append(hora.horario)
-
+    aulas = list(set(aulas))
     # aulasDesignadas = Aula.objects.filter(division = aulas)
-    print("AULAAAAAS",aulas)
+    print("AULAAAAAS",list(set(aulas)))
     # [aulas.append(aula) for aula in aulasDesignadas if aula not in aulas]
     # print(aulasDesignadas[0].estudiantes.all())
-    
+    dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
+    modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]    
 
     return render(request, 'Core/Persona/menuDocente.html',{ 'inscripciones': inscripciones,
                                                             'aulas': aulas,
-                                                           'horarios' : horarios,})
+                                                           'horarios' : horarios,
+                                                           'modulos': modulos,
+                                                           'dias': dias})
     
 @login_required
 def menuCiclo(request):

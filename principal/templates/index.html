@@ -192,11 +192,11 @@
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
+            {% endblock sidebar %}
 
 
         </ul>
         <!-- End of Sidebar -->
-{% endblock sidebar %}
 
 
         <!-- Content Wrapper -->
@@ -566,6 +566,15 @@
     <script src="{% static 'js/demo/chart-pie-demo.js' %}"></script>
     {% block scripts %}
 
+    <script>
+        $(document).ready(function(){
+        // Selector para el botón que abre el modal
+        $('#abrirModalBtn').click(function(){
+            // Selecciona el modal por su ID y lo muestra
+            $('#mostrarHorarioModal').modal('show');
+        });
+    });     
+    </script>
     
     <!-- Agregar tu código JavaScript personalizado aquí -->
     {% endblock scripts %}

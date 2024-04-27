@@ -1,7 +1,6 @@
 {% extends 'Core/Plan/menuCiclo.html' %}
 
 {% block sidebar %}
-
 <body id="page-top">
 
     <!-- Page Wrapper -->
@@ -11,7 +10,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/Core/docente/menu">
                 <div class="sidebar-brand-icon ">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path fill="#ffffff" d="M320 32c-8.1 0-16.1 1.4-23.7 4.1L15.8 137.4C6.3 140.9 0 149.9 0 160s6.3 19.1 15.8 22.6l57.9 20.9C57.3 229.3 48 259.8 48 291.9v28.1c0 28.4-10.8 57.7-22.3 80.8c-6.5 13-13.9 25.8-22.5 37.6C0 442.7-.9 448.3 .9 453.4s6 8.9 11.2 10.2l64 16c4.2 1.1 8.7 .3 12.4-2s6.3-6.1 7.1-10.4c8.6-42.8 4.3-81.2-2.1-108.7C90.3 344.3 86 329.8 80 316.5V291.9c0-30.2 10.2-58.7 27.9-81.5c12.9-15.5 29.6-28 49.2-35.7l157-61.7c8.2-3.2 17.5 .8 20.7 9s-.8 17.5-9 20.7l-157 61.7c-12.4 4.9-23.3 12.4-32.2 21.6l159.6 57.6c7.6 2.7 15.6 4.1 23.7 4.1s16.1-1.4 23.7-4.1L624.2 182.6c9.5-3.4 15.8-12.5 15.8-22.6s-6.3-19.1-15.8-22.6L343.7 36.1C336.1 33.4 328.1 32 320 32zM128 408c0 35.3 86 72 192 72s192-36.7 192-72L496.7 262.6 354.5 314c-11.1 4-22.8 6-34.5 6s-23.5-2-34.5-6L143.3 262.6 128 408z"/></svg>
                 </div>
@@ -45,6 +44,8 @@
                 <div id="collapseOne" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Materias</h6>
+
+                        <a class="collapse-item" id="abrirModalBtn">Mostrar Horario</a>
                         <a class="collapse-item" href="/Clases/docente/espacios"> Menu</a>
                     </div>
                 </div>
@@ -62,35 +63,88 @@
                     </div>
                 </div>
             </li>
+     <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+           <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
         
         </ul>
         {% endblock sidebar %}
         
         
         {% block content %}
-        <h1>
-            Horarios
-        </h1>
-        {% for horario in horarios %}
-        Dias:{{horario.espacioCurricular}}
-        <hr>
-        
-        {% endfor %}
-    
+        <h1> Años inscriptos</h1>
         {% for insc in inscripciones %}
+
+            {{insc.anio}}
+        {% endfor %}
+        <h1>
+
+    
+       
 
     <h1>Aulas</h1>
     {% for aula in aulas %}
-    <button class="btn bg-gradient-primary">
-        <a href="/Clases/docente/notas/{{aula.division.id}}"> Notas</button></a>
+    
+        <a href="/Clases/docente/notas/{{aula.division.id}}"> <button class="btn btn-primary">Cargar notas</button></a>
     {{aula.division.descripcion}}
     <hr>
     {% endfor %}
-    {{inscripciones.ciclo}}
-    <h2>
-        Aulas asignadas
-    </h2>
 
-    {{insc.anio}}
-    {% endfor %}
+    <!-- Modal -->
+<div class="modal fade" id="mostrarHorarioModal" tabindex="-1" aria-labelledby="mostrarHorarioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mostrarHorarioModalLabel">Mostrar Horario</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" ></button>
+
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-responsive-md">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Lunes</th>
+                            <th>Martes</th>
+                            <th>Miércoles</th>
+                            <th>Jueves</th>
+                            <th>Viernes</th>
+                            <th>Sábado</th>
+                            <th>Domingo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for modulo in modulos %}
+                            <tr>
+                                <td>{{ modulo }}</td>
+                                {% for dia in dias %}
+                                    <td>
+                                        {% for horario in horarios %}
+                                            {% if horario.hora == modulo and horario.dia == dia %}
+                                                <div id="datos">
+                                                    <small>{{ horario.espacioCurricular.nombre }} {{ horario.horario }}</small>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+</div> <!-- Cierre del div #wrapper -->
+
+</body>

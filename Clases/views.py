@@ -1,10 +1,10 @@
 import json
 from django.http import JsonResponse
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
-from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
-from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Docente, Estudiante, Horario, InscripcionDocente, PlanDeEstudios, Inscripcion,Division
+from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, HabilitarInstanciaForm, InasistenciasForm, Inasistencias, InstanciaForm
+from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Docente, Estudiante, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Inscripcion,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
@@ -32,6 +32,7 @@ def calificacion_view(request):
 def menuCursada(request):
     fecha_str = str(timezone.now())
     print(fecha_str)
+    instanciaDisponible = Instancia.objects.filter(disponible = True)
     fecha_iso = fecha_str.split(" ")[0]  # Obtiene solo la parte de la fecha (AAAA-MM-DD)
     fecha_hoy = datetime.fromisoformat(fecha_iso)
     ciclo = Ciclo.objects.get(esActual = True)
@@ -48,6 +49,7 @@ def menuCursada(request):
         'total' : cantInscriptos + cantDocInsciptos,
         'sinInscripcion' : estudiantes_sin_inscripcion,
         'inasistencias' : inasistencias_hoy,
+        'instanciaDisponible' : instanciaDisponible
     })
 
 # Create your views here.
@@ -68,6 +70,10 @@ def calificacion_edit(request, id_calificacion):
 class calificacion_list(ListView):
     model = Calificacion
     template_name = 'Calificacion/verCalificacion.html'
+
+class instancias_list(ListView):
+    model = Instancia
+    template_name = 'Calificacion/instancias.html'
 #-------------------------------------------------------------------
 @login_required
 def inasistencia_view(request):
@@ -122,6 +128,52 @@ def consultar_faltas(request):
         return JsonResponse({'resultados': resultados})
 
     return render(request, 'Cursada/reporte_inasistencia.html')
+
+@login_required
+def instancia_view(request):
+    print("entre a instancias")
+    if request.method == 'POST':
+        form = InstanciaForm(request.POST)
+        if form.is_valid():
+           form.save()
+           return redirect('/Clases/verInstancias')
+    else:
+        form = InstanciaForm()
+
+    return render(request, 'Calificacion/instanciaForm.html', {'form': form})
+@require_POST
+def habilitarInstancia(request, instancia_id):
+    print("ACAAAAAA")
+    instancia = get_object_or_404(Instancia, pk=instancia_id)
+    fecha_fin = request.POST.get('fecha_fin')
+    data = json.loads(request.body)
+    fecha_fin = data.get('fecha_fin')
+    print("fecha fin",fecha_fin)
+
+    instancia.disponible = True
+    instancia.fecha_inicio = datetime.now().date()
+    instancia.fecha_fin = fecha_fin
+    instancia.save()
+
+    # Deshabilitar las otras instancias
+    otras_instancias = Instancia.objects.exclude(id=instancia_id)
+    for otra_instancia in otras_instancias:
+        otra_instancia.disponible = False
+        otra_instancia.save()
+    return JsonResponse({'message': 'Instancia habilitada exitosamente'})
+    # return redirect('/Clases/verInstancias')
+
+@require_POST
+def habilitar_instancia(request, instancia_id):
+    print("ACAAAAAA")
+    instancia = get_object_or_404(Instancia, pk=instancia_id)
+    fecha_fin = request.POST.get('fecha_fin')
+    instancia.disponible = True
+    instancia.fecha_fin = fecha_fin
+    instancia.save()
+    print("se guardo correctamente")
+    return JsonResponse({'message': 'Instancia habilitada exitosamente'})
+
 # def consultar_faltas(request):
 #     if request.method == 'POST' and request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
 #         form = ConsultaForm(request.POST)
@@ -269,20 +321,26 @@ def asignar_alumno_a_aula(request, idAnio):
 
 def estudiantes_aulas(request, id_division):
     aula = Aula.objects.get(division_id = id_division)
+    horario = Horario.objects.get(division_id = id_division)
+    docente = Docente.objects.get(dni = request.user.username)
+    print('Docente',docente)
+    espacios = Detalle_Horario.objects.filter(docente= docente, horario = horario)
     estudiantes = aula.estudiantes.all()
-    print("Aulaaaa",aula.division.id)
+    print("Aulaaaa",aula.division.id,request.user.id)
     print(estudiantes)
+    print('Espacioooos estudiantes',type(espacios))
     if request.method == 'GET':
-        form = CalificacionForm(instance= aula.division)
+        form = CalificacionForm(espacios= espacios,estudiantes= estudiantes)
     else:
-        form = CalificacionForm(request.POST)
+        form = CalificacionForm(request.POST,espacios= espacios,estudiantes= estudiantes)
         if form.is_valid():
             form.save()
             #return HttpResponseRedirect("Calificacion/verEstudiante2.html")
 
     return render (request, 'Calificacion/verEstudiante2.html',{
         'estudiantes': estudiantes,
-        'form': form
+        'form': form,
+        'espacios': espacios,
     })
 
 def obtener_alumnos(request, idEstudiante):

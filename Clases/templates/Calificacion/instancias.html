@@ -1,0 +1,132 @@
+{% extends 'index.html' %}
+{% load bootstrap5 %}
+{% block content %}
+    <div class="content">
+        <a href="/Clases\altaInstancia">
+            <button class="btn btn-primary">+</button>
+        </a>
+        <h1><a href="/">Instancias de evaluacion</a></h1>
+        <div class="hidden orden-listado">
+            <div class="flex-md-column-reverse">
+                <table class="table table-bordered table-hover">
+                    <thead class="hidden orden-listado">
+                        <tr class="table-hover">
+                            <th>Nombre</th>
+                            <th>Fecha inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Disponible</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% block tabla %}
+                            {% if object_list %}
+                                {% for instancia in object_list %}
+                                    <tr>
+                                        <td>{{ instancia.nombre }}</td>
+                                        <td>{{ instancia.fecha_inicio }}</td>
+                                        <td>{{ instancia.fecha_fin }}</td>
+                                        <td>{{ instancia.disponible }}</td>
+                                        <td>
+                                            {% if not instancia.disponible %}
+                                                <button class="btn btn-success btn-habilitar" data-instancia-id="{{ instancia.id }}" data-bs-toggle="modal" data-bs-target="#habilitarModal">Habilitar</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">NO HAY INSTANCIAS PARA LISTAR</td>
+                                </tr>
+                            {% endif %}
+                        {% endblock tabla %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="habilitarModal" tabindex="-1" aria-labelledby="habilitarModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="habilitarModalLabel">Habilitar Instancia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="habilitarForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="fecha_fin" class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+
+    $(document).ready(function(){
+        // Selector para el botón de habilitar
+        $('.btn-habilitar').click(function(e){
+            e.preventDefault();
+            var instancia_id = $(this).data('instancia-id');
+            $('#habilitarForm').attr('action', '/Clases/habilitarInstancia/' + instancia_id + '/');
+            $('#habilitarModal').modal('show');
+        });
+
+        // Manejar el envío del formulario de habilitar instancia
+        $('#habilitarForm').submit(function(e){
+            e.preventDefault();
+            var url = $(this).attr('action');
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({'fecha_fin': $('#fecha_fin').val()})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Recargar la página después de habilitar la instancia
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+
+{% endblock scripts %}
