@@ -1,0 +1,28 @@
+{% extends 'index.html' %}
+{% block content %}
+  <h1>Inasistencias de hoy para la división</h1>
+
+  <form method="post" action="/Clases/eliminarInasistencias/">
+    {% csrf_token %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Falta</th>
+          <th>Justificación</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inasistencia in inasistencias_hoy %}
+        <tr>
+          <td>{{ inasistencia.estudiante }}</td>
+          <td><input type="checkbox" name="inasistencias_seleccionadas" value="{{ inasistencia.id }}"></td>
+          <!-- Aquí puedes mostrar otras columnas de datos de la inasistencia si es necesario -->
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit" class="btn btn-danger">Eliminar todas las inasistencias seleccionadas</button>
+  </form>
+{% endblock %}

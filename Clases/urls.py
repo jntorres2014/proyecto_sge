@@ -21,6 +21,8 @@ path('inasistencias_por_anio/', views.inasistencias_por_anio, name='inasistencia
     re_path(r'^altaHorario$', views.crear_horario),
      #****************************** Cursada ****************************** # 
     re_path(r'^clases/menu$', views.menuCursada,name='clases/menu'),
+     path('eliminarInasistencias/', views.eliminarInasistencias, name='eliminarInasistencias'),
+
 
     re_path(r'^cargarInasistencia/(?P<idAnio>\d+)/$', views.registrarInasistencia, name= 'registrarInasistencia'),
     re_path(r'^asignar_alumno_a_aula/(?P<idAnio>\d+)$', views.asignar_alumno_a_aula, name= 'asignar_alumno_a_aula'),

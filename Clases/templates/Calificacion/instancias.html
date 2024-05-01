@@ -3,7 +3,7 @@
 {% block content %}
     <div class="content">
         <a href="/Clases\altaInstancia">
-            <button class="btn btn-primary">+</button>
+            <button class="btn btn-primary">Nueva Instancia</button>
         </a>
         <h1><a href="/">Instancias de evaluacion</a></h1>
         <div class="hidden orden-listado">
@@ -26,7 +26,11 @@
                                         <td>{{ instancia.nombre }}</td>
                                         <td>{{ instancia.fecha_inicio }}</td>
                                         <td>{{ instancia.fecha_fin }}</td>
-                                        <td>{{ instancia.disponible }}</td>
+                                        {% if instancia.disponible %}
+                                            <td>Habilitada</td>
+                                        {% else %}
+                                        <td>No Disponible</td>
+                                        {% endif %}
                                         <td>
                                             {% if not instancia.disponible %}
                                                 <button class="btn btn-success btn-habilitar" data-instancia-id="{{ instancia.id }}" data-bs-toggle="modal" data-bs-target="#habilitarModal">Habilitar</button>

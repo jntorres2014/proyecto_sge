@@ -33,8 +33,10 @@
                 {{ mensaje }}
 
             <!-- Columna para la tabla -->
-            <div class="container">
+            <div class="container table-responsive">
+                {% if mensaje %}
                 <div  class="alert alert-warning" role="alert" id="mensaje"></div>
+                {% endif %}
                 <h1>Mostrar Horario</h1>
                 <table class="table table-bordered table-responsive table-responsive-sm">
                     <thead>

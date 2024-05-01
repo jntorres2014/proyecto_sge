@@ -26,6 +26,7 @@ from reportlab.lib import styles,colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from django.contrib.auth.models import User
+from datetime import date
 
 from dal import autocomplete
 
@@ -649,6 +650,16 @@ def listEstudianteAula(request,idDivision):
     return render(request, 'Cursada/cargarInasistencia.html',{'inscriptos': list(aula.estudiantes.all()),
                                                                  'idDivision': idDivision})
 
+def corregirInasistenciaAula(request,idDivision):
+    print("llegue acaaa")
+    today = date.today()
+    aula = Aula.objects.get(division_id=idDivision)
+    inasistencias_hoy = Inasistencias.objects.filter(dia=today, estudiante__in=aula.estudiantes.all())
+    #inasistencias_hoy = Inasistencias.objects.filter(dia=today, estudiante__division_id=idDivision)
+    return render(request, 'Cursada/corregirInasistencia.html', {'inasistencias_hoy': inasistencias_hoy})
+    return render(request, 'Cursada/corregirInasistencias.html',{'inscriptos': list(aula.estudiantes.all()),
+                                                                 'idDivision': idDivision})
+
 @login_required
 def asignarEstudianteDivision(request, idAnio, idCiclo):
     inscriptos = Inscripcion.objects.filter(anio = idAnio, ciclo = idCiclo)
@@ -713,13 +724,13 @@ def exportarHistorialPdf(request, estudiante_id):
     elements.append(Paragraph(f"Estudiante: {estudiante.nombre} {estudiante.apellido}", styles['Normal']))
     elements.append(Paragraph(f"Fecha de alta: {(estudiante.fechaInscripcion).strftime('%d-%m-%Y')}", styles['Normal']))
     elements.append(Spacer(1, 12))
-
+    elements.append(Paragraph("Inscripciones", styles['Title']))
     # Datos del historial
     data = [["Plan de Estudio", "Ciclo", 'Año', "Fecha de Inscripción"]]
     for inscripcion in inscripciones:
         data.append([
             inscripcion.ciclo.plan.anio,
-            inscripcion.ciclo,
+            inscripcion.ciclo.anioCalendario,
             inscripcion.anio, 
             inscripcion.fecha.strftime("%d-%m-%Y")
         ])

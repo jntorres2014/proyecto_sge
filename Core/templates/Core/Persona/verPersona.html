@@ -3,14 +3,13 @@
 
         <div><h1><a href="/">Lista de Docente</a></h1></div>
                {% block  th %}
-                        <th>Dni</th><th>Apellido</th><th>Nombre</th><th>Direccion</th><th>Localidad</th><th>Email</th><th>Titulo</th><th>Editar</th>
+                        <th>Dni</th><th>Apellido y Nombre</th><th>Direccion</th><th>Localidad</th><th>Email</th><th>Titulo</th><th>Editar</th>
                 {% endblock %}
                 {% block tr %}
                     {% if object_list %}
                         {% for docente in object_list %}
                               <td>{{ docente.dni }}</td>
-                              <td>{{ docente.apellido }}</td>
-                              <td>{{ docente.nombre}}</td>
+                              <td>{{ docente.apellido }} &nbsp {{ docente.nombre}}</td>
                               <td>{{ docente.direccion }}</td>
                               <td>{{ docente.localidad.nombre}}</td>
                               <td>{{ docente.email}}</td>

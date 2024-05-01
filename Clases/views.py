@@ -71,15 +71,7 @@ def menuCursada(request):
     estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcion__ciclo=ciclo).count()
     inasistencias_hoy = Inasistencias.objects.filter(dia = fecha_hoy).count()
     print("ACAAAAAAAAA INASISTENCIAS",inasistencias_hoy)
-    inasistencias_por_anio = Inasistencias.objects.annotate(year=ExtractYear('dia')).values('year').annotate(count=Count('id')).order_by('year')
-
-    labels = []
-    data = []
-
-    # Convertir los resultados a listas para usar en el gráfico
-    for inasistencia in inasistencias_por_anio:
-        labels.append(inasistencia['year'])
-        data.append(inasistencia['count'])
+   
 
     return render(request, 'Cursada/menuCursada.html',{
         'ciclo ': ciclo,
@@ -89,7 +81,7 @@ def menuCursada(request):
         'sinInscripcion' : estudiantes_sin_inscripcion,
         'inasistencias' : inasistencias_hoy,
         'instanciaDisponible' : instanciaDisponible,
-        'inasistencias_por_anio': inasistencias_por_anio
+
     })
 # @login_required
 # def menuCursada(request):
@@ -306,29 +298,38 @@ def crear_horario(request,idDivision):
                                                                   'modulos': modulos,
                                                                   'idDivision':idDivision})
 
-
+from django.shortcuts import render, redirect
+@login_required
+def eliminarInasistencias(request):
+    if request.method == 'POST':
+        inasistencias_seleccionadas = request.POST.getlist('inasistencias_seleccionadas')
+        Inasistencias.objects.filter(id__in=inasistencias_seleccionadas).delete()
+        return redirect('/Core/aniosDePlanActual')
+    else:
+        return redirect('/Core/aniosDePlanActual')
 @login_required
 def registrarInasistencia(request, idAnio):
-    ciclo = Ciclo.objects.get(esActual= True)
-    #ACa deberia trer los alumnos de un anio especifico de un ciclo especifico
+    ciclo = Ciclo.objects.get(esActual=True)
+    
     if request.method == "POST":
-        print("entre al post")
         # Obtener información del formulario
         inasistencias_seleccionadas = request.POST.getlist('inasistencias_seleccionadas')
-        print(inasistencias_seleccionadas)
-        for estudiante_id in inasistencias_seleccionadas:
-            # Verificar si la falta está marcada
-            falta_key = f'falta_{estudiante_id}'
-            falta = request.POST.get(falta_key, False)
+        if inasistencias_seleccionadas:
+            for estudiante_id in inasistencias_seleccionadas:
+                falta_key = f'falta_{estudiante_id}'
+                falta = request.POST.get(falta_key, False)
+                
+                justificado_key = f'justificado_{estudiante_id}'
+                justificado = request.POST.get(justificado_key, False)
+                
+                estudiante = Estudiante.objects.get(id=estudiante_id)
+                nueva_inasistencia = Inasistencias(ciclo=ciclo, estudiante=estudiante, falta=falta, justificacion=justificado)
+                nueva_inasistencia.save()
             
-            # Verificar si el justificado está marcado
-            justificado_key = f'justificado_{estudiante_id}'
-            justificado = request.POST.get(justificado_key, False)
-            estudiante = Estudiante.objects.get(id=estudiante_id)
-            nueva_inasistencia = Inasistencias(ciclo=ciclo,estudiante=estudiante, falta=falta, justificacion=justificado)
-            nueva_inasistencia.save()
-           #Inasistencias.create()
-        
+            # Después de guardar las inasistencias, redirigir a la misma página con un parámetro de éxito
+            return redirect('/Core/verDivisionInasistencia/1/1/', {'success':True,'estudiantes': estudiante})
+        else:
+            return render(request, 'Cursada/cargarInasistencia.html', {'error': "estudiante"})
 
     return render(request, 'Cursada/cargarInasistencia.html', {'estudiantes': estudiante})
     

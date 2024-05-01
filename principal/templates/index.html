@@ -78,7 +78,8 @@
                 </a>
                 <div id="collapseTree" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Gestion de ursada</h6>
+                        <h6 class="collapse-header">Gestion de Cursada</h6>
+                        <a class="collapse-item" href="/Core/aniosDePlanActual">Inasistencias</a></a>
                         <a class="collapse-item" href="/Clases/clases/menu"> Menu</a>
                     </div>
                 </div>
@@ -94,7 +95,6 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Gestion de Plan </h6>
                         <a class="collapse-item" href="/Core/plan/menu"> Menu</a>
-                        <a class="collapse-item" href="cards.html">Divisiones</a>
                     </div>
                 </div>
             </li>
@@ -135,7 +135,7 @@
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                Inciales
+                Iniciales
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
@@ -163,7 +163,7 @@
                 </a>
                 <div id="collapseList" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Alta personas</h6>
+                        <h6 class="collapse-header">Listados</h6>
                         <a class="collapse-item" href="/Core/estudiante/ver">Estudiante</a>
                         <a class="collapse-item" href="/Core/docente/ver">Docente</a>
                         <a class="collapse-item" href="/Core/localidad/ver">Localidad</a>
@@ -171,20 +171,21 @@
                     </div>
                 </div>
             </li>
-            <!-- Nav Item - Charts -->
+
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRep"
+                    aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-chart-area"></i>
-                    <span>Reportes</span></a>
+                    <span>Reportes</span>
+                </a>
+                <div id="collapseRep" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Reportes</h6>
+                        <a class="collapse-item" href="/Clases/reportesGraficos/">Inasistencias</a>
+                        <div class="collapse-divider"></div>
+                    </div>
+                </div>
             </li>
-
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="tables.html">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Listados</span></a>
-            </li>
-
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -498,7 +499,8 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-
+</div>
+</div>
     <!-- End of Main Content -->
     {% endblock content %}
     <!-- Logout Modal-->

@@ -439,7 +439,7 @@ class Ciclo (models.Model):
         for a in anios.all():
             division=Division.objects.create(ciclo=self,
                                              codigo='A',
-                                             descripcion="{} {}".format(a, 'Division A'),
+                                             descripcion="{} {}".format(a, 'Año Division A'),
                                              anio=a)
             division.crear_Horario_Division()
         return division

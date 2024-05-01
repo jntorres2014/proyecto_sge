@@ -5,12 +5,12 @@
             <h1><a href="/">Lista Localidad</a></h1>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
-                 <table class="table table-bordered table-hover" >
+                 <table class="table table-bordered table-hover" id="table_id">
                    <thead class="hidden orden-listado">
                         <tr class="table-hover">
                             <th>Codigo Postal</th>
                             <th>Nombre</th>
-                            <th></th>
+                            <th> </th>
                         </tr>
                    </thead>
                 <tbody >
@@ -20,6 +20,10 @@
                             <tr>
                               <td>{{ localidad.codigoPostal}}</td>
                               <td>{{ localidad.nombre }}</td>
+                              <td>
+                                <a  class="btn btn-primary" href="/Core/docente/modificar/{{ docente.id }}/">Editar </a>
+                                <a  class="btn btn-danger" href="/Core/eliminarDocente/{{ docente.id }}/">Eliminar </a>
+                                </td>
                             </tr>
                          {% endfor %}
                     {% else %}
@@ -33,4 +37,63 @@
             </div>
         </div>
 {%endblock %}
+
+{% block scripts %}
+<!-- JavaScript de DataTables -->
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Agrega el archivo de idioma español -->
+<script src="https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"></script>
+
+<style>
+
+/* Ajustar el tamaño de los campos de búsqueda */
+.dataTables_wrapper .dataTables_filter input {
+    font-size: 10px; /* Tamaño de texto del campo de búsqueda */
+    padding: 5px;    /* Espaciado interno del campo de búsqueda */
+}
+</style>
+<script>
+$(document).ready(function () {
+    // Clonar las celdas del encabezado y agregar filtros a todas excepto la última
+    $('#table_id thead tr th').each(function (index) {
+        if (index < $('#table_id thead tr th').length - 1) {
+            $(this).clone(true)
+                .addClass('form-label filters')
+                .appendTo($(this));
+        }
+    });
+
+    var table = $('#table_id').DataTable({
+        orderCellsTop: true,
+        fixedHeader: true,
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+        },
+        initComplete: function () {
+            var api = this.api();
+
+            // Agregar filtros a todas las celdas clonadas excepto la última
+            $('.filters').each(function (index) {
+                if (index < api.columns().count() - 1) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" class="container-fluid small" placeholder="' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (api.column(index).search() !== this.value) {
+                            api
+                                .column(index)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+</script>
+{% endblock %}
+
 

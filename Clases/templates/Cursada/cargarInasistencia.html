@@ -1,6 +1,12 @@
 {% extends 'index.html' %}
 {% block content %}
   {% load bootstrap5 %}
+
+  {% if success %}
+  <div class="alert alert-success" role="alert">
+    Las inasistencias se han registrado correctamente.
+  </div>
+{% endif %}
   <div class="container container-fluid">
     <h1>Alumnos</h1>
     <form method="post" action="/Clases/cargarInasistencia/{{idDivision}}/">
