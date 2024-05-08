@@ -15,7 +15,7 @@ class CalificacionForm(forms.ModelForm):
             'estudiante',
             'nota',
             'tipo',
-            'instancia'
+            'instancia',
         }
         
     def __init__(self, *args, **kwargs):

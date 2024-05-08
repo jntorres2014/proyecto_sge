@@ -527,6 +527,13 @@ class Calificacion(models.Model):
         on_delete= models.CASCADE,
         
     )
+    ciclo = models.ForeignKey(
+        Ciclo,
+        null= True,
+        blank= False,
+        on_delete= models.CASCADE,
+        
+    )
         
 #--------------------------------------------------------------------------
 

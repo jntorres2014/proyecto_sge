@@ -103,7 +103,26 @@ class PersonaForm(forms.ModelForm):
 class DocenteForm(forms.ModelForm):
     class Meta():
         model = Docente
-        fields = '__all__'
+        fields =  [
+            'dni',
+            'nombre',
+            'apellido',
+            'direccion',
+            'localidad',
+            'email',
+            'telefono',
+            'tituloHabilitante',
+            'rol'
+        ]                
+
+        print("acaaaaaaaaaaaaaaasdasdas")
+        widgets_localidad = autocomplete.ModelSelect2(url='core:localidad-autocomplete',attrs={'class': 'input-group'})
+        print('Estamos aca',widgets_localidad)
+         
+        widgets = {
+            'localidad': widgets_localidad,
+        
+        }
 
     def __init__(self, *args, **kwargs):
         super(DocenteForm, self).__init__(*args, **kwargs)
@@ -132,11 +151,11 @@ class EstudianteForm(forms.ModelForm):
 
         print("acaaaaaaaaaaaaaaasdasdas")
         widgets_localidad = autocomplete.ModelSelect2(url='core:localidad-autocomplete',attrs={'class': 'input-group'})
-        print(widgets_localidad)
+        print('Estamos aca',widgets_localidad)
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
         
         widgets = {
-            'Localidad': widgets_localidad,
+            'localidad': widgets_localidad,
             'fechaInscripcion': forms.TextInput(attrs={'type': 'date', 'value': fecha})
         }
     

@@ -6,10 +6,11 @@ from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
 from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, HabilitarInstanciaForm, InasistenciasForm, Inasistencias, InstanciaForm
-from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Docente, Estudiante, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Inscripcion,Division
+from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Docente, EspacioCurricular, Estudiante, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Inscripcion,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+
 # Create your views here.
 from django.shortcuts import render
 from .models import Inasistencias
@@ -19,6 +20,14 @@ from datetime import datetime
 from django.db.models import Count
 from django.db.models.functions import ExtractYear,ExtractMonth
 from django.core.serializers import serialize
+
+
+def crearBoletin(request,id_estudiante):
+    ciclo = Ciclo.objects.get(esActual = True)
+    materias = EspacioCurricular.objects.filter(plan_id=ciclo.plan_id)
+    calificaciones = Calificacion.objects.filter()
+    return materias
+
 
 @login_required
 def inasistencias_por_anio(request):
@@ -46,8 +55,11 @@ def reportes_graficos(request):
     return render(request, 'Cursada/reportesGraficos.html', {'inasistencias_por_anio': inasistencias})
 @login_required
 def calificacion_view(request):
+    print('**********FORMULARIOOO******')
     if request.method == 'POST':
         form = CalificacionForm(request.POST)
+        print('**********FORMULARIOOO******')
+        print(form)
         if form.is_valid():
            form.save()
     else:
@@ -341,7 +353,7 @@ def obtener_aulas(request):
     aulas = Division.objects.filter(ciclo= Ciclo.objects.get(esActual = 'True'),anio=3)  # Obtén las aulas desde tu modelo
     return render(request, 'aulas.html', {'aulas': aulas})
 
-from django.db.models import Q
+
 @login_required
 def asignar_alumno_a_aula(request, idAnio):
     print("asignar alumno", idAnio)
@@ -393,14 +405,23 @@ def estudiantes_aulas(request, id_division):
     print("Aulaaaa",aula.division.id,request.user.id)
     print(estudiantes)
     print('Espacioooos estudiantes',type(espacios))
+
     if request.method == 'GET':
         form = CalificacionForm(espacios= espacios,estudiantes= estudiantes)
     else:
-        form = CalificacionForm(request.POST,espacios= espacios,estudiantes= estudiantes)
+        print("****FORMULARIO****")
+        form = CalificacionForm(request.POST)
         if form.is_valid():
-            form.save()
-            #return HttpResponseRedirect("Calificacion/verEstudiante2.html")
+            ciclo = Ciclo.objects.get(esActual = True)
+            docente_id = Docente.objects.get(dni=request.user.username)
+            calificacion_obj = form.save(commit=False)
+            calificacion_obj.ciclo = ciclo
+            calificacion_obj.docente = docente_id
+            calificacion_obj.save()
 
+        else:
+            print(form.errors)
+            
     return render (request, 'Calificacion/verEstudiante2.html',{
         'estudiantes': estudiantes,
         'form': form,

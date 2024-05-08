@@ -71,6 +71,7 @@ class DocenteHoraAutocomplete(autocomplete.Select2QuerySetView):
 
 
 class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
+    print("Entre a localidad autocomplete")
     def get_queryset(self):
         qs = Localidad.objects.all()
         print(qs)
