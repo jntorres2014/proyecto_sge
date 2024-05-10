@@ -393,7 +393,7 @@ class inscripcionAlumnoForm(forms.ModelForm):
         # Obtener el ciclo actual y asignarlo al campo 'ciclo'
         ciclo_actual = Ciclo.objects.get(esActual=True)
         self.fields['ciclo'] = forms.ModelChoiceField(queryset=Ciclo.objects.all(), initial=ciclo_actual, widget=forms.HiddenInput())
-
+        self.fields['anio'].queryset = ciclo_actual.plan.anios.all()
     class Meta:
         model = Inscripcion
         fields = '__all__'
