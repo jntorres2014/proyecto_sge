@@ -4,6 +4,7 @@ from . import views
 app_name = "Clases"
 urlpatterns  = [
 path('reportesGraficos/', views.reportes_graficos, name='reportes_graficos'),
+path('reporteNotas/', views.reporteNotas, name='reporteNotas'),
     re_path(r'^altaCalificacion$', views.calificacion_view),
     re_path(r'^verCalificacion$', views.calificacion_list.as_view(), name='verCalificacion'),
     re_path(r'^modificarCalificacion/(?P<id_calificacion>\d+)/$', views.calificacion_edit, name='modificarCalificacion'),

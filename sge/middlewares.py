@@ -15,13 +15,13 @@ class AgregarPlanAlContextoMiddleware:
                 ciclo_activo = 'No hay ciclos activos'
         else:
             ciclo_activo = 'No hay ciclos activos'
-
+            
         # Intentar obtener el plan actual
         try:
             plan = PlanDeEstudios.objects.get(esActual=True)
         except PlanDeEstudios.DoesNotExist:
-            plan = None
-
+            plan = "No hay plan actual"
+        
         # Agregar el plan y ciclo al contexto de renderizado
         request.plan = plan
         request.ciclo = ciclo_activo

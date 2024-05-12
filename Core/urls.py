@@ -12,13 +12,14 @@ urlpatterns = [
     path('docenteHora-autocomplete', views.DocenteHoraAutocomplete.as_view(), name='docenteHora-autocomplete'),
     #****************************** LOCALIDAD ****************************** # 
     re_path(r'^localidad/alta$', views.localidadView, name='localidad/alta'),
-    re_path(r'^localidad/ver$', views.localidadList.as_view(), name='localidad/ver'),
+    re_path(r'^localidad/ver$', views.localidadList, name='localidad/ver'),
     re_path(r'^importar/$', views.importar, name='importar'),
     re_path(r'^localidad/modificar/(?P<id_localidad>\d+)/$', views.localidadEdit, name='localidad/modificar'),
-    
+    re_path(r'^localidad/eliminar/(?P<idLocalidad>\d+)/$', views.eliminarLocalidad, name='localidad/eliminar'),
     #****************************** DOCENTE ****************************** # 
     re_path(r'^docente/alta$', views.docenteView, name='docente/alta'),
     re_path(r'^docente/ver$', views.docenteList.as_view(), name='docente/ver'),
+    re_path(r'^docente/eliminar/(?P<id_docente>\d+)/$', views.eliminarDocente, name='docente/eliminar'),
     re_path(r'^docente/modificar/(?P<id_docente>\d+)/$', views.docenteEdit, name='docente/modificar'),
     re_path(r'^docente/inscripcion$', views.inscripcionDeDocenteCiclo,name='docente/inscripcion'),
     re_path(r'^docente/menu$', views.menuDocente,name='docente/menu'),

@@ -112,7 +112,6 @@ class DocenteForm(forms.ModelForm):
             'email',
             'telefono',
             'tituloHabilitante',
-            'rol'
         ]                
 
         print("acaaaaaaaaaaaaaaasdasdas")
@@ -126,8 +125,21 @@ class DocenteForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DocenteForm, self).__init__(*args, **kwargs)
-        self.fields['rol'].widget.attrs['class'] = 'form-control'  
+        # self.fields['rol'].widget.attrs['class'] = 'form-control'  
 
+class DocenteEditForm(forms.ModelForm):
+    class Meta:
+        model = Docente
+
+        fields = [
+            'nombre',
+            'apellido',
+            'direccion',
+            'localidad',
+            'email',
+            'telefono',
+            'tituloHabilitante',
+        ]
 
 class EstudianteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

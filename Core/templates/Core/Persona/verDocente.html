@@ -1,6 +1,6 @@
 {% extends 'index.html' %}
 {% block content %}
-        <h1><a href="/">Lista Docentes</a></h1>
+        <h1><a href="#">Lista Docentes</a></h1>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
                  <table class="table table-bordered table-hover  " id="table_id" >
@@ -29,7 +29,7 @@
                                   <td>{{ docente.tituloHabilitante}}</td>
                                   <td>
                                     <a  class="btn btn-primary" href="/Core/docente/modificar/{{ docente.id }}/">Editar </a>
-                                    <a  class="btn btn-danger" href="/Core/eliminarDocente/{{ docente.id }}/">Eliminar </a>
+                                    <a  class="btn btn-danger" href="/Core/docente/eliminar/{{ docente.id }}/">Eliminar </a>
                                     </td>
                                </tr>
                              {% endfor %}

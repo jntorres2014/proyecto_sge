@@ -49,6 +49,36 @@ def inasistencias_por_mes(request, year):
 
     return JsonResponse(data)
 
+
+
+def reporteNotas(request):
+    if request.method == 'GET':
+        espacio_curricular_id = request.GET.get('espacio_curricular')
+        instancia_id = request.GET.get('instancia')
+        
+        # Obtener las calificaciones basadas en el espacio curricular y la instancia seleccionados
+        calificaciones = Calificacion.objects.filter(espacioCurricular_id=espacio_curricular_id, instancia_id=instancia_id)
+        
+        # Calcular el promedio de notas por ciclo lectivo
+        promedios_por_ciclo = calificaciones.values('ciclo').annotate(promedio=Avg('nota'))
+        
+        # Preparar los datos en un formato JSON para enviar al frontend
+        data = []
+        for promedio in promedios_por_ciclo:
+            ciclo_id = promedio['ciclo']
+            promedio_valor = promedio['promedio']
+            
+            # Obtener el nombre o cualquier otro campo relevante del ciclo si es necesario
+            ciclo_nombre = Ciclo.objects.get(id=ciclo_id).nombre
+            
+            # Agregar el ciclo y su promedio al diccionario
+            data.append({'ciclo': ciclo_nombre, 'promedio': promedio_valor})
+        
+            return JsonResponse(data, safe=False, content_type='application/json')   
+    espacios_curriculares = EspacioCurricular.objects.all()
+    instancias = Instancia.objects.all()
+    return render(request, 'Calificacion/reporteNotas.html', {'espacios_curriculares': espacios_curriculares, 'instancias': instancias})
+
 def reportes_graficos(request):
     inasistencias_por_anio = Inasistencias.objects.annotate(year=ExtractYear('dia')).values('year').annotate(count=Count('id')).order_by('year')
     inasistencias = list(inasistencias_por_anio)

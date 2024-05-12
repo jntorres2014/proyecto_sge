@@ -1,8 +1,14 @@
 {% extends 'index.html' %}
 {% load bootstrap5 %}
 {% block content %}
+
+
+  
     <div class="content">
             <h1><a href="/">Lista Localidad</a></h1>
+            <div class="text-end">
+                <a class="btn btn-primary" href="/Core/localidad/alta">+</a>
+            </div>
             <div class="hidden orden-listado">
                <div class="flex-md-column-reverse" >
                  <table class="table table-bordered table-hover" id="table_id">
@@ -15,14 +21,14 @@
                    </thead>
                 <tbody >
                     {% block tabla %}
-                    {% if object_list %}
-                        {% for localidad in object_list %}
+                    {% if localidades %}
+                        {% for localidad in localidades %}
                             <tr>
                               <td>{{ localidad.codigoPostal}}</td>
                               <td>{{ localidad.nombre }}</td>
                               <td>
-                                <a  class="btn btn-primary" href="/Core/docente/modificar/{{ docente.id }}/">Editar </a>
-                                <a  class="btn btn-danger" href="/Core/eliminarDocente/{{ docente.id }}/">Eliminar </a>
+                                <a  class="btn btn-primary" href="/Core/localidad/modificar/{{ localidad.id }}">Editar </a>
+                                <a  class="btn btn-danger" href="/Core/localidad/eliminar/{{ localidad.id }}/">Eliminar </a>
                                 </td>
                             </tr>
                          {% endfor %}
@@ -94,6 +100,7 @@ $(document).ready(function () {
 });
 
 </script>
+
 {% endblock %}
 
 

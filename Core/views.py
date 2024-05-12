@@ -157,14 +157,18 @@ def localidadView(request):
         form = forms.LocalidadForm(request.POST)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect("/Core/verLocalidad")
+            messages.success(request, 'La localidad se creó correctamente.')
+            mensaje = "Se dio de alta la localidad correctamente"
+            return HttpResponseRedirect("/Core/localidad/ver",{'mesaje': mensaje})
     else:
         form = forms.LocalidadForm()
     return render(request, 'Core/LocalidadForm.html', {'form': form})
 
-class localidadList(ListView):
-    model = Localidad
-    template_name = 'Core/verLocalidad.html'
+def localidadList(request):
+    localidades = Localidad.objects.all()
+    return render(request, 'Core/verLocalidad.html',{'localidades': localidades})
+
+
 @login_required
 def localidadEdit(request, id_localidad):
     localidad = Localidad.objects.get(id=id_localidad)
@@ -174,8 +178,24 @@ def localidadEdit(request, id_localidad):
         form = forms.LocalidadForm(request.POST, instance= localidad)
         if form.is_valid():
             form.save()
+            messages.success(request, 'La localidad se editó correctamente.')
             return HttpResponseRedirect("/Core/localidad/ver")
     return render(request, 'Core/LocalidadForm.html',{'form': form})
+
+
+@login_required
+def eliminarLocalidad(request, idLocalidad):
+    try:
+        localidad = Localidad.objects.get(id=idLocalidad)
+        localidad.delete()
+        mensaje = "Localidad eliminada correctamente"
+        messages.success(request, 'La localidad se eliminó correctamente.')
+    except Estudiante.DoesNotExist:
+        messages.error(request, 'No se encontró la localidad que intentas eliminar.')
+    
+    return HttpResponseRedirect("/Core/localidad/ver", {'mensaje': mensaje})
+
+
 
 ######################ESTUDIANTE DOCENTE##################################################
 @login_required
@@ -185,6 +205,7 @@ def estudianteView(request):
         if form.is_valid():
             print(form.cleaned_data)
             form.save()
+            messages.success(request, 'El estudiante se creó correctamente.')
             return HttpResponseRedirect("/Core/estudiante/ver")
     else:
         form = forms.EstudianteForm()
@@ -196,17 +217,21 @@ def docenteView(request):
     if request.method == 'POST':
         form = forms.DocenteForm(request.POST)
         if form.is_valid():
+            print("Creado docente")
             nuevo_docente = form.save()
             # Crear un nuevo usuario asociado al docente
             username = nuevo_docente.dni  # Utiliza el DNI como nombre de usuario
             password = 'Clave2024#'  # Genera una contraseña aleatoria
-            email = nuevo_docente.email 
+            email = nuevo_docente.email
             # Crear el nuevo usuario
+
             nuevo_usuario = User.objects.create_user(username=username, password=password, email=email)
 
             # Asociar el usuario al docente
             nuevo_docente.usuario = nuevo_usuario
             nuevo_docente.save()
+
+            messages.success(request, 'Se creo correctamente el docente usuario: '+ username +' contraseña: '+ password)
 
             return HttpResponseRedirect("/Core/docente/ver")
     else:
@@ -262,14 +287,26 @@ class docenteList(ListView):
 def docenteEdit(request, id_docente):
     docente = Docente.objects.get(id=id_docente)
     if request.method == 'GET':
-        form = forms.DocenteForm(instance= docente)
+        form = forms.DocenteEditForm(instance= docente)
     else:
-        form = forms.DocenteForm(request.POST, instance= docente)
+        form = forms.DocenteEditForm(request.POST, instance= docente)
         if form.is_valid():
             form.save()
+            messages.success(request, 'El docente se editó correctamente.')
+
             return HttpResponseRedirect("/Core/docente/ver")
     return render(request, 'Core/Persona/DocenteForm.html',{'form': form})
 
+@login_required
+def eliminarDocente(request, id_docente):
+    try:
+        docente= Docente.objects.get(id=id_docente)
+        docente.delete()
+        messages.success(request, 'El docente se eliminó correctamente.')
+    except Docente.DoesNotExist:
+        messages.error(request, 'No se encontró el docente que intentas eliminar.')
+    
+    return HttpResponseRedirect("/Core/docente/ver")
 
 @login_required
 def eliminarEstudiante(request, id_estudiante):
@@ -316,6 +353,7 @@ def estudianteEdit(request, id_estudiante):
         form = forms.EstudianteForm(request.POST, instance= estudiante)
         if form.is_valid():
             form.save()
+        messages.success(request, 'El estudiante se modificó correctamente.')
         return HttpResponseRedirect("/Core/estudiante/ver")
     return render(request, 'Core/Persona/EstudianteForm.html',{'form':form})
 
@@ -334,6 +372,7 @@ def planDeEstudiosView(request):
         form = forms.PlanDeEstudiosForm(request.POST)
         if form.is_valid():
            plan= form.save()
+           messages.success(request, 'Se creo el plan de estudios y los años correctamente')
            plan.crear_anios_plan(plan)
            return HttpResponseRedirect("/Core/plan/ver")
     else:
@@ -370,6 +409,7 @@ def planEdit(request, id_plan):
         form = forms.PlanDeEstudiosEditForm(request.POST, instance=plan)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Se edito el plan correctamente.')
             return HttpResponseRedirect("/Core/plan/ver")
     return render(request, 'Core/Plan/PlanDeEstudios.html',{'form':form})
 
@@ -393,6 +433,7 @@ def espacioView(request,id):
         if form.is_valid():
             print("guardando datoss")
             form.save()
+            messages.success(request, 'Se creo el espacio curricular correctamente.')
             espacios = EspacioCurricular.objects.filter(plan = plan)
             #return HttpResponseRedirect("/Core/EspacioCurricular/EspaciosCurricularesForm.html")
     else:
@@ -427,6 +468,7 @@ def espacioEdit(request, id_espacio):
         form = forms.EspacioCurricularEditForm(request.POST, instance= espacio)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Se edito el espacio curricular correctamente.')
             return HttpResponseRedirect("/Core/espacio/ver")
     return render(request, 'Core/EspacioCurricular/EspaciosCurricularesForm.html',{'form':form})
 
@@ -478,6 +520,7 @@ def eliminarCiclo(request, idCiclo):
             plan = PlanDeEstudios.objects.get(id = ciclo.plan.id)
             plan.implementado = 'False' 
             plan.save()
+            messages.success(request, 'Se elimino el ciclo correctamente.')
         ciclo.delete()
         messages.success(request, 'El Ciclo se eliminó correctamente.')
     except Estudiante.DoesNotExist:
@@ -548,6 +591,7 @@ def cicloView(request):
     if request.method == 'POST' and form.is_valid():
         print("Entre aca era valido")
         ciclo = form.save()
+        messages.success(request, 'El ciclo se creó correctamente.')
         ciclo.crear_division_para_anio_ciclo(ciclo, anios)
         Ciclo.cambiar_actual(request, ciclo.id)
         plan.implementado = True
@@ -572,6 +616,7 @@ def cicloEdit(request, id_ciclo):
         form = forms.CicloEditForm(request.POST, instance= ciclo)
         if form.is_valid():
             form.save()
+            messages.success(request, 'El ciclo se editó correctamente.')
             return HttpResponseRedirect("/Core/plan/ver")
     return render(request, 'Core/Plan/CicloForm.html',{'form': form})
 
@@ -615,6 +660,7 @@ def divisionList(request, id,idCiclo):
         print(descripcion)
         nueva_division = Division(ciclo=Ciclo.objects.get(esActual= 'True'), codigo=codigo, descripcion=descripcion, anio=anio)
         nueva_division.save()
+        messages.success(request, 'La division se creó correctamente.')
         nueva_division.crear_Horario_Division()
         division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,
@@ -653,6 +699,7 @@ def inscripcionDeEstudianteCiclo(request, id_ciclo=1):
 
         if form.is_valid():
             form.save()
+            
             correcto = 'Alumno Inscripto correctamente'
             return render(request, 'Core/Persona/Inscripciones.html', {'form': form,
                                                                        'ciclo': id_ciclo_actual,
@@ -700,6 +747,7 @@ def asignarEstudianteDivision(request, idAnio, idCiclo):
             print("estoy en el Post")
             print(form)
             alumno = form.save()
+            messages.success(request, 'El estudiante se asignó correctamente.')
             #division.estudiates.add(estudiante).
             #aula.alumnos.add(alumno)
             return HttpResponseRedirect("/Notas/verInasistencias")

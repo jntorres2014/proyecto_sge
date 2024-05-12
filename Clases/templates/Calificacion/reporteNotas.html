@@ -1,0 +1,77 @@
+{% extends 'index.html' %}
+{% load bootstrap5 %}
+{% block content %}
+<h1>Reporte Gráfico</h1>
+    
+<form id="reporteForm">
+    {% csrf_token %}
+    <label for="espacio_curricular">Espacio Curricular:</label>
+    <select name="espacio_curricular" id="espacio_curricular">
+        {% for espacio_curricular in espacios_curriculares %}
+            <option value="{{ espacio_curricular.id }}">{{ espacio_curricular.nombre }}</option>
+        {% endfor %}
+    </select><br><br>
+    
+    <label for="instancia">Instancia:</label>
+    <select name="instancia" id="instancia">
+        {% for instancia in instancias %}
+            <option value="{{ instancia.id }}">{{ instancia.nombre }}</option>
+        {% endfor %}
+    </select><br><br>
+</form>
+
+<div id="graficoContainer">
+    <canvas id="miGrafico"></canvas>
+</div>
+
+
+
+<script>
+    var myChart; // Variable global para almacenar la instancia del gráfico
+    
+    document.getElementById('reporteForm').addEventListener('change', function(event) {
+        var espacioCurricularId = document.getElementById('espacio_curricular').value;
+        var instanciaId = document.getElementById('instancia').value;
+
+        fetch(window.location.href + `?espacio_curricular=${espacioCurricularId}&instancia=${instanciaId}`)
+        .then(response => response.json())
+        .then(data => {
+            var ctx = document.getElementById('miGrafico').getContext('2d');
+            
+            // Limpiar el gráfico anterior antes de crear uno nuevo
+            if (myChart) {
+                myChart.destroy();
+            }
+            
+            var ciclos = data.map(item => item.ciclo);
+            var promedios = data.map(item => item.promedio);
+            
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ciclos,
+                    datasets: [{
+                        label: 'Promedio de Notas',
+                        data: promedios,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+        });
+    });
+
+    // Llamar a la función change una vez para inicializar el gráfico
+    document.getElementById('reporteForm').dispatchEvent(new Event('change'));
+</script>
+
+{% endblock %}

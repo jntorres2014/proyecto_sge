@@ -14,12 +14,12 @@ from django.db import IntegrityError
 class Localidad (models.Model):
 
     REGEX_NUMEROPOSTAL = '^[0-9]{1,12}$'
-    MAXNUMEROPOSTAL=4
+    MAXNUMEROPOSTAL=5
     REGEX_NOMBRE = '^[0-9a-zA-Z-_ .]{3,100}$'
     MAXNOMBRELOCALIDAD=70
 
     codigoPostal = models.CharField(
-        help_text="cp",
+        help_text="Ej: 9100",
         max_length=MAXNUMEROPOSTAL,
         unique=False,
         null=False,
@@ -32,7 +32,7 @@ class Localidad (models.Model):
     )
 
     nombre= models.CharField(
-        help_text= "Trelew ",
+        help_text= "Ej:Trelew ",
         max_length = MAXNOMBRELOCALIDAD,
         unique= False,
         null= False,
@@ -180,7 +180,6 @@ def ajustar_actual(sender, instance, **kwargs):
 class Rol(models.Model):
     nombre = models.CharField(max_length = 100, unique = True,default = 'Docente')
     
-
     def __str__(self):
         return self.nombre
 
@@ -321,7 +320,7 @@ class Estudiante(Persona):
 
 class Docente(Persona):
     tituloHabilitante = models.CharField(max_length= 50)
-    rol = models.ForeignKey(Rol, on_delete = models.CASCADE, default = 'Docente')
+    rol = models.ForeignKey(Rol, on_delete = models.CASCADE, default = 1)
 
 class Preceptor(Persona):
     pass

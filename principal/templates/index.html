@@ -29,6 +29,7 @@
      <!-- Custom styles for this template-->
      <!-- <link href="/static/css/sb-admin-2.min.css" rel="stylesheet"> -->
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+    {% load bootstrap5 %}
     {% block css %}
     {% endblock %}
     
@@ -253,6 +254,15 @@
                 <!-- End of Topbar -->
                 
                 <div class="container-fluid">
+                    
+                    {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
                 {% block content %}
                 <!-- Begin Page Content -->
 
