@@ -82,6 +82,8 @@ def menuCursada(request):
     cantDocInsciptos = InscripcionDocente.objects.filter(ciclo = ciclo).count()
     estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcion__ciclo=ciclo).count()
     inasistencias_hoy = Inasistencias.objects.filter(dia = fecha_hoy).count()
+    porcentaje = round((inasistencias_hoy / cantInscriptos)*100 ,2)
+
     print("ACAAAAAAAAA INASISTENCIAS",inasistencias_hoy)
    
 
@@ -93,6 +95,7 @@ def menuCursada(request):
         'sinInscripcion' : estudiantes_sin_inscripcion,
         'inasistencias' : inasistencias_hoy,
         'instanciaDisponible' : instanciaDisponible,
+        'porcentaje': porcentaje
 
     })
 # @login_required

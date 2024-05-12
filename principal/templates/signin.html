@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'index.html' %}
 {% load bootstrap5 %}
 {% block header %}
 <header class="p-3 text-bg-dark">
@@ -11,10 +11,15 @@
   </div>
   </header>
   {% endblock %}
+
+  
+  {% block sidebar %}
+  {% endblock sidebar %}
 {% block content %}
 
-
-<li {% if error %} class="alert alert-danger" {% endif %}> {{error}} </li> 
+{% if error %}
+  <li  class="alert alert-danger" > {{error}} </li>
+{% endif %} 
 <div class="container col-xl-10 col-xxl-8 px-4 py-5">
     <div class="row align-items-center g-lg-5 py-5">
       <div class="col-lg-7 text-center text-lg-start">

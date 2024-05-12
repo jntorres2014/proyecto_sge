@@ -65,6 +65,7 @@ urlpatterns = [
     #****************************** DIVISION  ****************************** #
     re_path(r'^alumno_division/(?P<idAnio>\d+)/(?P<idCiclo>\d+)/$', views.asignarEstudianteDivision, name='alumno_division'),    
     re_path(r'^verDivision/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.divisionList, name='verDivision'),
+    re_path(r'^division/eliminar/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.eliminarDivision, name='eliminarDivision'),
     re_path(r'^verDivisionInasistencia/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.verDivisionInasistencia, name='verDivisionInasistencia'),
     
 

@@ -575,6 +575,25 @@ def cicloEdit(request, id_ciclo):
 
 ################################################
 @login_required
+def eliminarDivision(request, id,idCiclo):
+    anio = AnioPlan.objects.get(id=id)
+    ciclo = Ciclo.objects.get(esActual= 'True')
+    division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
+    alumnos= Inscripcion.objects.filter(anio = anio,ciclo = ciclo)
+    if len(division) >  1:
+        division[-1].delete()
+        mensaje = 'Eliminado correctamente ' 
+        
+    else:
+        mensaje= "Debe Existir al menos una division"
+    division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
+    return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,
+                                                      'id':idCiclo,
+                                                      'anio':id,
+                                                      'cant_alumnos':len(alumnos),
+                                                      'mensaje':mensaje}) 
+
+@login_required
 def divisionList(request, id,idCiclo):
     division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
     anio = AnioPlan.objects.get(id=id)
@@ -600,7 +619,8 @@ def divisionList(request, id,idCiclo):
                                                       'id':idCiclo,
                                                       'anio':id,
                                                       'cant_alumnos':len(alumnos),
-                                                      'cant_divisiones':len(division)})  
+                                                      'cant_divisiones':len(division),
+                                                      'mensaje':'' })  
 
 @login_required
 def verDivisionInasistencia(request, id,idCiclo):
@@ -611,7 +631,8 @@ def verDivisionInasistencia(request, id,idCiclo):
     print (division)
     return render(request, 'Core/Plan/verDivisionInasistencia.html',{'divisiones': division,
                                                       'id':id,
-                                                      'anio':division[0].anio.id})  
+                                                      'anio':division[0].anio.id,
+                                                      })  
 ################################################
 @login_required
 def inscripcionDeEstudianteCiclo(request, id_ciclo=1):

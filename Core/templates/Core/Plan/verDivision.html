@@ -3,6 +3,10 @@
 {% block content %}
 {% load bootstrap5 %}
 
+
+{% if mensaje %}
+{{mensaje}}
+{% endif %}
 <div class="container contenedor-tabla">
     <div>
         <h1><a href="#">Lista Division</a></h1>
@@ -42,9 +46,16 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <form action="/Core/verDivision/{{ anio }}/{{ id}}/" method="POST">
+        </div>
+        <div class="d-flex justify-content-end">
+            <form action="/Core/verDivision/{{ anio }}/{{ id }}/" method="POST" class="mr-2">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary">Nuevo</button>
+            </form>
+            
+            <form action="/Core/division/eliminar/{{ anio }}/{{ id }}/" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Eliminar</button>
             </form>
         </div>
     </div>

@@ -71,35 +71,37 @@
         <h1>Aulas</h1>
         {% for aula in aulas %}
         <div id="aulas-list">
-                <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">
-                    {{ aula.division }}
-                    <ul>
-                        {% for estudiante_id, estudiante in estudiantes_aula.items %}
-                            {% if estudiante_id == aula.id %}
-                            <div>
-                                {% for e in estudiante %}
-                                    <li class="border alumnos-list">
-                                        {{ e.dni }}: {{ e.nombre }} {{ e.apellido }}  
-                                        <!-- Botón -->
-                                        <button class="btn btn-danger btn-sm" onclick="eliminarAlumno('{{ aula.id }}', '{{ e.id }}')">
-                                            <small>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
-                                                    <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-                                                </svg>
-                                            </small>
-                                        </button>
-                                    </li>
-                                    
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+            <li class="aula" ondrop="drop(event)" ondragover="allowDrop(event)" data-id="{{ aula.id }}">
+                Aula: {{ aula.division }}
+                <ul>
+                    {% for estudiante_id, estudiante in estudiantes_aula.items %}
+                    {% if estudiante_id == aula.id %}
+                    <div>
+                        {% for e in estudiante %}
+                        <li class="border alumnos-list">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <span>{{ e.dni }}: {{ e.nombre }} {{ e.apellido }}</span>
+                                <!-- Botón -->
+                                <button class="btn btn-danger btn-sm" onclick="eliminarAlumno('{{ aula.id }}', '{{ e.id }}')">
+                                    <small>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
+                                            <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                        </svg>
+                                    </small>
+                                </button>
+                            </div>
+                        </li>
                         {% endfor %}
-                    </ul>
-                </li>
-            </div>
-            {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </li>
+        </div>
+        {% endfor %}
     </div>
+    
         
     <script>
         // Define la función drag en el alcance global
@@ -189,7 +191,7 @@
                 if (response.success) {
                     // Mostrar mensaje de éxito en algún lugar de tu interfaz
                     console.log("entre acaaa! llego bien",response.message);
-                    alert(response.message);  // Puedes usar alert o mostrarlo de otra manera
+                    //alert(response.message);  // Puedes usar alert o mostrarlo de otra manera
                     location.reload()
                 } else {
                     // Manejar el caso de no éxito si es necesario
