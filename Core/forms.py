@@ -180,7 +180,7 @@ class EspacioCurricularEditForm(forms.ModelForm):
         labels = {
             'codigo': 'Codigo',
             'cantidadModulos': 'Cantidad de modulos',
-            'nombre' : 'nombre',
+            'nombre' : 'Nombre',
             'contenido': 'Contenido',
         }
         widgets = { 
@@ -196,10 +196,12 @@ class EspacioCurricularEditForm(forms.ModelForm):
 class EspacioCurricularForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         plan_estudio_id = kwargs.pop('id_plan', None)
-        print('Plan de estudioooo', plan_estudio_id)
+        print('Plan de estudiodsdsooo', plan_estudio_id)
         super(EspacioCurricularForm, self).__init__(*args, **kwargs)
-        if plan_estudio_id:
-            self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=plan_estudio_id)
+        print("entre aca")
+        plan = PlanDeEstudios.objects.get(id=plan_estudio_id)
+        self.fields['plan'] = forms.ModelChoiceField(queryset=PlanDeEstudios.objects.filter(id=plan.id), initial=plan, widget=forms.HiddenInput())
+            # self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=plan_estudio_id)
 
     class Meta:
         model= EspacioCurricular
@@ -213,7 +215,7 @@ class EspacioCurricularForm(forms.ModelForm):
 
         ]
         labels={
-            'plan': 'Plan de estudio',
+            # 'plan': 'Plan de estudio',
             'anio': 'Año',
             'codigo': 'Codigo de Espacio Curricular',
             'cantidadModulos': 'Cantidad de modulos',
@@ -222,7 +224,7 @@ class EspacioCurricularForm(forms.ModelForm):
         }
         widgets = { 
             
-            'plan': forms.Select(attrs={'class': 'input-group mb-3'}),
+            # 'plan': forms.Select(attrs={'class': 'input-group mb-3'}),
             'anio': forms.Select(attrs={'class': 'input-group mb-3'}),
             'codigo': forms.TextInput(attrs={'class': 'input-group mb-3'}),
             'cantidadModulos': forms.TextInput(attrs={'class': 'input-group mb-3', 'type': 'number', 'min':'1'}),
@@ -239,7 +241,9 @@ class EspacioCurricularForm(forms.ModelForm):
         # Obtener la fecha del sistema
         # Establecer la fecha del sistema en el campo de fecha del formulario
         #self.fields['fecha'].initial = current_date
-        self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=id_plan)
+        plan = PlanDeEstudios.objects.get(id=id_plan)
+        self.fields['plan'] = forms.ModelChoiceField(queryset=PlanDeEstudios.objects.filter(id=plan.id), initial=plan, widget=forms.HiddenInput())
+        # self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=id_plan)
 
         anios_plan_estudio = AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual= 'True'))
         

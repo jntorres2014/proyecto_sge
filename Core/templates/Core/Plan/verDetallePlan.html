@@ -5,10 +5,17 @@
 {% block content %}
 
 <div class="container">
+<h1>
+    Plan de estudios
+</h1>
+Años del plan
+{{ cantidadAnios }}
 
-Plan de estudios
+<h4>Espacios curriculares por año</h2>
+    {% if espaciosCurriculares %}
     <table class="table table-bordered">
-
+        <th>Espacios curriculares</th>
+        <th>Año</th>
             {% for espacio in espaciosCurriculares %}
                 {% if espacio.Anio == num %} 
                 <tr>
@@ -18,7 +25,11 @@ Plan de estudios
                     {% endif %}
             {% endfor %}
 
+
     </table>
+    {% else %}
+    <h3>No hay espacios curriculares cargados</h3>
+    {% endif %}
 </div>
 
 

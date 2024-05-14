@@ -9,8 +9,13 @@
             <label for="inputAnio" class="sr-only">Año</label>
             <input type="text" class="form-control" id="inputAnio" placeholder="Ingrese el año">
         </div>
+
     </div>
     <div class="p-5 text-center" id="resultadoBusqueda">
+        <div class="text-end">
+            <a class="btn btn-primary" href="/Core/plan/alta">+</a>
+        </div>
+
         <div class="row" id="isotope-container">
             {% if planes %}
                 {% for plan in planes %}
@@ -49,9 +54,7 @@
                 <h1>NO HAY PLANES PARA LISTAR</h1>
             {% endif %}
         </div>
-        <div class="container-fluid p-5 bg-secondary text-center">
-            <a class="btn btn-primary" href="/Core/plan/alta">Alta Plan de Estudio</a>
-        </div>
+        
     </div>
 </div>
 

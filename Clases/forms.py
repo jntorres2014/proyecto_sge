@@ -111,7 +111,9 @@ class Detalle_HorarioForm(forms.ModelForm):
         # # Personaliza el widget para el campo 'dia'
         self.fields['dia'].widget = forms.Select(choices=Horario.CHOICES_DIA)
         self.fields['espacioCurricular'].queryset = EspacioCurricular.objects.filter(anio_id= division.anio_id)
-        self.fields['horario'].queryset = Horario.objects.filter(division_id= division.id)
+        horario = Horario.objects.get(division_id= division.id)
+        self.fields['horario'] = forms.ModelChoiceField(queryset=Horario.objects.filter(division_id= division.id), initial=horario, widget=forms.HiddenInput())
+        #self.fields['horario'].queryset = Horario.objects.filter(division_id= division.id)
 
         # # Personaliza el widget para el campo 'hora'
         self.fields['hora'].widget = forms.Select(choices=Horario.CHOICES_HORA)

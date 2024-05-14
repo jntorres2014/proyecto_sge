@@ -335,7 +335,7 @@ def planDeEstudiosView(request):
         if form.is_valid():
            plan= form.save()
            plan.crear_anios_plan(plan)
-           return HttpResponseRedirect("plan/ver")
+           return HttpResponseRedirect("/Core/plan/ver")
     else:
         form = forms.PlanDeEstudiosForm()
     return render(request, 'Core/Plan/PlanDeEstudios.html', {'form': form})
@@ -352,11 +352,13 @@ def planList(request):
 def planDetalle(request,id_plan):
 
     plan=PlanDeEstudios.objects.get(id = id_plan)
+    cantidadAnios = plan.cantidadAnios
     print(type(plan.cantidadAnios))
     espaciosCurriculares = EspacioCurricular.objects.filter(plan = plan).order_by('anio')
     return render(request, 'Core/Plan/verDetallePlan.html', {
         'plan': plan,
-        'espaciosCurriculares' : espaciosCurriculares
+        'espaciosCurriculares' : espaciosCurriculares,
+        'cantidadAnios': cantidadAnios,
     })    
 
 @login_required
@@ -669,18 +671,20 @@ def estudiantesDeAnioEnCiclo(request, idCiclo):
 
 def listEstudianteAula(request,idDivision):
     aula = Aula.objects.get(division_id=idDivision)
+    division = Division.objects.get(id=idDivision)
     return render(request, 'Cursada/cargarInasistencia.html',{'inscriptos': list(aula.estudiantes.all()),
-                                                                 'idDivision': idDivision})
+                                                                 'division': division})
 
 def corregirInasistenciaAula(request,idDivision):
     print("llegue acaaa")
     today = date.today()
     aula = Aula.objects.get(division_id=idDivision)
+    division = Division.objects.get(id=idDivision)
     inasistencias_hoy = Inasistencias.objects.filter(dia=today, estudiante__in=aula.estudiantes.all())
     #inasistencias_hoy = Inasistencias.objects.filter(dia=today, estudiante__division_id=idDivision)
-    return render(request, 'Cursada/corregirInasistencia.html', {'inasistencias_hoy': inasistencias_hoy})
-    return render(request, 'Cursada/corregirInasistencias.html',{'inscriptos': list(aula.estudiantes.all()),
-                                                                 'idDivision': idDivision})
+    return render(request, 'Cursada/corregirInasistencia.html', {'inasistencias_hoy': inasistencias_hoy,
+                                                                 'division': division})
+    
 
 @login_required
 def asignarEstudianteDivision(request, idAnio, idCiclo):
@@ -703,7 +707,7 @@ def asignarEstudianteDivision(request, idAnio, idCiclo):
             #return redirect('detalle_aula', aula_id=aula_id)
     else:
         form = forms.DivisionForm()
-
+    
     return render(request, 'Cursada/cargarInasistencia.html',{'form':form, 
                                                                  'inscriptos': inscriptos,
                                                                  'cantAlumnos': cantidadAlumnosInscriptos})

@@ -66,7 +66,36 @@ def calificacion_view(request):
         form = CalificacionForm()
 
     return render(request, 'Calificacion/calificacionForm.html', {'form': form})
+from django.db.models import Avg
+def boletinEstudiante(request, estudiante_id, ciclo_id):
+    #Obtengo la inscripcion para poder quedarme con el año que cursa
+    inscripcion = Inscripcion.objects.get(estudiante_id= estudiante_id, ciclo_id= ciclo_id)
+    instancias = list(Instancia.objects.all())
+    print(instancias)
+    print("Anio de inscripcion",inscripcion.anio.id)
+    #Obtener los espacios curruculares a ese anio de ese plan
+    espacios = EspacioCurricular.objects.filter(anio_id= inscripcion.anio.id,plan = PlanDeEstudios.objects.get(id = Ciclo.objects.get(id = ciclo_id).plan.id))
+    print("espacios", espacios)
+    
+  # Obtener todas las instancias únicas para el ciclo dado
+    instancias = list(Ciclo.objects.get(pk=ciclo_id).calificacion_set.filter(estudiante_id=estudiante_id).values_list('instancia__nombre', flat=True).distinct())
+    print("instancias",instancias)
+    # Obtener todas las calificaciones del estudiante para el ciclo dado, agrupadas por materia
+    calificaciones = Calificacion.objects.filter(estudiante_id=estudiante_id, ciclo_id=ciclo_id)
+    print("Calificaciones",calificaciones)
+    # Crear una lista de listas para almacenar las calificaciones
 
+    # Calcular el promedio general del estudiante para el ciclo
+    promedio_general = calificaciones.aggregate(promedio_general=Avg('nota'))['promedio_general']
+
+    # Renderizar la plantilla con los datos del boletín y el promedio general
+    # Renderizar la plantilla con los datos del boletín y el promedio general
+    return render(request, 'Calificacion/boletinEstudiante.html', 
+                  {'calificaciones': calificaciones,
+                   'espacios': espacios,
+                   'promedio':promedio_general,
+                   'instancias': instancias
+                   })
 
 
 @login_required
@@ -306,12 +335,13 @@ def crear_horario(request,idDivision):
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
     modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]
     print(dias,modulos)
+    division = Division.objects.get(id=idDivision)
     
     return render(request, "Division/crearHorarioDivision.html", {"form": form, 
                                                                   "horarios": horarios,
                                                                   "dias": dias,
                                                                   'modulos': modulos,
-                                                                  'idDivision':idDivision})
+                                                                  'idDivision':division})
 
 from django.shortcuts import render, redirect
 @login_required

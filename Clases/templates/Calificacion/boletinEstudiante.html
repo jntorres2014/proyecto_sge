@@ -1,0 +1,51 @@
+{% extends 'index.html' %}
+{% load bootstrap5 %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Boletín del Estudiante</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Boletín del Estudiante</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Espacio Curricular</th>
+                {% for instancia in instancias %}
+                <th>{{ instancia }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for espacio in espacios %}
+                <tr>
+                    <td>{{ espacio.nombre }}</td>
+                    {% for instancia in instancias %}
+                        <td>
+                            {% for calificacion in calificaciones %}
+                                {% if calificacion.espacioCurricular == espacio and calificacion.instancia.nombre == instancia %}
+                                    {{ calificacion.nota }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Promedio General: {{ promedio }}</p>
+</body>
+</html>
+{% endblock %}

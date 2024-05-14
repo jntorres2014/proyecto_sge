@@ -1,6 +1,6 @@
 {% extends 'index.html' %}
 {% block content %}
-  <h1>Inasistencias de hoy para la división</h1>
+  <h1>Inasistencias de hoy para la división {{division}}</h1>
 
   <form method="post" action="/Clases/eliminarInasistencias/">
     {% csrf_token %}

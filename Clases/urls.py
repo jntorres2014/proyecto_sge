@@ -21,8 +21,8 @@ path('reportesGraficos/', views.reportes_graficos, name='reportes_graficos'),
     re_path(r'^altaHorario$', views.crear_horario),
      #****************************** Cursada ****************************** # 
     re_path(r'^clases/menu$', views.menuCursada,name='clases/menu'),
-     path('eliminarInasistencias/', views.eliminarInasistencias, name='eliminarInasistencias'),
-
+    path('eliminarInasistencias/', views.eliminarInasistencias, name='eliminarInasistencias'),
+    path('boletin/<int:estudiante_id>/<int:ciclo_id>/', views.boletinEstudiante, name='boletin'),
 
     re_path(r'^cargarInasistencia/(?P<idAnio>\d+)/$', views.registrarInasistencia, name= 'registrarInasistencia'),
     re_path(r'^asignar_alumno_a_aula/(?P<idAnio>\d+)$', views.asignar_alumno_a_aula, name= 'asignar_alumno_a_aula'),
