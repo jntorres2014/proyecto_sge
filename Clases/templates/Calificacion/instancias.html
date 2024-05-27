@@ -83,7 +83,6 @@
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -92,11 +91,10 @@
         }
         return cookieValue;
     }
-    
+
     const csrftoken = getCookie('csrftoken');
 
     $(document).ready(function(){
-        // Selector para el botón de habilitar
         $('.btn-habilitar').click(function(e){
             e.preventDefault();
             var instancia_id = $(this).data('instancia-id');
@@ -104,9 +102,17 @@
             $('#habilitarModal').modal('show');
         });
 
-        // Manejar el envío del formulario de habilitar instancia
         $('#habilitarForm').submit(function(e){
             e.preventDefault();
+            var fechaFin = new Date($('#fecha_fin').val());
+            var fechaActual = new Date();
+            fechaActual.setHours(0, 0, 0, 0); // Eliminar la parte de la hora para comparación
+
+            if (fechaFin < fechaActual) {
+                alert('La fecha ingresada es menor a la fecha actual.');
+                return false;
+            }
+
             var url = $(this).attr('action');
             fetch(url, {
                 method: 'POST',
@@ -123,8 +129,11 @@
                 return response.json();
             })
             .then(data => {
-                // Recargar la página después de habilitar la instancia
-                location.reload();
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    location.reload();
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -132,5 +141,4 @@
         });
     });
 </script>
-
 {% endblock scripts %}

@@ -305,20 +305,22 @@ def habilitarInstancia(request, instancia_id):
 
 @require_POST
 def habilitar_instancia(request, instancia_id):
-    print("ACAAAAAAasd")
     instancia = get_object_or_404(Instancia, pk=instancia_id)
     fecha_fin = request.POST.get('fecha_fin')
-    fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-    print("Estoy acaaaaa")
-    print('fin',fecha_fin, type(fecha_fin))
-    print('hoy',fecha, type(fecha))
-    if   fecha_fin >= fecha:
-        messages.success(request, 'El docente se editó correctamente.')
-        return JsonResponse({'fecha ingresada es menor a la fecha actual'})
+    
+    # Convertir la fecha ingresada y la fecha actual a objetos datetime.date
+    fecha_fin_date = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
+    fecha_actual = datetime.today().date()
+    
+    # Verificar si la fecha ingresada es menor que la fecha actual
+    if fecha_fin_date < fecha_actual:
+        messages.error(request, 'La fecha ingresada es menor a la fecha actual.')
+        return JsonResponse({'error': 'La fecha ingresada es menor a la fecha actual'}, status=400)
+    
     instancia.disponible = True
-    instancia.fecha_fin = fecha_fin
+    instancia.fecha_fin = fecha_fin_date
     instancia.save()
-    print("se guardo correctamente")
+    messages.success(request, 'La instancia se habilitó correctamente.')
     return JsonResponse({'message': 'Instancia habilitada exitosamente'})
 
 #*************************************************

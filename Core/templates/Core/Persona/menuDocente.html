@@ -83,15 +83,16 @@
         {% endfor %}
         <h1>
 
+    {% if instancia %}
 
-
-    <h1>Aulas</h1>
-    {% for aula in aulas %}
-    
-        <a href="/Clases/docente/notas/{{aula.division.id}}"> <button class="btn btn-primary">Cargar notas</button></a>
-    {{aula.division.descripcion}}
-    <hr>
-    {% endfor %}
+        <h1>Aulas</h1>
+        {% for aula in aulas %}
+        
+            <a href="/Clases/docente/notas/{{aula.division.id}}"> <button class="btn btn-primary">Cargar notas</button></a>
+        {{aula.division.descripcion}}
+        <hr>
+        {% endfor %}
+    {% endif %}
 
     <!-- Modal -->
 <div class="modal fade" id="mostrarHorarioModal" tabindex="-1" aria-labelledby="mostrarHorarioModalLabel" aria-hidden="true">

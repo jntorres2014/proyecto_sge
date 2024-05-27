@@ -22,6 +22,9 @@ class CalificacionForm(forms.ModelForm):
         espacios = kwargs.pop('espacios', None)
         estudiantes = kwargs.pop('estudiantes', None)
         super(CalificacionForm, self).__init__(*args, **kwargs)
+        self.fields['instancia'].queryset = Instancia.objects.filter(disponible=True)
+
+
         
         if espacios:
             unique_espacios = []
@@ -86,25 +89,25 @@ class InstanciaForm(forms.ModelForm):
             'fecha_fin': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),  
         }
         
-    # def clean_fecha_inicio(self):
+    def clean_fecha_inicio(self):
 
-    #     print('entre acaaa')
-    #     inicio = self.cleaned_data.get("fecha_inicio")
-    #     fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-    #     if fecha <= inicio:
-    #         raise forms.ValidationError("fecha ingresada es menor a la de inicio")
-    #     return inicio
+        print('entre acaaa')
+        inicio = self.cleaned_data.get("fecha_inicio")
+        fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+        if fecha <= inicio:
+            raise forms.ValidationError("fecha ingresada es menor a la de inicio")
+        return inicio
             
-    # def clean_fecha_fin(self):
-    #     inicio = self.cleaned_data.get("fecha_inicio")
-    #     fin = self.cleaned_data.get("fecha_fin")
-    #     print('inicio', inicio)
-    #     print("tipossss",type(inicio),type(fin))
-    #     print('fin',fin)
-    #     if inicio >= fin:
-    #         raise forms.ValidationError("fecha ingresada es menor a la de inicio")
+    def clean_fecha_fin(self):
+        inicio = self.cleaned_data.get("fecha_inicio")
+        fin = self.cleaned_data.get("fecha_fin")
+        print('inicio', inicio)
+        print("tipossss",type(inicio),type(fin))
+        print('fin',fin)
+        if inicio >= fin:
+            raise forms.ValidationError("fecha ingresada es menor a la de inicio")
     
-    #     return fin
+        return fin
  
 
 class Detalle_HorarioForm(forms.ModelForm):
