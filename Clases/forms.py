@@ -23,8 +23,6 @@ class CalificacionForm(forms.ModelForm):
         estudiantes = kwargs.pop('estudiantes', None)
         super(CalificacionForm, self).__init__(*args, **kwargs)
         self.fields['instancia'].queryset = Instancia.objects.filter(disponible=True)
-
-
         
         if espacios:
             unique_espacios = []

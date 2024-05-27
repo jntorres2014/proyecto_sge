@@ -73,26 +73,30 @@
         
         </ul>
         {% endblock sidebar %}
-        
-        
         {% block content %}
-        <h1> Años inscriptos</h1>
-        {% for insc in inscripciones %}
+        {% if request.hayCicloActivo %}       
+            <h1> Años inscriptos</h1>
+            {% for insc in inscripciones %}
+                {{insc.anio}}
+            {% endfor %}
+            <h1>
 
-            {{insc.anio}}
-        {% endfor %}
-        <h1>
+            {% if instancia %}
 
-    {% if instancia %}
+                <h1>Aulas</h1>
+                {% for aula in aulas %}
+                
+                    <a href="/Clases/docente/notas/{{aula.division.id}}"> <button class="btn btn-primary">Cargar notas</button></a>
+                {{aula.division.descripcion}}
+                <hr>
+                {% endfor %}
+            {% else %}
+                <h1>No hay instancia de calificacion disponible</h1>
+        {% endif %}
+        {% else %}
+            <h1>No hay ciclo activo</h1>
+            {% endif %}
 
-        <h1>Aulas</h1>
-        {% for aula in aulas %}
-        
-            <a href="/Clases/docente/notas/{{aula.division.id}}"> <button class="btn btn-primary">Cargar notas</button></a>
-        {{aula.division.descripcion}}
-        <hr>
-        {% endfor %}
-    {% endif %}
 
     <!-- Modal -->
 <div class="modal fade" id="mostrarHorarioModal" tabindex="-1" aria-labelledby="mostrarHorarioModalLabel" aria-hidden="true">

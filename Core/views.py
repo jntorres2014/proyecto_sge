@@ -484,17 +484,17 @@ def menuDocente(request):
     print("Usuariooooo:",type(request.user.username))
     dni = int(request.user.username)
     docente = Docente.objects.get(dni = dni)
-    inscripciones = InscripcionDocente.objects.filter(docente = docente)
-    horarios = Detalle_Horario.objects.filter(docente = docente)
+    inscripciones = InscripcionDocente.objects.filter(docente = docente, ciclo = request.ciclo)
+    print(inscripciones)
+    anios = inscripciones.values_list('anio', flat=True)
+    divisiones = Division.objects.filter(anio__in=anios, ciclo=request.ciclo)
+    horarios = Detalle_Horario.objects.filter(docente = docente,horario__division__in=divisiones)
     horarios = list(set(horarios))
+    
     aulas = []
     for hora in horarios:
         aulas.append(hora.horario)
     aulas = list(set(aulas))
-    # aulasDesignadas = Aula.objects.filter(division = aulas)
-    print("AULAAAAAS",list(set(aulas)))
-    # [aulas.append(aula) for aula in aulasDesignadas if aula not in aulas]
-    # print(aulasDesignadas[0].estudiantes.all())
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
     modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]  
     instancia = Instancia.objects.get(disponible = 'True')  
