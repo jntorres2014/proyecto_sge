@@ -101,7 +101,7 @@ def calificacion_view(request):
 
 def boletinEstudiante(request, estudiante_id, ciclo_id):
     #Obtengo la inscripcion para poder quedarme con el año que cursa
-    inscripcion = Inscripcion.objects.get(estudiante_id= estudiante_id, ciclo_id= ciclo_id)
+    inscripcion = Inscripcion.objects.get(estudiante_id = estudiante_id, ciclo_id= ciclo_id)
     instancias = list(Instancia.objects.all())
     print(instancias)
     print("Anio de inscripcion",inscripcion.anio.id)
@@ -694,8 +694,6 @@ def obtenerHorarios(request):
 @require_POST
 def eliminar_detalle_horario(request):
     detalle_id = request.POST.get('detalle_id')
-    print("****ENTREEE", detalle_id)
-    
     try:
         detalle = Detalle_Horario.objects.get(id=detalle_id)
         detalle.delete()
@@ -704,6 +702,42 @@ def eliminar_detalle_horario(request):
         success = False
 
     return JsonResponse({'success': success})
+
+@login_required
+def verBoletines(request):
+    if request.method == 'GET':
+        inscripciones = Inscripcion.objects.filter(ciclo = request.ciclo)
+        estudiantes = []
+        for inscripcion in inscripciones:
+            estudiantes.append(inscripcion.estudiante)
+            
+        return render(request, 'Calificacion/verBoletines.html',
+                      {'estudiantes':estudiantes})
+
+    if request.method == 'POST':
+        estudiante_id = request.POST.get('estudiante_id')
+        print("Estuidiateeee",estudiante_id)
+        estudiante = get_object_or_404(Estudiante, id=estudiante_id)
+        inscripcion = Inscripcion.objects.get(estudiante = estudiante, ciclo = request.ciclo)
+        calificaciones = Calificacion.objects.filter(estudiante=estudiante,ciclo = request.ciclo)
+        espacios = EspacioCurricular.objects.filter(plan = request.ciclo.plan, anio= inscripcion.anio)
+        instancias = Instancia.objects.all()
+
+        data = {
+            'espacios': [espacio.nombre for espacio in espacios],
+            'instancias': [instancia.nombre for instancia in instancias],
+            'calificaciones': [
+                {
+                    'espacio': calificacion.espacioCurricular.nombre,
+                    'instancia': calificacion.instancia.nombre,
+                    'nota': calificacion.nota
+                }
+                for calificacion in calificaciones
+            ],
+            'promedio': calificaciones.aggregate(Avg('nota'))['nota__avg'] if calificaciones else 'No existen notas cargadas'
+        }
+
+        return JsonResponse(data)
 
 
 @require_POST

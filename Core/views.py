@@ -553,7 +553,8 @@ def menuDocente(request):
 def menuCiclo(request):
     hay_ciclo = Ciclo.objects.exists()
     try:
-        ciclo_activo =  Ciclo.objects.get(esActual='True').fechaInicio <= timezone.now().date() >= Ciclo.objects.get(esActual='True').fechaInicio
+        # ciclo_activo =  Ciclo.objects.get(esActual='True').fechaInicio <= timezone.now().date() >= Ciclo.objects.get(esActual='True').fechaInicio
+        ciclo_activo = request.ciclo
     except Ciclo.DoesNotExist:
         ciclo_activo = False
     print('ciclo',ciclo_activo)

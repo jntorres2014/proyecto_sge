@@ -1,0 +1,104 @@
+{% extends 'index.html' %}
+{% load bootstrap5 %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Boletín del Estudiante</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Boletín del Estudiante</h1>
+    <div>
+        <label for="estudiante">Seleccione un estudiante:</label>
+        <select id="estudiante" name="estudiante">
+            {% for estudiante in estudiantes %}
+                <option value="{{ estudiante.id }}">{{ estudiante }}</option>
+            {% endfor %}
+        </select>
+        <button id="buscar">Buscar</button>
+    </div>
+    <div id="boletin">
+        <table id="tabla-notas">
+            <thead>
+                <tr>
+                    <th>Espacio Curricular</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las notas del estudiante se cargarán aquí -->
+            </tbody>
+        </table>
+        <p id="promedio"></p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#buscar').on('click', function() {
+                const estudianteId = $('#estudiante').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/Clases/verBoletines/',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'estudiante_id': estudianteId
+                    },
+                    success: function(response) {
+                        const instancias = response.instancias;
+                        const espacios = response.espacios;
+                        const calificaciones = response.calificaciones;
+                        const promedio = response.promedio;
+
+                        // Limpiar la tabla y el promedio anterior
+                        $('#tabla-notas thead tr').empty();
+                        $('#tabla-notas tbody').empty();
+                        $('#promedio').text('');
+
+                        // Generar encabezados
+                        $('#tabla-notas thead tr').append('<th>Espacio Curricular</th>');
+                        instancias.forEach(instancia => {
+                            $('#tabla-notas thead tr').append(`<th>${instancia}</th>`);
+                        });
+
+                        // Generar filas de notas
+                        espacios.forEach(espacio => {
+                            const row = $('<tr></tr>');
+                            row.append(`<td>${espacio}</td>`);
+                            instancias.forEach(instancia => {
+                                const celda = $('<td></td>');
+                                const calificacion = calificaciones.find(c => c.espacio === espacio && c.instancia === instancia);
+                                if (calificacion) {
+                                    celda.text(calificacion.nota);
+                                }
+                                row.append(celda);
+                            });
+                            $('#tabla-notas tbody').append(row);
+                        });
+
+                        // Mostrar el promedio
+                        if (promedio !== null) {
+                            $('#promedio').text(`Promedio General: ${promedio}`);
+                        } else {
+                            $('#promedio').text('Promedio General: No disponible');
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+{% endblock %}

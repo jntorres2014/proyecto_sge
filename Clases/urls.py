@@ -45,6 +45,6 @@ urlpatterns  = [
     path('actualizar_relacion/', views.actualizar_relacion, name='actualizar_relacion'),
     path('eliminar_detalle_horario/', views.eliminar_detalle_horario, name='eliminar_detalle_horario'),
     path('eliminarAlumno/', views.eliminarAlumno, name='eliminarAlumno'),
-
+    re_path(r'^verBoletines/$', views.verBoletines, name='verBoletines'),
     path('consultar-faltas/', views.reporte_inasistencias_por_aula, name='consultar_faltas'),
 ]
