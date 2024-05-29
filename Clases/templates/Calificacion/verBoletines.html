@@ -21,12 +21,12 @@
     <h1>Boletín del Estudiante</h1>
     <div>
         <label for="estudiante">Seleccione un estudiante:</label>
-        <select id="estudiante" name="estudiante">
+        <select class="form-select form-select-lg" id="estudiante" name="estudiante">
             {% for estudiante in estudiantes %}
                 <option value="{{ estudiante.id }}">{{ estudiante }}</option>
             {% endfor %}
         </select>
-        <button id="buscar">Buscar</button>
+        <button class="btn btn-primary mb-3" id="buscar">Buscar</button>
     </div>
     <div id="boletin">
         <table id="tabla-notas">
