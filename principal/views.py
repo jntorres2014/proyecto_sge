@@ -78,7 +78,9 @@ def signup(request):
         if form.is_valid():
             print('era valido')
             if request.POST['password1'] == request.POST['password2']:
-                form.save()
+                usuario = form.save(commit='False')
+                usuario.is_staff= True
+                usuario.save()
                 try:
                     return redirect('login')  # Redireccion a una página de registro exitoso
                 except:

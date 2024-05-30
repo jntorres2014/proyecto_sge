@@ -141,7 +141,10 @@ def menuCursada(request):
     cantDocInsciptos = InscripcionDocente.objects.filter(ciclo = ciclo).count()
     estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcion__ciclo=ciclo).count()
     inasistencias_hoy = Inasistencias.objects.filter(dia = fecha_hoy).count()
-    porcentaje = round((inasistencias_hoy / cantInscriptos)*100 ,2)
+    if cantInscriptos == 0:
+        porcentaje = 0
+    else:
+        porcentaje = round((inasistencias_hoy / cantInscriptos)*100 ,2)
 
     print("ACAAAAAAAAA INASISTENCIAS",inasistencias_hoy)
    
@@ -350,6 +353,7 @@ def crear_horario(request,idDivision):
         if form.is_valid():
             print("Era valido")
             form.save()
+            
             mensaje = 'Horario cargado correctamente'
         
         else:
