@@ -23,7 +23,7 @@
                     </div>
                 </form>
                 <div class="chart-area mt-4">
-                    <canvas id="myAreaChart2"></canvas>
+                    <canvas id="grafico"></canvas>
                 </div>
             </div>
         </div>
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
         fetch(`/Clases/reporte/data/?${params}`)
             .then(response => response.json())
             .then(data => {
-                const ctx = document.getElementById('myAreaChart2').getContext('2d');
+                const ctx = document.getElementById('grafico').getContext('2d');
                 if (myChart) {
                     myChart.destroy();
                 }

@@ -58,6 +58,7 @@ urlpatterns = [
     
     #****************************** AÑO  ****************************** #     
     re_path(r'^anio/ver/(?P<id>\d+)/$', views.anioList, name= 'anio/ver'),
+    re_path(r'^anio/verActual/$', views.anioListActual, name= 'anio/ver'),
     re_path(r'^aniosDePlanActual$', views.aniosDePlanActual,name='aniosDePlanActual'),
     
     
