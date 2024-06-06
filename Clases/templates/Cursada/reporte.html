@@ -1,0 +1,104 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-12 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Reporte de Notas</h6>
+            </div>
+            <div class="card-body">
+                <form id="filtro-form">
+                    <div class="form-group">
+                        <label for="plan">Seleccionar Plan de Estudios:</label>
+                        {{ form.plan }}
+                    </div>
+                    <div class="form-group">
+                        <label for="ciclo">Seleccionar Ciclo:</label>
+                        {{ form.ciclo }}
+                    </div>
+                    <div class="form-group">
+                        <label for="instancia">Seleccionar Instancia:</label>
+                        {{ form.instancia }}
+                    </div>
+                </form>
+                <div class="chart-area mt-4">
+                    <canvas id="myAreaChart2"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById('filtro-form');
+    const planField = form.querySelector('[name="plan"]');
+    const cicloField = form.querySelector('[name="ciclo"]');
+    const instanciaField = form.querySelector('[name="instancia"]');
+    let myChart = null;
+
+    function fetchAndUpdateChart() {
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData).toString();
+        fetch(`/Clases/reporte/data/?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('myAreaChart2').getContext('2d');
+                if (myChart) {
+                    myChart.destroy();
+                }
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+    }
+
+    planField.addEventListener('change', () => {
+        fetch(`/reporte/ciclos/?plan=${planField.value}`)
+            .then(response => response.json())
+            .then(data => {
+                cicloField.innerHTML = '<option value="">---------</option>';
+                data.ciclos.forEach(ciclo => {
+                    const option = document.createElement('option');
+                    option.value = ciclo.id;
+                    option.textContent = ciclo.nombre;
+                    cicloField.appendChild(option);
+                });
+                instanciaField.innerHTML = '<option value="">---------</option>';
+                fetchAndUpdateChart();
+            });
+    });
+
+    cicloField.addEventListener('change', () => {
+        fetch(`/reporte/instancias/?ciclo=${cicloField.value}`)
+            .then(response => response.json())
+            .then(data => {
+                instanciaField.innerHTML = '<option value="">---------</option>';
+                data.instancias.forEach(instancia => {
+                    const option = document.createElement('option');
+                    option.value = instancia.id;
+                    option.textContent = instancia.nombre;
+                    instanciaField.appendChild(option);
+                });
+                fetchAndUpdateChart();
+            });
+    });
+
+    instanciaField.addEventListener('change', fetchAndUpdateChart);
+
+    fetchAndUpdateChart(); // Initial load
+});
+</script>
+{% endblock scripts %}

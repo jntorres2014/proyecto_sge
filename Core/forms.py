@@ -180,10 +180,21 @@ class EstudianteForm(forms.ModelForm):
 
 
 class EspacioCurricularEditForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        plan_estudio_id = kwargs.pop('id_plan', None)
+        super(EspacioCurricularEditForm, self).__init__(*args, **kwargs)
+        plan = PlanDeEstudios.objects.get(id=plan_estudio_id)
+        self.fields['plan'] = forms.ModelChoiceField(queryset=PlanDeEstudios.objects.filter(id=plan.id), initial=plan, widget=forms.HiddenInput())
+        anios_plan_estudio = AnioPlan.objects.filter(plan= plan)
+        
+        self.fields['anio'].queryset = anios_plan_estudio
+             # self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=plan_estudio_id)
+
     
     class Meta:
         model= EspacioCurricular
         fields= [
+            'anio',
             'codigo',
             'cantidadModulos',
             'nombre',
@@ -204,6 +215,18 @@ class EspacioCurricularEditForm(forms.ModelForm):
             'contenido': forms.TextInput(attrs={'class': 'input-group mb-3'}),
             
         }
+        def __init__(self, *args, **kwargs):
+            id_plan = kwargs.pop('id_plan', None)
+            print('Plan de estudioooo',id_plan)
+            super(EspacioCurricularEditForm, self).__init__(*args, **kwargs)
+            plan = PlanDeEstudios.objects.get(id=id_plan)
+            self.fields['plan'] = forms.ModelChoiceField(queryset=PlanDeEstudios.objects.filter(id=plan.id), initial=plan, widget=forms.HiddenInput())
+            # self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=id_plan)
+
+            anios_plan_estudio = AnioPlan.objects.filter(plan=plan)
+            print("Anios del plan filtrados", anios_plan_estudio)
+        
+            self.fields['anio'].queryset = anios_plan_estudio
 
 class EspacioCurricularForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -279,7 +302,7 @@ class CicloEditForm(forms.ModelForm):
             'fechaFin': 'Fecha de fin',
 
         }
-        #self.fields['plan'].queryset = PlanDeEstudios.objects.filter(esActual= 'True')
+
 
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
         widgets = {
@@ -294,7 +317,7 @@ class CicloEditForm(forms.ModelForm):
     
         return fin
 
-#plan_actual = PlanDeEstudios.objects.get(esActual='True')
+
 class CicloForm(forms.ModelForm):
 
     class Meta:

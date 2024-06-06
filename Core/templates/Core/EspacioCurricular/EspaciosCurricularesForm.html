@@ -29,14 +29,14 @@
         <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
             <div class="row">
                 <h2> Espacios curriculares</h2>
-                <table>
+                <table class="table table-bordered table-hover table-sm" id="table_id">
                     <thead>
                         <tr>
                             <th>Codigo</th>
                             <th>Nombre</th>
                             <th>Año</th>
                             <th>Modulos</th>
-                            <th colspan="2">Acciones</th>
+                            <th></th>
                             <!-- Agrega más columnas según los campos que quieras mostrar -->
                         </tr>
                     </thead>
@@ -47,7 +47,6 @@
                             <td>{{ insc.nombre }}</td>
                             <td>{{ insc.anio }}</td>
                             <td>{{ insc.cantidadModulos }}</td>
-                            <td>{{ insc.fecha }}</td>
                             <td><a href="/Core/espacio/modificar/{{insc.id }}" class="btn btn-info"> Editar</a>
                                 <a href="/Core/espacio/eliminar/{{insc.id }}" class="btn btn-danger"> Eliminar</a></td>
                                 <!-- Agrega más celdas según los campos que quieras mostrar -->
@@ -62,3 +61,61 @@
     </div>
         {% load static %}
         <link rel="stylesheet" type="text/css" href="{% static 'autocomplete_light/select2.css' %}" />
+        {% block scripts %}
+        <!-- JavaScript de DataTables -->
+        <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.js"></script>
+        <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+        
+        <!-- Agrega el archivo de idioma español -->
+        <script src="https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"></script>
+        
+        <style>
+        
+        /* Ajustar el tamaño de los campos de búsqueda */
+        .dataTables_wrapper .dataTables_filter input {
+            font-size: 10px; /* Tamaño de texto del campo de búsqueda */
+            padding: 5px;    /* Espaciado interno del campo de búsqueda */
+        }
+        </style>
+        <script>
+        $(document).ready(function () {
+            // Clonar las celdas del encabezado y agregar filtros a todas excepto la última
+            $('#table_id thead tr th').each(function (index) {
+                if (index < $('#table_id thead tr th').length - 1) {
+                    $(this).clone(true)
+                        .addClass('form-label filters')
+                        .appendTo($(this));
+                }
+            });
+        
+            var table = $('#table_id').DataTable({
+                orderCellsTop: true,
+                fixedHeader: true,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
+                },
+                initComplete: function () {
+                    var api = this.api();
+        
+                    // Agregar filtros a todas las celdas clonadas excepto la última
+                    $('.filters').each(function (index) {
+                        if (index < api.columns().count() - 1) {
+                            var title = $(this).text();
+                            $(this).html('<input type="text" class="container-fluid small" placeholder="' + title + '" />');
+                            $('input', this).on('keyup change', function () {
+                                if (api.column(index).search() !== this.value) {
+                                    api
+                                        .column(index)
+                                        .search(this.value)
+                                        .draw();
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+        
+        </script>
+        {% endblock %}
+        

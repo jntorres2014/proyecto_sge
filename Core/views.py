@@ -450,26 +450,31 @@ def espacioView(request,id):
 def espacioEliminar(request, id_espacio):
     try:
         espacio = EspacioCurricular.objects.get(id=id_espacio)
+        plan_id = espacio.plan.id  # Obtener el ID del plan antes de eliminar el espacio
         espacio.delete()
         messages.success(request, 'El espacio curricular se eliminó correctamente.')
     except Estudiante.DoesNotExist:
         messages.error(request, 'No se encontró el Ciclo que intentas eliminar.')
-    
-    return HttpResponseRedirect("/Core/plan/ver")
+    print('Core/espacio/verEnPlan/' + str(plan_id)+'/')
+    return redirect('/Core/espacio/verEnPlan/' + str(plan_id))
+
+#    return HttpResponseRedirect("/Core/plan/ver")
 
 ###################################
 ###################################
 @login_required
 def espacioEdit(request, id_espacio):
     espacio = EspacioCurricular.objects.get(id=id_espacio)
+    
     if request.method == 'GET':
-        form = forms.EspacioCurricularEditForm(instance= espacio)
+        print('entre acaaa')
+        form = forms.EspacioCurricularEditForm(instance= espacio,id_plan=espacio.plan.id)
     else:
-        form = forms.EspacioCurricularEditForm(request.POST, instance= espacio)
+        form = forms.EspacioCurricularEditForm(request.POST, instance= espacio,id_plan=espacio.plan.id)
         if form.is_valid():
             form.save()
             messages.success(request, 'Se edito el espacio curricular correctamente.')
-            return HttpResponseRedirect("/Core/espacio/ver")
+            return redirect('/Core/espacio/verEnPlan/' + str(espacio.plan.id))
     return render(request, 'Core/EspacioCurricular/EspaciosCurricularesForm.html',{'form':form})
 
 @login_required
@@ -629,7 +634,7 @@ def eliminarDivision(request, id,idCiclo):
     alumnos= Inscripcion.objects.filter(anio = anio,ciclo = ciclo)
     if len(division) >  1:
         division[-1].delete()
-        mensaje = 'Eliminado correctamente ' 
+        mensaje = 'La division se eliminó correctamente ' 
         
     else:
         mensaje= "Debe Existir al menos una division"

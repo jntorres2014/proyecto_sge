@@ -5,6 +5,10 @@ app_name = "Clases"
 urlpatterns  = [
 path('reportesGraficos/', views.reportes_graficos, name='reportes_graficos'),
 path('reporteNotas/', views.reporteNotas, name='reporteNotas'),
+    path('reporte/', views.reporte_view, name='reporte'),
+    path('reporte/data/', views.get_reporte_data, name='reporte_data'),
+    path('reporte/ciclos/', views.get_ciclos, name='reporte_ciclos'),
+    path('reporte/instancias/', views.get_instancias, name='reporte_instancias'),
     re_path(r'^altaCalificacion$', views.calificacion_view),
     re_path(r'^verCalificacion$', views.calificacion_list.as_view(), name='verCalificacion'),
     re_path(r'^modificarCalificacion/(?P<id_calificacion>\d+)/$', views.calificacion_edit, name='modificarCalificacion'),

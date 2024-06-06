@@ -1,6 +1,6 @@
 from datetime import datetime
 from django import forms
-from Core.models import Calificacion, Detalle_Horario, EspacioCurricular, Estudiante, Horario,Division, Instancia
+from Core.models import Calificacion, Ciclo, Detalle_Horario, EspacioCurricular, Estudiante, Horario, Instancia, PlanDeEstudios
 from dal import autocomplete
 from Clases.models import Inasistencias
 from django.utils import timezone
@@ -103,6 +103,17 @@ class Detalle_HorarioForm(forms.ModelForm):
 
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        dia = cleaned_data.get("dia")
+        hora = cleaned_data.get("hora")
+        docente = cleaned_data.get("docente")
+        
+        # Verificar si el docente ya está asignado en otro horario en el mismo día y módulo
+        if Detalle_Horario.objects.filter(docente=docente, dia=dia, hora=hora).exists():
+            raise forms.ValidationError("El docente ya está asignado en otro horario en el mismo día y módulo.")
+        
+        return cleaned_data
     def __init__(self, *args, **kwargs):
         division = kwargs.pop('division', None)
         super(Detalle_HorarioForm, self).__init__(*args, **kwargs)
@@ -118,6 +129,25 @@ class Detalle_HorarioForm(forms.ModelForm):
         # # Personaliza el widget para el campo 'hora'
         self.fields['hora'].widget = forms.Select(choices=Horario.CHOICES_HORA)
 
+class ReporteForm(forms.Form):
+    plan = forms.ModelChoiceField(queryset=PlanDeEstudios.objects.all(), required=True)
+    ciclo = forms.ModelChoiceField(queryset=Ciclo.objects.none(), required=False)
+    instancia = forms.ModelChoiceField(queryset=Instancia.objects.none(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(ReporteForm, self).__init__(*args, **kwargs)
+        if 'plan' in self.data:
+            try:
+                plan_id = int(self.data.get('plan'))
+                self.fields['ciclo'].queryset = Ciclo.objects.filter(plan_id=plan_id).order_by('anioCalendario')
+                if 'ciclo' in self.data:
+                    ciclo_id = int(self.data.get('ciclo'))
+                    self.fields['instancia'].queryset = Instancia.objects.filter(ciclo_id=ciclo_id).order_by('nombre')
+            except (ValueError, TypeError):
+                pass
+        else:
+            self.fields['ciclo'].queryset = Ciclo.objects.none()
+            self.fields['instancia'].queryset = Instancia.objects.none()
 
 class ConsultaForm(forms.Form):
 

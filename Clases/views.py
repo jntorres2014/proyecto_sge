@@ -5,12 +5,12 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
-from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, HabilitarInstanciaForm, InasistenciasForm, Inasistencias, InstanciaForm
+from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, HabilitarInstanciaForm, InasistenciasForm, Inasistencias, InstanciaForm, ReporteForm
 from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Docente, EspacioCurricular, Estudiante, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Inscripcion,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.db.models import Q
-
+from django.contrib import messages
 # Create your views here.
 from django.shortcuts import render
 from .models import Inasistencias
@@ -306,6 +306,55 @@ def habilitar_instancia(request, instancia_id):
     print("se guardo correctamente")
     return JsonResponse({'message': 'Instancia habilitada exitosamente'})
 
+#*************************************************
+def reporte_view(request):
+    form = ReporteForm(request.GET or None)
+    context = {'form': form}
+    return render(request, 'Cursada/reporte.html', context)
+
+def get_reporte_data(request):
+    plan_id = request.GET.get('plan')
+    ciclo_id = request.GET.get('ciclo')
+    instancia_id = request.GET.get('instancia')
+
+    calificaciones = Calificacion.objects.all()
+    if plan_id:
+        calificaciones = calificaciones.filter(ciclo__plan_id=plan_id)
+    if ciclo_id:
+        calificaciones = calificaciones.filter(ciclo_id=ciclo_id)
+    if instancia_id:
+        calificaciones = calificaciones.filter(instancia_id=instancia_id)
+
+    promedio_notas = calificaciones.values('espacioCurricular__nombre').annotate(promedio=Avg('nota')).order_by('espacioCurricular__nombre')
+
+    labels = [item['espacioCurricular__nombre'] for item in promedio_notas]
+    data = [item['promedio'] for item in promedio_notas]
+    print("DATOOOOOS",data)
+    chart_data = { 
+        'labels': labels,
+        'datasets': [{
+            'label': 'Promedio de Notas',
+            'data': data,
+            'backgroundColor': 'rgba(75, 192, 192, 0.2)',
+            'borderColor': 'rgba(75, 192, 192, 1)',
+            'borderWidth': 1,
+        }]
+    }
+    return JsonResponse(chart_data)
+
+def get_ciclos(request):
+    print("Entre a reporte ciclos")
+    plan_id = request.GET.get('plan')
+    ciclos = Ciclo.objects.filter(plan_id=plan_id).values('id', 'anioCalendario')
+    data = {'ciclos': list(ciclos)}
+    return JsonResponse(data)
+
+def get_instancias(request):
+    ciclo_id = request.GET.get('ciclo')
+    instancias = Instancia.objects.filter(ciclo_id=ciclo_id).values('id', 'nombre')
+    data = {'instancias': list(instancias)}
+    return JsonResponse(data)
+#**************************************************
 # def consultar_faltas(request):
 #     if request.method == 'POST' and request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
 #         form = ConsultaForm(request.POST)
@@ -342,35 +391,28 @@ class inasistencia_list(ListView):
     
 @login_required
 def crear_horario(request,idDivision):
-    print("*******entre aca**** ",idDivision,request.method)
-
     horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division_id=idDivision))
     if request.method == "POST":
         print("******Entre al post******")
-        print("requesst",request.POST)
         division = Division.objects.get(id=idDivision)
         form = Detalle_HorarioForm(request.POST, division=division)
         if form.is_valid():
             print("Era valido")
-            form.save()
-            
-            mensaje = 'Horario cargado correctamente'
-        
+            form.save()            
+            messages.success(request, 'el Horario se cargó correctamente')
+            mensaje = ''
         else:
-    # El formulario no es válido, imprimir los mensajes de error
-            errors = form.errors.as_data()
-            for field, field_errors in errors.items():
-                for error in field_errors:
-                    print(f"Error en el campo '{field}': {error}")
-                    mensaje = 'No se cargo el horario'
-            return redirect("/Clases/crear_horario/" + idDivision, {'mensaje' : mensaje})
+            mensaje = "form.errors"
+            messages.success(request, mensaje)
+        return redirect("/Clases/crear_horario/" + idDivision, {'mensaje' : mensaje,
+                                                                'form':form})
+
     print("Horarios",horarios)
     form = Detalle_HorarioForm(division = Division.objects.get(id=idDivision))
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
     modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]
     print(dias,modulos)
     division = Division.objects.get(id=idDivision)
-    
     return render(request, "Division/crearHorarioDivision.html", {"form": form, 
                                                                   "horarios": horarios,
                                                                   "dias": dias,

@@ -654,7 +654,7 @@ class Horario(models.Model):
 class Detalle_Horario(models.Model):
     horario= models.ForeignKey(Horario,on_delete = models.CASCADE)
     espacioCurricular = models.ForeignKey(EspacioCurricular, on_delete=models.CASCADE, related_name='horarios')
-    dia= models.CharField(help_text="Lunes",max_length=10)
+    dia= models.CharField(help_text="Lunes",max_length=10,)
     hora = models.CharField(help_text="Ej: Modulo 1",max_length=10)
     docente = models.ForeignKey(Docente, on_delete = models.CASCADE, null = True)
     
