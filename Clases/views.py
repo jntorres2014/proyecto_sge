@@ -1,6 +1,7 @@
 import calendar
 from itertools import count
 import json
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -471,10 +472,10 @@ def asignar_alumno_a_aula(request, idAnio):
     estudiantes_inscritos = Inscripcion.objects.filter(anio=idAnio,ciclo = ciclo)
     print("estudiuantes inscriptos",estudiantes_inscritos)
     # Verificar si las aulas existen para cada división
-    for division in divisiones:
-        aulas_existen = Aula.objects.filter(division=division).exists()
-        if not aulas_existen:
-            Aula.objects.create(division=division)
+    # for division in divisiones:
+    #     aulas_existen = Aula.objects.filter(division=division).exists()
+    #     if not aulas_existen:
+    #         Aula.objects.create(division=division)
 
     # Obtener las aulas después de verificar o crear
     aulas = Aula.objects.filter(division__in=divisiones)
@@ -509,33 +510,49 @@ def estudiantes_aulas(request, id_division):
     horario = Horario.objects.get(division_id = id_division)
     docente = Docente.objects.get(dni = request.user.username)
     print('Docente',docente)
-    espacios = Detalle_Horario.objects.filter(docente= docente, horario = horario)
+    espacios = Detalle_Horario.objects.filter(docente= docente, horario = horario).values('espacioCurricular').distinct()
     estudiantes = aula.estudiantes.all()
     print("Aulaaaa",aula.division.id,request.user.id)
     print(estudiantes)
-    print('Espacioooos estudiantes',type(espacios))
-
+    print('Espacioooos estudiantes',espacios)
+    estudiantes_ids = request.GET.getlist(estudiantes)
+    calificacion = Calificacion.objects.filter(
+            docente_id=docente.id,
+            instancia_id=1,
+            estudiante__in=estudiantes,
+            ciclo=request.ciclo,
+        ).order_by('espacioCurricular')
+    
     if request.method == 'GET':
         form = CalificacionForm(espacios= espacios,estudiantes= estudiantes)
     else:
         print("****FORMULARIO****")
         form = CalificacionForm(request.POST)
         if form.is_valid():
-            ciclo = Ciclo.objects.get(esActual = True)
-            docente_id = Docente.objects.get(dni=request.user.username)
-            calificacion_obj = form.save(commit=False)
-            calificacion_obj.ciclo = ciclo
-            calificacion_obj.docente = docente_id
-            calificacion_obj.save()
-
+            try:
+                ciclo = request.ciclo
+                docente_id = Docente.objects.get(dni=request.user.username)
+                calificacion_obj = form.save(commit=False)
+                calificacion_obj.ciclo = ciclo
+                calificacion_obj.docente = docente_id
+                calificacion_obj.save()
+                messages.success(request, 'nota cargada correctamente.')
+            except IntegrityError:
+                messages.error(request, 'Ya existe una calificación para esta instancia, ciclo y estudiante.') 
+                # request.message = 'Ya existe una calificación para esta instancia, ciclo y estudiante.'
         else:
-            print(form.errors)
-            
+            print("El formulariooooo",request.POST)
+            messages.error(request, form.errors)
+
+    form = CalificacionForm(espacios= espacios,estudiantes= estudiantes)        
     return render (request, 'Calificacion/verEstudiante2.html',{
         'estudiantes': estudiantes,
         'form': form,
         'espacios': espacios,
+        'calificacion': calificacion
     })
+
+    
 
 def obtener_alumnos(request, idEstudiante):
     print("Obteniendo las inscripciones del estudiante")

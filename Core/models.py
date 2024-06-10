@@ -440,6 +440,7 @@ class Ciclo (models.Model):
                                              codigo='A',
                                              descripcion="{} {}".format(a, 'Año Division A'),
                                              anio=a)
+            Aula.objects.create(division = division)
             division.crear_Horario_Division()
         return division
     @classmethod
@@ -494,14 +495,15 @@ class Calificacion(models.Model):
         (FINAL, 'final'),
         (PARCIAL, 'parcial'))
 
-    tipo= models.PositiveIntegerField(choices = CHOICES_TIPO)
+    tipo = models.PositiveIntegerField(choices=CHOICES_TIPO)
 
     instancia = models.ForeignKey(
         Instancia,
         null=True,
         blank=False,
         on_delete=models.CASCADE,
-        related_name="docente")
+        related_name="docente"
+    )
 
     nota = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
 
@@ -510,29 +512,35 @@ class Calificacion(models.Model):
         null=True,
         blank=False,
         on_delete=models.CASCADE,
-        related_name="docente")
+        related_name="docente"
+    )
 
     espacioCurricular = models.ForeignKey(
         EspacioCurricular,
         null=True,
         blank=False,
         on_delete=models.CASCADE,
-        related_name="espacioCurricular")
-
-    estudiante= models.ForeignKey(
-        Estudiante,
-        null= True,
-        blank= False,
-        on_delete= models.CASCADE,
-        
+        related_name="espacioCurricular"
     )
+
+    estudiante = models.ForeignKey(
+        Estudiante,
+        null=True,
+        blank=False,
+        on_delete=models.CASCADE,
+    )
+
     ciclo = models.ForeignKey(
         Ciclo,
-        null= True,
-        blank= False,
-        on_delete= models.CASCADE,
-        
-    )
+        null=True,
+        blank=False,
+        on_delete=models.CASCADE,
+    )   
+    class Meta:
+        # Define la restricción de unicidad para instancia, ciclo y estudiante
+        unique_together = ('instancia', 'ciclo', 'estudiante')
+
+
         
 #--------------------------------------------------------------------------
 

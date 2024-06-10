@@ -4,7 +4,7 @@ from django.utils import timezone
 import string
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from Clases.models import Inasistencias
 from Core import forms
@@ -33,8 +33,9 @@ from dal import autocomplete
 class MateriaAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         idDiv = self.forwarded.get('horario')
-        division = Division.objects.get(id = idDiv)
-        anio = AnioPlan.objects.get(id = division.anio_id)
+        print("ebtre a materia autocomplete", idDiv)
+        horario = Horario.objects.get(id = idDiv)
+        anio = AnioPlan.objects.get(id = horario.division.anio.id)
         print(anio)
         if anio:
             qs = EspacioCurricular.objects.filter(anio = anio)
@@ -50,9 +51,10 @@ class MateriaAutocomplete(autocomplete.Select2QuerySetView):
 class DocenteHoraAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         idDiv = self.forwarded.get('horario')
-        division = Division.objects.get(id = idDiv)
-        anio = AnioPlan.objects.get(id = division.anio_id)
-        print('Añoooooo',anio)
+        print("ebtre a materia autocomplete", idDiv)
+        horario = Horario.objects.get(id = idDiv)
+        anio = AnioPlan.objects.get(id = horario.division.anio.id)
+        print(anio)
         if anio:
             qs = InscripcionDocente.objects.filter(anio = anio)
         else:
@@ -100,13 +102,9 @@ class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
 class DocenteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         print('ENTRE A AUTOCOMPLETE******')
-        ciclo_actual = Ciclo.objects.get(esActual=True)
+        fecha_actual = timezone.now().date()
         # Filtra los estudiantes que no están inscritos en el ciclo actual
-        qs = Docente.objects.exclude(
-            id__in=InscripcionDocente.objects.filter(
-                ciclo=ciclo_actual
-            ).values('docente')
-            )
+        qs = Docente.objects.all()
         #qs = Estudiante.objects.all()
         print("Entreee",qs)
         if self.q:
@@ -627,53 +625,77 @@ def cicloEdit(request, id_ciclo):
 
 ################################################
 @login_required
-def eliminarDivision(request, id,idCiclo):
+def eliminarDivision(request, id, idCiclo):
+    if request.method == 'POST':
+        anio = AnioPlan.objects.get(id=id)
+        ciclo = Ciclo.objects.get(esActual='True')
+        division = list(Division.objects.filter(anio=id, ciclo=idCiclo))
+        if len(division) > 1:
+            aula = Aula.objects.get(division=division[-1])
+            division[-1].delete()
+            aula.delete()
+            message = 'Division eliminada correctamente'
+            messages.error(request, message)
+            return JsonResponse({'success': True,'message': message})
+        else:
+            message = 'Debe existir al menos una división'
+            messages.error(request, message)
+            return JsonResponse({'success': False, 'message': message})
+
     anio = AnioPlan.objects.get(id=id)
-    ciclo = Ciclo.objects.get(esActual= 'True')
-    division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
-    alumnos= Inscripcion.objects.filter(anio = anio,ciclo = ciclo)
-    if len(division) >  1:
-        division[-1].delete()
-        mensaje = 'La division se eliminó correctamente ' 
-        
-    else:
-        mensaje= "Debe Existir al menos una division"
-    division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
-    return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,
-                                                      'id':idCiclo,
-                                                      'anio':id,
-                                                      'cant_alumnos':len(alumnos),
-                                                      'mensaje':mensaje}) 
+    ciclo = Ciclo.objects.get(esActual='True')
+    division = list(Division.objects.filter(anio=id, ciclo=idCiclo))
+    alumnos = Inscripcion.objects.filter(anio=anio, ciclo=ciclo)
+
+    return render(request, 'Core/Plan/verDivision.html', {
+        'divisiones': division,
+        'id': idCiclo,
+        'anio': id,
+        'cant_alumnos': len(alumnos),
+    })
 
 @login_required
-def divisionList(request, id,idCiclo):
-    division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
+def divisionList(request, id, idCiclo):
     anio = AnioPlan.objects.get(id=id)
-    ciclo = Ciclo.objects.get(esActual= 'True')
-    alumnos= Inscripcion.objects.filter(anio = anio,ciclo = ciclo)
-    print('cantidad de alumnos',alumnos.count())
-    print("VER Division")
-    #division= list(Division.objects.filter(anio = id))
-    print("VER Division2")
-    #print(list(string.ascii_uppercase)[((len(division)))])
-    print("request", request.method)
+    ciclo = Ciclo.objects.get(esActual='True')
+    division = Division.objects.filter(anio=id, ciclo=idCiclo)
+    alumnos = Inscripcion.objects.filter(anio=anio, ciclo=ciclo)
+
+    return render(request, 'Core/Plan/verDivision.html', {
+        'divisiones': division,
+        'id': idCiclo,
+        'anio': id,
+        'cant_alumnos': len(alumnos),
+        'cant_divisiones': len(division),
+        'mensaje': ''
+    })
+
+@login_required
+def crearDivision(request, id, idCiclo):
     if request.method == 'POST':
-        print("etre al post")
-        # Obtén los datos del formulario y crea la nueva división
-        codigo = list(string.ascii_uppercase)[((len(division)))]
-        descripcion = anio.codigo + ', Año Division '+ codigo
-        print(descripcion)
-        nueva_division = Division(ciclo=Ciclo.objects.get(esActual= 'True'), codigo=codigo, descripcion=descripcion, anio=anio)
+        anio = AnioPlan.objects.get(id=id)
+        ciclo = Ciclo.objects.get(esActual='True')
+        division = list(Division.objects.filter(anio=id, ciclo=idCiclo))
+        codigo = list(string.ascii_uppercase)[len(division)]
+        descripcion = f"{anio.codigo}, Año Division {codigo}"
+        nueva_division = Division(ciclo=ciclo, codigo=codigo, descripcion=descripcion, anio=anio)
         nueva_division.save()
-        messages.success(request, 'La division se creó correctamente.')
+        Aula.objects.create(division=nueva_division)
         nueva_division.crear_Horario_Division()
-        division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
-    return render(request, 'Core/Plan/verDivision.html',{'divisiones': division,
-                                                      'id':idCiclo,
-                                                      'anio':id,
-                                                      'cant_alumnos':len(alumnos),
-                                                      'cant_divisiones':len(division),
-                                                      'mensaje':'' })  
+        response_data = {
+            'success': True,
+            'division': {
+                'anio': {'codigo': anio.codigo},
+                'codigo': nueva_division.codigo,
+                'descripcion': nueva_division.descripcion,
+                'id': nueva_division.id
+            }
+        }
+        message = 'Division creada correctamente'
+        messages.error(request, message)
+
+        return JsonResponse(response_data)
+    return JsonResponse({'success': False})
 
 @login_required
 def verDivisionInasistencia(request, id,idCiclo):

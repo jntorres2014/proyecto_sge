@@ -5,31 +5,36 @@ from dal import autocomplete
 from Clases.models import Inasistencias
 from django.utils import timezone
 
-
 class CalificacionForm(forms.ModelForm):
 
     class Meta:
         model = Calificacion
-        fields= {
-            'espacioCurricular',
-            'estudiante',
-            'nota',
-            'tipo',
-            'instancia',
+        fields = ['espacioCurricular', 'estudiante', 'nota', 'tipo', 'instancia']
+        widgets = {
+            'espacioCurricular': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
+            'tipo': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
+            'instancia': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
+            'estudiante': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
         }
-        
+
     def __init__(self, *args, **kwargs):
         espacios = kwargs.pop('espacios', None)
         estudiantes = kwargs.pop('estudiantes', None)
         super(CalificacionForm, self).__init__(*args, **kwargs)
-        print('Espacioooos',espacios)
+        
         if espacios:
-            choices = [(espacio.id, espacio.espacioCurricular) for espacio in espacios]
-            self.fields['espacioCurricular'].widget.choices = choices
+            unique_espacios = []
+            for espacio in espacios:
+                first_instance = Detalle_Horario.objects.filter(espacioCurricular=espacio['espacioCurricular']).first()
+                if first_instance:  # Asegúrate de que hay al menos una instancia
+                    unique_espacios.append((first_instance.espacioCurricular.id, first_instance.espacioCurricular))
+            self.fields['espacioCurricular'].choices = unique_espacios
+        
         if estudiantes:
             choices = [(estudiante.id, estudiante.nombre) for estudiante in estudiantes]
-            self.fields['estudiante'].widget.choices = choices
-
+            self.fields['estudiante'].choices = choices
+        else:
+            self.fields['estudiante'].choices = []
 class HabilitarInstanciaForm(forms.ModelForm):
     fecha_fin = forms.DateField(label='Fecha Fin', widget=forms.TextInput(attrs={'type': 'date'}))
 
@@ -121,9 +126,11 @@ class Detalle_HorarioForm(forms.ModelForm):
 
         # # Personaliza el widget para el campo 'dia'
         self.fields['dia'].widget = forms.Select(choices=Horario.CHOICES_DIA)
-        self.fields['espacioCurricular'].queryset = EspacioCurricular.objects.filter(anio_id= division.anio_id)
-        horario = Horario.objects.get(division_id= division.id)
-        self.fields['horario'] = forms.ModelChoiceField(queryset=Horario.objects.filter(division_id= division.id), initial=horario, widget=forms.HiddenInput())
+        print("en teoria es el id del año",division.anio.id)
+        self.fields['espacioCurricular'].queryset = EspacioCurricular.objects.filter(anio_id= division.anio.id)
+        horario = Horario.objects.get(division = division)
+        print("Esta es la division", division.id,"Año", horario)
+        self.fields['horario'] = forms.ModelChoiceField(queryset=Horario.objects.filter(division= division), initial=horario.id, widget=forms.HiddenInput())
         #self.fields['horario'].queryset = Horario.objects.filter(division_id= division.id)
 
         # # Personaliza el widget para el campo 'hora'
