@@ -322,19 +322,23 @@ def get_reporte_data(request):
     ciclo_id = request.GET.get('ciclo')
     instancia_id = request.GET.get('instancia')
     calificaciones = Calificacion.objects.all()
+    print("todas las notas",calificaciones)
 
     if plan_id:
         calificaciones = calificaciones.filter(ciclo__plan_id=plan_id)
+        print("notassssss",calificaciones)
     if ciclo_id:
         calificaciones = calificaciones.filter(ciclo_id=ciclo_id)
+        print("notassssss Cilooo",calificaciones)
     if instancia_id:
         calificaciones = calificaciones.filter(instancia_id=instancia_id)
 
     # Agrupar calificaciones por espacio curricular
     promedio_notas = calificaciones.values('espacioCurricular__nombre').annotate(promedio=Avg('nota')).order_by('espacioCurricular__nombre')
-
+    print("ver promedio notas", promedio_notas)
     # Preparar los datos para Chart.js
     labels = [item['espacioCurricular__nombre'] for item in promedio_notas]
+    print("ver labels", labels)
     data = [item['promedio'] for item in promedio_notas]
 
     chart_data = {
@@ -362,6 +366,7 @@ def get_instancias(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('Acceso denegado.')
     ciclo_id = request.GET.get('ciclo')
+    print(ciclo_id)
     instancias = Instancia.objects.filter(ciclo_id=ciclo_id).values('id', 'nombre')
     data = {'instancias': list(instancias)}
     return JsonResponse(data)
@@ -487,8 +492,8 @@ def asignar_alumno_a_aula(request, idAnio):
     if not request.user.is_staff:
         return HttpResponseForbidden('Acceso denegado.')
     print("asignar alumno", idAnio)
-    #ciclo = Ciclo.objects.get(esActual = 'True')
-    ciclo=request.ciclo
+    ciclo = Ciclo.objects.get(esActual = 'True')
+    #ciclo=request.ciclo
     divisiones = Division.objects.filter(anio_id=idAnio,ciclo=ciclo)
     estudiantes_inscritos = Inscripcion.objects.filter(anio=idAnio,ciclo = ciclo)
     print("estudiuantes inscriptos",estudiantes_inscritos)

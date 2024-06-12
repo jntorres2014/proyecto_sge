@@ -62,7 +62,8 @@
                             <td>{{ insc.docente.nombre }}&nbsp;{{ insc.docente.apellido }}</td>
                             <td>{{ insc.anio }}</td>
                             <td>{{ insc.fecha }}</td>
-                            <td> <a class="btn btn-danger" href="/Core/docente/eliminarInscripcionDocente/{{insc.docente.id}}/{{insc.anio.id}}/{{insc.ciclo.id}}">-</a>  
+
+                            <td> <a class="btn btn-danger delete-inscripcion" href="/Core/docente/eliminarInscripcionDocente/{{insc.docente.id}}/{{insc.anio.id}}/{{insc.ciclo.id}}">Eliminar</a>  
                             </td> 
                         </tr>
                     {% endfor %} 
@@ -86,7 +87,10 @@
  
 <script src="https://cdn.datatables.net/v/dt/dt-1.13.8/af-2.6.0/cr-1.7.0/fc-4.3.0/sc-2.3.0/datatables.min.js"></script>
 <script src="https://cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
+
 $(document).ready(function () {
     // Clonar las celdas del encabezado y agregar filtros a todas excepto la última
     $('#table_id thead tr th').each(function (index) {
@@ -127,9 +131,33 @@ $(document).ready(function () {
 
 </script>
 <script>
-    function goBack() {
-        window.location.replace(document.referrer);
-    }
+    $(document).ready(function () {
+        $('.delete-inscripcion').click(function (event) {
+            event.preventDefault(); // Evita que el enlace se siga al hacer clic
+    
+            var url = $(this).attr('href'); // Obtiene la URL del enlace
+            var estudianteId = $(this).data('estudiante-id'); // Obtiene el ID del estudiante
+    
+            // Muestra el alerta de confirmación
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¿Quieres eliminar este Horario?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario confirma, realiza la eliminación
+                    window.location.href = url;
+                }
+            });
+        });
+    });
     </script>
+
+
 <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
 {% endblock %}

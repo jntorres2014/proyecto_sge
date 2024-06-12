@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
     'django.contrib.admin',
+    'django_extensions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

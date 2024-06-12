@@ -467,6 +467,7 @@ class Ciclo (models.Model):
                                              descripcion="{} {}".format(a, Division.PRIMERA),
                                              anio=a)
             division.crear_Horario_Division(division)
+            Aula.objects.create(division=division)
         return division
 @receiver(post_save, sender=Ciclo)
 def ajustarCicloactual(sender, instance, **kwargs):

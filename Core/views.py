@@ -10,7 +10,7 @@ from Clases.models import Inasistencias
 from Core import forms
 from django.urls import reverse
 from Core.resource import LocalidadResource
-from .models import Aula, Detalle_Horario, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
+from .models import Aula, Calificacion, Detalle_Horario, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
 from django.views.generic import ListView,TemplateView
 from django.db.models import Q
 from tablib import Dataset 
@@ -119,37 +119,41 @@ class DocenteAutocomplete(autocomplete.Select2QuerySetView):
 def importar(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('Acceso denegado.')
-    print("llegue a importar")
-    result = None  # Inicializa result a None
-    localidades = Localidad.objects.all()
-    print(localidades)
-
+    
+    print("Llegué a importar")
+    resultado = None
+    localidades_creadas = 0
+    localidades_fallidas = 0
+    
     if request.method == 'POST':
         localidad_resource = LocalidadResource()
         dataset = Dataset()
-        print(dataset)
-        nuevas_localidades = request.FILES['xlsfile']
-        print(nuevas_localidades)
-        imported_data = dataset.load(nuevas_localidades.read())
-        try:
-            result = localidad_resource.import_data(dataset, dry_run=True)
-            
-            if not result.has_errors():
-                result = localidad_resource.import_data(dataset, dry_run=False)
-                messages.success(request, 'La importación se realizó correctamente.')
+        
+        nuevas_localidades = request.FILES.get('xlsfile')
+        if nuevas_localidades:
+            # Verificar si el archivo ya ha sido importado en esta sesión
+            if 'archivo_importado' not in request.session:
+                imported_data = dataset.load(nuevas_localidades.read())
+                try:
+                    resultado = localidad_resource.import_data(dataset, dry_run=True)
+                    
+                    if not resultado.has_errors():
+                        localidades_creadas = localidad_resource.import_data(dataset, dry_run=False)
+                        messages.success(request, f'Se crearon {localidades_creadas} localidades exitosamente.')
+                    else:
+                        localidades_fallidas = len(resultado.invalid_rows)
+                        messages.error(request, f'Error durante la importación. Se crearon {localidades_creadas} localidades y fallaron {localidades_fallidas}.')
+                    
+                    # Registrar el archivo como importado en la sesión
+                    request.session['archivo_importado'] = True
+                except Exception as e:
+                    messages.error(request, f'Error durante la importación: {str(e)}')
             else:
-                messages.error(request, 'Error durante la importación. Verifica el formato del archivo.')
-
-        except Exception as e:
-            messages.error(request, f'Error durante la importación: {str(e)}')
-
-        print(imported_data.headers)  # Imprime los nombres de columna
-        print(imported_data.dict)     # Imprime los datos del archivo
-
-
-    print("Result:", result)
-
-    return render(request, 'Core/importar.html', {'result': result})
+                messages.info(request, 'Este archivo ya ha sido importado previamente en esta sesión.')
+        else:
+            messages.error(request, 'No se ha proporcionado ningún archivo para importar.')
+    
+    return render(request, 'Core/importar.html', {'resultado': resultado})
 ##################################################################
 @login_required
 def localidadView(request):
@@ -604,7 +608,6 @@ def cargarEspacios(request):
 ########## ESTOY ACA #################
 @login_required
 def anioList(request, id):
-    
     print("llegue",id)
     ciclo = Ciclo.objects.get(id=id)
     print((ciclo))
@@ -613,6 +616,14 @@ def anioList(request, id):
     return render(request, 'Core/Plan/verAnio.html',{'anioPlan': anioPlan,
                                                      'id':ciclo.id})
 
+@login_required
+def anioListActual(request):
+    ciclo = request.ciclo
+    print((ciclo))
+    anioPlan = AnioPlan.objects.filter(plan = ciclo.plan)
+    print(anioPlan)
+    return render(request, 'Core/Plan/verAnio.html',{'anioPlan': anioPlan,
+                                                     'id':ciclo.id})
 @login_required
 def cicloList(request, id):
     print(id)
@@ -875,16 +886,18 @@ def asignarEstudianteAula(request,id_anio):
                                                                  'cantDivisiones': cantidadDivisiones})
 
 
+
 def exportarHistorialPdf(request, estudiante_id):
     if not request.user.is_staff:
         return HttpResponseForbidden('Acceso denegado.')
+
     estudiante = Estudiante.objects.get(pk=estudiante_id)
     inscripciones = Inscripcion.objects.filter(estudiante=estudiante).order_by('fecha')
     faltas = Inasistencias.objects.filter(estudiante=estudiante).order_by('dia')
-    
+    calificaciones = Calificacion.objects.filter(estudiante=estudiante).order_by('ciclo', 'espacioCurricular')
+
     # Crear un buffer de bytes en memoria para el PDF
     buffer = BytesIO()
-
     # Crear el documento PDF
     doc = SimpleDocTemplate(buffer, pagesize=letter)
     elements = []
@@ -896,55 +909,80 @@ def exportarHistorialPdf(request, estudiante_id):
     elements.append(Paragraph("Historial del Estudiante", styles['Title']))
     elements.append(Spacer(1, 12))
     elements.append(Paragraph(f"Estudiante: {estudiante.nombre} {estudiante.apellido}", styles['Normal']))
-    elements.append(Paragraph(f"Fecha de alta: {(estudiante.fechaInscripcion).strftime('%d-%m-%Y')}", styles['Normal']))
+    elements.append(Paragraph(f"Fecha de alta: {estudiante.fechaInscripcion.strftime('%d-%m-%Y')}", styles['Normal']))
     elements.append(Spacer(1, 12))
-    elements.append(Paragraph("Inscripciones", styles['Title']))
-    # Datos del historial
-    data = [["Plan de Estudio", "Ciclo", 'Año', "Fecha de Inscripción"]]
+
+    # Organizar las inscripciones por plan y ciclo
+    planes_ciclos = {}
     for inscripcion in inscripciones:
-        data.append([
-            inscripcion.ciclo.plan.anio,
-            inscripcion.ciclo.anioCalendario,
-            inscripcion.anio, 
-            inscripcion.fecha.strftime("%d-%m-%Y")
-        ])
-    
-    # Crear tabla con los datos del historial
-    table = Table(data)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.black),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-    
-    # Establecer ancho de las columnas
-    table._argW[0] = 2.5 * inch  # Ancho de la primera columna
-    table._argW[1] = 2 * inch    # Ancho de la segunda columna
-    table._argW[2] = 1.5 * inch  # Ancho de la tercera columna
-    
-    # Establecer espacio entre filas
-    table.setStyle(TableStyle([
-        ('SPACEBEFORE', (0,0), (-1,-1), 12),
-        ('SPACEAFTER', (0,0), (-1,-1), 12)
-    ]))
-    
-    elements.append(table)
+        plan_anio = inscripcion.ciclo.plan.anio
+        ciclo_anio = inscripcion.ciclo.anioCalendario
+        if plan_anio not in planes_ciclos:
+            planes_ciclos[plan_anio] = {}
+        if ciclo_anio not in planes_ciclos[plan_anio]:
+            planes_ciclos[plan_anio][ciclo_anio] = []
+        planes_ciclos[plan_anio][ciclo_anio].append(inscripcion)
+
+    # Datos del historial
+    for plan_anio, ciclos in planes_ciclos.items():
+        elements.append(Paragraph(f"Plan de Estudio: {plan_anio}", styles['Title']))
+        for ciclo_anio, inscripciones_ciclo in ciclos.items():
+            elements.append(Paragraph(f"Ciclo: {ciclo_anio}", styles['Heading2']))
+            data = [["Año", "Fecha de Inscripción"]]
+            for inscripcion in inscripciones_ciclo:
+                data.append([
+                    inscripcion.anio,
+                    inscripcion.fecha.strftime("%d-%m-%Y")
+                ])
+            
+            table = Table(data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.black),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            elements.append(table)
+            elements.append(Spacer(1, 12))
+
+            # Calificaciones para el ciclo actual
+            elements.append(Paragraph(f"Calificaciones del Ciclo: {ciclo_anio}", styles['Heading3']))
+            calificaciones_ciclo = calificaciones.filter(ciclo__anioCalendario=ciclo_anio)
+            calificaciones_data = [["Espacio Curricular", "Nota", "Docente"]]
+            for calificacion in calificaciones_ciclo:
+                calificaciones_data.append([
+                    calificacion.espacioCurricular.nombre,
+                    calificacion.nota,
+                    f"{calificacion.docente.nombre} {calificacion.docente.apellido}"
+                ])
+            
+            table_calificaciones = Table(calificaciones_data)
+            table_calificaciones.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.black),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            elements.append(table_calificaciones)
+            elements.append(Spacer(1, 12))
 
     # Datos de inasistencias
-    inasistencias = [['Fecha', 'Justificada?']]
-
+    elements.append(Paragraph("Inasistencias", styles['Title']))
+    inasistencias_data = [['Fecha', 'Justificada?']]
     for falta in faltas:
         justificada = 'SI' if falta.justificacion else 'NO'
-        inasistencias.append([
-            falta.dia.strftime("%d-%m-%Y"),  # Ajusta el formato según sea necesario
-            justificada])
-
-    # Crear tabla con los datos de inasistencias
-    table_inasistencias = Table(inasistencias)
+        inasistencias_data.append([
+            falta.dia.strftime("%d-%m-%Y"),
+            justificada
+        ])
+    
+    table_inasistencias = Table(inasistencias_data)
     table_inasistencias.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.black),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -954,18 +992,6 @@ def exportarHistorialPdf(request, estudiante_id):
         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
         ('GRID', (0, 0), (-1, -1), 1, colors.black)
     ]))
-    
-    # Establecer ancho de las columnas
-    table_inasistencias._argW[0] = 2 * inch  # Ancho de la primera columna
-    table_inasistencias._argW[1] = 2 * inch  # Ancho de la segunda columna
-    
-    # Establecer espacio entre filas
-    table_inasistencias.setStyle(TableStyle([
-        ('SPACEBEFORE', (0,0), (-1,-1), 12),
-        ('SPACEAFTER', (0,0), (-1,-1), 12)
-    ]))
-    
-    elements.append(Paragraph("Inasistencias:", styles['Title']))
     elements.append(table_inasistencias)
 
     # Construir el PDF

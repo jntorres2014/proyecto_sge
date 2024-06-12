@@ -1,0 +1,9 @@
+python manage.py shell
+
+from Core.models import Estudiante
+
+Estudiante.seed_db(100)
+
+sudo netstat -anp | grep 8000
+
+

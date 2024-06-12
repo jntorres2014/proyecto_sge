@@ -1,4 +1,4 @@
-{% extends 'Core/Plan/menuCiclo.html' %}
+{% extends 'index.html' %}
 {% load static %}
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 {% block css %} 
@@ -62,7 +62,7 @@
                             <td>{{ insc.estudiante.nombre }}&nbsp;{{ insc.estudiante.apellido }}</td>
                             <td>{{ insc.anio }}</td>
                             <td>{{ insc.fecha }}</td>
-                            <td> <a class="btn btn-danger" href="/Core/estudiante/eliminarInscripcion/{{insc.estudiante.id}}">- </a>  
+                            <td>  <a class="btn btn-danger delete-inscripcion" href="/Core/estudiante/eliminarInscripcion/{{insc.estudiante.id}}">Eliminar</a>  
                             </td> 
                         </tr>
                     {% endfor %} 
@@ -76,10 +76,12 @@
 
 {% comment %} {% load static %} {% endcomment %}
 
-{% block scripts %}
 
 {% comment %} <!--script type="text/javascript" src="{% static 'autocomplete_light/jquery.init.js' %}"></script--> {% endcomment %}
 <!-- JavaScript de DataTables -->
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Incluye SweetAlert 2 -->
+
 <link href="https://cdn.datatables.net/v/dt/dt-1.13.8/af-2.6.0/cr-1.7.0/fc-4.3.0/sc-2.3.0/datatables.min.css" rel="stylesheet">
  
 <script src="https://cdn.datatables.net/v/dt/dt-1.13.8/af-2.6.0/cr-1.7.0/fc-4.3.0/sc-2.3.0/datatables.min.js"></script>
@@ -123,6 +125,34 @@ $(document).ready(function () {
 });
 
 </script>
+<script>
+    $(document).ready(function () {
+        $('.delete-inscripcion').click(function (event) {
+            event.preventDefault(); // Evita que el enlace se siga al hacer clic
+    
+            var url = $(this).attr('href'); // Obtiene la URL del enlace
+            var estudianteId = $(this).data('estudiante-id'); // Obtiene el ID del estudiante
+    
+            // Muestra el alerta de confirmación
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: '¿Quieres eliminar esta inscripción?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario confirma, realiza la eliminación
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+    </script>
+    
 
 <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
 {% endblock %}

@@ -192,7 +192,12 @@
                     // Mostrar mensaje de éxito en algún lugar de tu interfaz
                     console.log("entre acaaa! llego bien",response.message);
                     //alert(response.message);  // Puedes usar alert o mostrarlo de otra manera
-                    location.reload()
+                    swal("¡Alumno asignado correctamente!", {
+                                icon: "success",
+                            }).then(() => {
+                            location.reload();
+                        });
+                    
                 } else {
                     // Manejar el caso de no éxito si es necesario
                 }
@@ -221,7 +226,12 @@ function eliminarAlumno(idAula, idEstudiante) {
             if (data.success) {
                 // Actualiza el mensaje con éxito
                 console.log("Estudiante eliminado del aula con éxito");
-                location.reload();
+                swal("¡Alumno eliminado correctamente!", {
+                            icon: "success",
+                        }).then(() => {
+                            location.reload();
+                        });
+
             } else {
                 // Actualiza el mensaje con error
                 console.log("Error al eliminar el estudiante del aula");
