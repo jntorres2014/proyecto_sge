@@ -113,4 +113,26 @@ $(document).ready(function () {
 });
 
 </script>
+<script>
+    $(document).ready(function() {
+        $('a.btn.btn-danger').click(function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            swal({
+                title: "¿Estás seguro?",
+                text: "Una vez eliminado, no podrás recuperar este usuario.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((willDelete) => {
+                if (willDelete) {
+                    window.location.href = url;
+                } else {
+                    swal("El usuario no ha sido eliminado.");
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
