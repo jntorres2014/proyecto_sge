@@ -24,6 +24,7 @@ urlpatterns = [
     re_path(r'^docente/inscripcion$', views.inscripcionDeDocenteCiclo,name='docente/inscripcion'),
     re_path(r'^docente/menu$', views.menuDocente,name='docente/menu'),
     re_path(r'^docente/eliminarInscripcionDocente/(?P<id_docente>\d+)/(?P<id_anio>\d+)/(?P<id_ciclo>\d+)/$', views.eliminarInscripcionDocente, name='docente/eliminarInscripcionDocente'),
+    
     #****************************** ESTUDIANTE ****************************** # 
     re_path(r'^estudiante/alta$', views.estudianteView, name='estudiante/alta'),
     re_path(r'^estudiante/ver$', views.estudianteList.as_view(),name='estudiante/ver'),
@@ -60,10 +61,7 @@ urlpatterns = [
     re_path(r'^anio/ver/(?P<id>\d+)/$', views.anioList, name= 'anio/ver'),
     re_path(r'^anio/verActual/$', views.anioListActual, name= 'anio/ver'),
     re_path(r'^aniosDePlanActual$', views.aniosDePlanActual,name='aniosDePlanActual'),
-    
-    
-   
-    
+     
     #****************************** DIVISION  ****************************** #
     re_path(r'^alumno_division/(?P<idAnio>\d+)/(?P<idCiclo>\d+)/$', views.asignarEstudianteDivision, name='alumno_division'),    
     re_path(r'^verDivision/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.divisionList, name='verDivision'),

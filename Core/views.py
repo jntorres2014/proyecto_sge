@@ -119,37 +119,41 @@ class DocenteAutocomplete(autocomplete.Select2QuerySetView):
 def importar(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('Acceso denegado.')
-    print("llegue a importar")
-    result = None  # Inicializa result a None
-    localidades = Localidad.objects.all()
-    print(localidades)
-
+    
+    print("Llegué a importar")
+    resultado = None
+    localidades_creadas = 0
+    localidades_fallidas = 0
+    
     if request.method == 'POST':
         localidad_resource = LocalidadResource()
         dataset = Dataset()
-        print(dataset)
-        nuevas_localidades = request.FILES['xlsfile']
-        print(nuevas_localidades)
-        imported_data = dataset.load(nuevas_localidades.read())
-        try:
-            result = localidad_resource.import_data(dataset, dry_run=True)
-            
-            if not result.has_errors():
-                result = localidad_resource.import_data(dataset, dry_run=False)
-                messages.success(request, 'La importación se realizó correctamente.')
+        
+        nuevas_localidades = request.FILES.get('xlsfile')
+        if nuevas_localidades:
+            # Verificar si el archivo ya ha sido importado en esta sesión
+            if 'archivo_importado' not in request.session:
+                imported_data = dataset.load(nuevas_localidades.read())
+                try:
+                    resultado = localidad_resource.import_data(dataset, dry_run=True)
+                    
+                    if not resultado.has_errors():
+                        localidades_creadas = localidad_resource.import_data(dataset, dry_run=False)
+                        messages.success(request, f'Se crearon {localidades_creadas} localidades exitosamente.')
+                    else:
+                        localidades_fallidas = len(resultado.invalid_rows)
+                        messages.error(request, f'Error durante la importación. Se crearon {localidades_creadas} localidades y fallaron {localidades_fallidas}.')
+                    
+                    # Registrar el archivo como importado en la sesión
+                    request.session['archivo_importado'] = True
+                except Exception as e:
+                    messages.error(request, f'Error durante la importación: {str(e)}')
             else:
-                messages.error(request, 'Error durante la importación. Verifica el formato del archivo.')
-
-        except Exception as e:
-            messages.error(request, f'Error durante la importación: {str(e)}')
-
-        print(imported_data.headers)  # Imprime los nombres de columna
-        print(imported_data.dict)     # Imprime los datos del archivo
-
-
-    print("Result:", result)
-
-    return render(request, 'Core/importar.html', {'result': result})
+                messages.info(request, 'Este archivo ya ha sido importado previamente en esta sesión.')
+        else:
+            messages.error(request, 'No se ha proporcionado ningún archivo para importar.')
+    
+    return render(request, 'Core/importar.html', {'resultado': resultado})
 ##################################################################
 @login_required
 def localidadView(request):
