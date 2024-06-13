@@ -564,7 +564,7 @@ def estudiantes_aulas(request, id_division):
                 calificacion_obj.ciclo = ciclo
                 calificacion_obj.docente = docente_id
                 calificacion_obj.save()
-                messages.success(request, 'nota cargada correctamente.')
+                messages.success(request, 'Calificacion cargada correctamente.')
             except IntegrityError:
                 messages.error(request, 'Ya existe una calificación para esta instancia, ciclo y estudiante.') 
                 
@@ -716,18 +716,17 @@ def verBoletines(request):
         for inscripcion in inscripciones:
             estudiantes.append(inscripcion.estudiante)
             
+        estudiantes = sorted(estudiantes,key=lambda e:e.nombre)
         return render(request, 'Calificacion/verBoletines.html',
                       {'estudiantes':estudiantes})
 
     if request.method == 'POST':
         estudiante_id = request.POST.get('estudiante_id')
-        print("Estuidiateeee",estudiante_id)
         estudiante = get_object_or_404(Estudiante, id=estudiante_id)
         inscripcion = Inscripcion.objects.get(estudiante = estudiante, ciclo = request.ciclo)
         calificaciones = Calificacion.objects.filter(estudiante=estudiante,ciclo = request.ciclo)
         espacios = EspacioCurricular.objects.filter(plan = request.ciclo.plan, anio= inscripcion.anio)
-        instancias = Instancia.objects.all()
-
+        instancias = Instancia.objects.filter(ciclo = request.ciclo)
         data = {
             'espacios': [espacio.nombre for espacio in espacios],
             'instancias': [instancia.nombre for instancia in instancias],

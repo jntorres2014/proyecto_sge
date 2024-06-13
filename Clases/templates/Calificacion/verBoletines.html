@@ -42,9 +42,11 @@
         <p id="promedio"></p>
     </div>
 
+</body>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            console.log("eoeoeo!")
             $('#buscar').on('click', function() {
                 const estudianteId = $('#estudiante').val();
                 $.ajax({
@@ -59,7 +61,7 @@
                         const espacios = response.espacios;
                         const calificaciones = response.calificaciones;
                         const promedio = response.promedio;
-
+                        console.log({response})
                         // Limpiar la tabla y el promedio anterior
                         $('#tabla-notas thead tr').empty();
                         $('#tabla-notas tbody').empty();
@@ -75,9 +77,11 @@
                         espacios.forEach(espacio => {
                             const row = $('<tr></tr>');
                             row.append(`<td>${espacio}</td>`);
+                            console.log({calificaciones})
                             instancias.forEach(instancia => {
                                 const celda = $('<td></td>');
                                 const calificacion = calificaciones.find(c => c.espacio === espacio && c.instancia === instancia);
+                                console.log(calificacion)
                                 if (calificacion) {
                                     celda.text(calificacion.nota);
                                 }
@@ -100,5 +104,5 @@
             });
         });
     </script>
-</body>
+
 {% endblock %}

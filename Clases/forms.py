@@ -59,46 +59,55 @@ class HabilitarInstanciaForm(forms.ModelForm):
 class InasistenciasForm(forms.ModelForm):
     class Meta:
         model= Inasistencias
-        fields={
+        fields=[
             'estudiante',
             'dia',
             'falta',
-            'justificacion',
-
-        }
+            'justificacion',]
+        
 class InstanciaForm(forms.ModelForm):
+    fecha = datetime.today().date()
+    fecha_inicio = forms.DateField(label='Fecha Inicio', widget=forms.TextInput(attrs={'type': 'date','value': fecha}))
+    fecha_fin = forms.DateField(label='Fecha Fin', widget=forms.TextInput(attrs={'type': 'date','value': fecha}))
     class Meta:
         model= Instancia
-        fields={
+        fields=[
         'nombre',
         'fecha_inicio',
         'fecha_fin',
-        'disponible',        
-        'ciclo'
-        }
+        'ciclo',
+        'disponible'        
+        ]
         labels={
             'nombre': 'Nombre',
+            'ciclo': 'Ciclo actual',
             'disponible': 'Disponible',            
-            'ciclo': 'Ciclo actual'
         }
-        fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-        widgets = {
-            'fecha_inicio': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
-            'fecha_fin': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),  
-        }
+        #fecha = datetime.today().date()
+        # fecha_inicio = forms.DateField(label='Fecha Fin', widget=forms.TextInput(attrs={'type': 'date','value': fecha}))
+        # fecha_fin = forms.DateField(label='Fecha Fin', widget=forms.TextInput(attrs={'type': 'date','value': fecha}))
+        # widgets = {
+        #     'fecha_inicio': forms.DateField(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
+        #     'fecha_fin': forms.DateField(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),  
+        # }
         
-    def clean_fecha_inicio(self):
+    # def clean_fecha_inicio(self):
 
-        print('entre acaaa')
-        inicio = self.cleaned_data.get("fecha_inicio")
-        fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-        if fecha <= inicio:
-            raise forms.ValidationError("fecha ingresada es menor a la de inicio")
-        return inicio
+    #     print('entre acaaa')
+    #     inicio = self.cleaned_data.get("fecha_inicio")
+    #     #fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+    #     fecha = datetime.today().date()
+    #     import pdb; pdb.set_trace()
+    #     if fecha <= inicio:
+    #         raise forms.ValidationError("fecha ingresada es menor a la de inicio")
+    #     return inicio
             
     def clean_fecha_fin(self):
         inicio = self.cleaned_data.get("fecha_inicio")
+        inicio = datetime.today().date()
         fin = self.cleaned_data.get("fecha_fin")
+        #import pdb; pdb.set_trace()
+        
         print('inicio', inicio)
         print("tipossss",type(inicio),type(fin))
         print('fin',fin)
