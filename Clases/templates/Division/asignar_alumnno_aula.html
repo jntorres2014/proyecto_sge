@@ -51,7 +51,7 @@
     <div id="estudiantes-container">
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         
-        <h1>estudiantes</h1>
+        <h1>Estudiantes</h1>
         <ul id="estudiantes-list">
             {% for estudiante in estudiantes %}
                 <li class="estudiante" draggable="true" ondragstart="handleDragStart(event, 
@@ -82,7 +82,7 @@
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <span>{{ e.dni }}: {{ e.nombre }} {{ e.apellido }}</span>
                                 <!-- Botón -->
-                                <button class="btn btn-danger btn-sm" onclick="eliminarestudiante('{{ aula.id }}', '{{ e.id }}')">
+                                <button class="btn btn-danger btn-sm" onclick="eliminarEstudiante('{{ aula.id }}', '{{ e.id }}')">
                                     <small>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-dash-fill" viewBox="0 0 16 16">
                                             <path fill-rule="evenodd" d="M11 7.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5"/>
@@ -192,7 +192,7 @@
                     // Mostrar mensaje de éxito en algún lugar de tu interfaz
                     console.log("entre acaaa! llego bien",response.message);
                     //alert(response.message);  // Puedes usar alert o mostrarlo de otra manera
-                    swal("¡estudiante asignado correctamente!", {
+                    swal("Estudiante asignado correctamente", {
                                 icon: "success",
                             }).then(() => {
                             location.reload();
@@ -216,7 +216,7 @@ function eliminarEstudiante(idAula, idEstudiante) {
     // Realiza una solicitud AJAX para eliminar el estudiante del aula
     $.ajax({
         type: 'POST',
-        url: '/Clases/eliminarEstudiante/',
+        url: '/Clases/eliminarAlumno/',
         data: {
             aula_id: idAula,
             estudiante_id: idEstudiante,
