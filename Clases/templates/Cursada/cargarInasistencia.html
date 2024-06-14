@@ -10,7 +10,7 @@
   {% endif %}
   {{division}}
   <div class="container container-fluid">
-    <h1>Alumnos</h1>
+    <h1>Estudiantes</h1>
     <form method="post" action="/Clases/cargarInasistencia/{{ division.id }}/">
       {% csrf_token %}
       <table class="table">
@@ -38,7 +38,7 @@
             {% endfor %}
           {% else %}
             <tr>
-              <td colspan="4">No hay alumnos disponibles.</td>
+              <td colspan="4">No hay estudiantes disponibles.</td>
             </tr>
           {% endif %}
         </tbody>

@@ -354,7 +354,7 @@ def eliminarInscripcion(request, id_estudiante):
         messages.error(request, 'No se encontró el estudiante que intentas eliminar.')
     
     return HttpResponseRedirect("/Core/estudiante/inscripcion",
-                                'correcto', 'Se elimino la inscripcion del alumno')
+                                'correcto', 'Se elimino la inscripcion del Estudiante')
 
 @login_required
 def eliminarInscripcionDocente(request, id_docente,id_anio,id_ciclo):
@@ -721,7 +721,7 @@ def eliminarDivision(request, id, idCiclo):
         'divisiones': division,
         'id': idCiclo,
         'anio': id,
-        'cant_alumnos': len(alumnos),
+        'cant_estudiantes': len(alumnos),
     })
 
 @login_required
@@ -737,7 +737,7 @@ def divisionList(request, id, idCiclo):
         'divisiones': division,
         'id': idCiclo,
         'anio': id,
-        'cant_alumnos': len(alumnos),
+        'cant_estudiantes': len(alumnos),
         'cant_divisiones': len(division),
         'mensaje': ''
     })

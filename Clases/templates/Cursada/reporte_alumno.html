@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Alumnos</title>
+    <title>Historial de Estudiante</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Historial de Alumnos</h1>
+        <h1>Historial de Estudiantes</h1>
         <div class="mb-3">
             <label for="estudiante-id" class="form-label">ID del Estudiante:</label>
             <input type="text" class="form-control" id="estudiante-id">
@@ -27,7 +27,7 @@
         });
 
         function obtenerHistorial(estudianteId) {
-            // Hacer una solicitud AJAX para obtener el historial de los alumnos
+            // Hacer una solicitud AJAX para obtener el historial de los Estudiantes
             $.ajax({
                 url: '/Clases/obtener_alumnos/' + estudianteId + '/',
                 type: 'GET',
@@ -37,7 +37,7 @@
                     mostrarHistorial(data);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error al obtener el historial de alumnos:', error);
+                    console.error('Error al obtener el historial de estudiantes:', error);
                 }
             });
         }
@@ -52,7 +52,7 @@
             $.each(data, function(estudiante_id, info) {
 
                 historialHTML += '<div class="mt-4">';
-                historialHTML += '<h2>Alumno: ' + estudiante_id + '</h2>';
+                historialHTML += '<h2>Estudiante: ' + estudiante_id + '</h2>';
 
                 // Mostrar ciclos
                 historialHTML += '<h3>Ciclos:</h3>';
