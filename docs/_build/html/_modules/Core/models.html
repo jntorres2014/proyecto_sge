@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+
+<html lang="es" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Core.models &#8212; documentación de Sge - 1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=4848ba22" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pyramid.css?v=310c80ee" />
+    <script src="../../_static/documentation_options.js?v=4936afed"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/translations.js?v=efdbd0b9"></script>
+    <link rel="index" title="Índice" href="../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Índice de Módulos Python"
+             >módulos</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">documentación de Sge - 1.0</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Código de módulo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Core.models</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Código fuente para Core.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.core.validators</span> <span class="kn">import</span> <span class="n">RegexValidator</span><span class="p">,</span><span class="n">MinValueValidator</span><span class="p">,</span> <span class="n">MaxValueValidator</span>
+<span class="kn">from</span> <span class="nn">django.utils.timezone</span> <span class="kn">import</span> <span class="n">now</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">faker</span> <span class="kn">import</span> <span class="n">Faker</span>
+<span class="kn">from</span> <span class="nn">django.db.models.signals</span> <span class="kn">import</span> <span class="n">post_save</span>
+<span class="kn">from</span> <span class="nn">django.dispatch</span> <span class="kn">import</span> <span class="n">receiver</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">IntegrityError</span>
+
+
+<div class="viewcode-block" id="Localidad">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Localidad">[documentos]</a>
+<span class="k">class</span> <span class="nc">Localidad</span> <span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+    <span class="n">REGEX_NUMEROPOSTAL</span> <span class="o">=</span> <span class="s1">&#39;^[0-9]{1,12}$&#39;</span>
+    <span class="n">MAXNUMEROPOSTAL</span><span class="o">=</span><span class="mi">5</span>
+    <span class="n">REGEX_NOMBRE</span> <span class="o">=</span> <span class="s1">&#39;^[0-9a-zA-Z-_ .]{3,100}$&#39;</span>
+    <span class="n">MAXNOMBRELOCALIDAD</span><span class="o">=</span><span class="mi">70</span>
+
+    <span class="n">codigoPostal</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 9100&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="n">MAXNUMEROPOSTAL</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;max_length&#39;</span><span class="p">:</span> <span class="s2">&quot;El Codigo Postal puede tener a lo sumo </span><span class="si">{}</span><span class="s2"> caracteres&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">MAXNUMEROPOSTAL</span><span class="p">),</span>
+            <span class="s1">&#39;unique&#39;</span><span class="p">:</span> <span class="s2">&quot;El Codigo Postal ingresado ya existe&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;El Codigo Postal  es obligatorio&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">nombre</span><span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span> <span class="s2">&quot;Ej:Trelew &quot;</span><span class="p">,</span>
+        <span class="n">max_length</span> <span class="o">=</span> <span class="n">MAXNOMBRELOCALIDAD</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span> <span class="p">[</span><span class="n">RegexValidator</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">REGEX_NOMBRE</span><span class="p">)],</span>
+        <span class="n">error_messages</span><span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;max_length&#39;</span><span class="p">:</span> <span class="s2">&quot;El nombre puede tener a lo sumo </span><span class="si">{}</span><span class="s2"> caracteres&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">MAXNOMBRELOCALIDAD</span><span class="p">),</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;El nombre es obligatorio&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{1}</span><span class="s2"> - </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">nombre</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">codigoPostal</span><span class="p">)</span>
+    
+    
+<div class="viewcode-block" id="Localidad.altaLocalidadExcel">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Localidad.altaLocalidadExcel">[documentos]</a>
+    <span class="k">def</span> <span class="nf">altaLocalidadExcel</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;entre&quot;</span><span class="p">)</span>
+         <span class="c1"># Cargar datos desde el archivo Excel</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s2">&quot;prueba.xls&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="c1"># Iterar sobre filas y crear instancias de Localidad</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">localidad</span> <span class="o">=</span> <span class="n">Localidad</span><span class="p">(</span>
+                    <span class="n">codigoPostal</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Codigo Postal&#39;</span><span class="p">],</span>
+                    <span class="n">nombre</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Localidad&#39;</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">localidad</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">IntegrityError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;La localidad con Codigo Postal </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Codigo Postal&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> ya existe. Continuando con la siguiente.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Localidad.seed_db">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Localidad.seed_db">[documentos]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">seed_db</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">faker</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">()</span>
+        <span class="k">for</span>  <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">Localidad</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">codigoPostal</span> <span class="o">=</span> <span class="n">n</span><span class="p">,</span>
+                <span class="n">nombre</span> <span class="o">=</span> <span class="n">faker</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="PlanDeEstudios">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.PlanDeEstudios">[documentos]</a>
+<span class="k">class</span> <span class="nc">PlanDeEstudios</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">MAXCODIGO</span><span class="o">=</span><span class="mi">20</span>
+    <span class="n">MAXANIO</span><span class="o">=</span><span class="mi">4</span>
+    <span class="n">MAXORIENTACION</span><span class="o">=</span> <span class="mi">50</span>
+    <span class="n">MAXNIVEL</span><span class="o">=</span> <span class="mi">50</span>
+    <span class="n">MAXDESCRIPCION</span><span class="o">=</span><span class="mi">50</span>
+    <span class="c1">#REGEX_CODIGO= 1</span>
+
+
+    <span class="n">codigo</span><span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 123456&quot;</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="n">MAXCODIGO</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+       <span class="c1"># validators= [RegexValidator(regex= REGEX_CODIGO) ],</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;El nombre es obligatorio&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">anio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 2024&quot;</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="n">MAXANIO</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;el anio es obligatorio&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">orientacion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Profesorado de educacion primaria&quot;</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="n">MAXORIENTACION</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;la orientacion es obligatoria&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">nivel</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Primario&quot;</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span> <span class="n">MAXORIENTACION</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;El nivel es obligatorio&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">descripcion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: descripcion del plan de estudios&quot;</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span> <span class="n">MAXDESCRIPCION</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">esActual</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">implementado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span>
+    
+    <span class="n">cantidadAnios</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
+    
+    
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Plan de estudios del año </span><span class="si">{0}</span><span class="s2">, Orientacion </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">orientacion</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PlanDeEstudios.crear_anios_plan">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.PlanDeEstudios.crear_anios_plan">[documentos]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">crear_anios_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">anio</span><span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">anio</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cantidadAnios</span><span class="p">:</span>
+            <span class="n">Anio</span> <span class="o">=</span> <span class="n">AnioPlan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">codigo</span><span class="o">=</span><span class="n">anio</span><span class="p">,</span> <span class="n">descripcion</span><span class="o">=</span><span class="s2">&quot;anio&quot;</span><span class="p">,</span> <span class="n">plan</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">Anio</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">anio</span><span class="o">=</span> <span class="n">anio</span> <span class="o">+</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">Anio</span></div>
+
+   
+<div class="viewcode-block" id="PlanDeEstudios.actualizar_actual">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.PlanDeEstudios.actualizar_actual">[documentos]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">actualizar_actual</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># Establecer todos los planes como no actuales</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">esActual</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PlanDeEstudios.cambiar_actual">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.PlanDeEstudios.cambiar_actual">[documentos]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">cambiar_actual</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">id_plan</span><span class="p">):</span>
+        <span class="c1"># Actualizar el estado de todos los planes</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">actualizar_actual</span><span class="p">()</span>
+
+        <span class="c1"># Establecer el plan específico como actual</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">id_plan</span><span class="p">)</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">esActual</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+</div>
+
+
+        
+<div class="viewcode-block" id="ajustar_actual">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.ajustar_actual">[documentos]</a>
+<span class="nd">@receiver</span><span class="p">(</span><span class="n">post_save</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">PlanDeEstudios</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ajustar_actual</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+   <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">esActual</span><span class="p">:</span>
+        <span class="n">PlanDeEstudios</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">esActual</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Rol">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Rol">[documentos]</a>
+<span class="k">class</span> <span class="nc">Rol</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">nombre</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">unique</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span><span class="n">default</span> <span class="o">=</span> <span class="s1">&#39;Docente&#39;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nombre</span></div>
+
+
+<div class="viewcode-block" id="Persona">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Persona">[documentos]</a>
+<span class="k">class</span> <span class="nc">Persona</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">MAXNOMBRE</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">MAXAPELLIDO</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">REGEX_NOMBRE</span> <span class="o">=</span> <span class="s1">&#39;^[0-9a-zA-Z-_ .]{3,100}$&#39;</span>
+    <span class="n">REGEX_NUMERO</span> <span class="o">=</span> <span class="s1">&#39;^[0-9]{1,12}$&#39;</span>
+    <span class="n">MAXDNI</span> <span class="o">=</span><span class="mi">11</span>
+    <span class="n">MAXDIRECCION</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">MAXTELEFONO</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="n">nombre</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Juan&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span> <span class="o">=</span> <span class="n">MAXNOMBRE</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span> <span class="p">[</span><span class="n">RegexValidator</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">REGEX_NOMBRE</span><span class="p">)],</span>
+        <span class="n">error_messages</span><span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;max_length&#39;</span><span class="p">:</span> <span class="s2">&quot;El nombre puede tener a lo sumo </span><span class="si">{}</span><span class="s2"> caracteres&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">MAXNOMBRE</span><span class="p">),</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;El nombre es obligatorio&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">apellido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Perez&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="n">MAXAPELLIDO</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">RegexValidator</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">REGEX_NOMBRE</span><span class="p">)],</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;max_length&#39;</span><span class="p">:</span> <span class="s2">&quot;El apellido puede tener a lo sumo </span><span class="si">{}</span><span class="s2"> caracteres&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">MAXNOMBRE</span><span class="p">),</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;El apéllido es obligatorio&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">dni</span><span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 12345678&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span> <span class="o">=</span> <span class="n">MAXDNI</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;max_length&#39;</span><span class="p">:</span> <span class="s2">&quot;El dni puede tener a lo sumo </span><span class="si">{}</span><span class="s2"> caracteres&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">MAXDNI</span><span class="p">),</span>
+            <span class="s1">&#39;unique&#39;</span><span class="p">:</span> <span class="s2">&quot;El dni ingresado ya existe&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;El dni es obligatorio&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">localidad</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Localidad</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Trelew&quot;</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">direccion</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Calle falsa 123&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span> <span class="o">=</span> <span class="n">MAXDIRECCION</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;La direccion es obligatoria&quot;</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">email</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">EmailField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: asd@asd.com&quot;</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;unique&#39;</span><span class="p">:</span> <span class="s2">&quot;El email no esta disponible&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">telefono</span><span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 0123456789 &quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="n">MAXTELEFONO</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">RegexValidator</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="n">REGEX_NUMERO</span><span class="p">)],</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;max_length&#39;</span><span class="p">:</span> <span class="s2">&quot;El telefono puede tener a lo sumo </span><span class="si">{}</span><span class="s2"> caracteres&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">MAXTELEFONO</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">, </span><span class="si">{1}</span><span class="s2">, </span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dni</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">apellido</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nombre</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="Estudiante">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Estudiante">[documentos]</a>
+<span class="k">class</span> <span class="nc">Estudiante</span><span class="p">(</span><span class="n">Persona</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Estudiante.dia_futuro">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Estudiante.dia_futuro">[documentos]</a>
+    <span class="k">def</span> <span class="nf">dia_futuro</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="n">hoy</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">hoy</span> <span class="o">&lt;</span>  <span class="n">value</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;La fecha ingresada es mayor a la actual&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+
+    <span class="n">legajo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: asd123&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span><span class="n">unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">fechaInscripcion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="n">now</span><span class="p">,</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">dia_futuro</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Estudiante.seed_db">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Estudiante.seed_db">[documentos]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">seed_db</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">fake</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">()</span>
+        <span class="n">localidad</span> <span class="o">=</span> <span class="n">Localidad</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span>  <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">Estudiante</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">nombre</span><span class="o">=</span> <span class="n">fake</span><span class="o">.</span><span class="n">first_name</span><span class="p">(),</span>
+                <span class="n">apellido</span><span class="o">=</span> <span class="n">fake</span><span class="o">.</span><span class="n">last_name</span><span class="p">(),</span>
+                <span class="n">dni</span><span class="o">=</span> <span class="n">fake</span><span class="o">.</span><span class="n">unique</span><span class="o">.</span><span class="n">random_number</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+                <span class="n">localidad</span> <span class="o">=</span> <span class="n">localidad</span><span class="p">,</span>
+                <span class="n">email</span> <span class="o">=</span> <span class="n">fake</span><span class="o">.</span><span class="n">email</span><span class="p">(),</span>
+                <span class="n">telefono</span> <span class="o">=</span> <span class="mi">123345</span><span class="p">,</span>
+                <span class="n">direccion</span> <span class="o">=</span> <span class="n">fake</span><span class="o">.</span><span class="n">address</span><span class="p">(),</span>
+                <span class="n">legajo</span><span class="o">=</span><span class="n">fake</span><span class="o">.</span><span class="n">unique</span><span class="o">.</span><span class="n">random_number</span><span class="p">(</span><span class="n">digits</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+                <span class="n">fechaInscripcion</span><span class="o">=</span><span class="n">fake</span><span class="o">.</span><span class="n">date_between</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;-365d&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s1">&#39;today&#39;</span><span class="p">),</span>  <span class="c1"># fecha aleatoria en el último año</span>
+            <span class="p">)</span></div>
+
+    <span class="n">aulas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s1">&#39;Aula&#39;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;estudiantes_en_aula&#39;</span>
+        <span class="p">)</span></div>
+
+<span class="sd">&#39;&#39;&#39;calificacion = models.ForeignKey(Calificacion, on_delete= models.CASCADE, related_name= &quot;estudiante&quot;)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="Docente">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Docente">[documentos]</a>
+<span class="k">class</span> <span class="nc">Docente</span><span class="p">(</span><span class="n">Persona</span><span class="p">):</span>
+    <span class="n">tituloHabilitante</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">rol</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Rol</span><span class="p">,</span> <span class="n">on_delete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Preceptor">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Preceptor">[documentos]</a>
+<span class="k">class</span> <span class="nc">Preceptor</span><span class="p">(</span><span class="n">Persona</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AnioPlan">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.AnioPlan">[documentos]</a>
+<span class="k">class</span> <span class="nc">AnioPlan</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">MAXCODIGO</span><span class="o">=</span> <span class="mi">50</span>
+    <span class="n">CANTMAXPORANIO</span><span class="o">=</span> <span class="mi">50</span>
+    <span class="n">MAXDESCRIPCION</span> <span class="o">=</span> <span class="mi">50</span>
+
+    <span class="n">codigo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: &quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span> <span class="n">MAXCODIGO</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;blank&#39;</span><span class="p">:</span> <span class="s2">&quot;El codigo es obligatorio&quot;</span>
+        <span class="p">})</span>
+
+
+    <span class="n">descripcion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;nivel&quot;</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span> <span class="n">MAXDESCRIPCION</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">plan</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">PlanDeEstudios</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;anios&quot;</span><span class="p">)</span>
+
+    <span class="n">inscripciones</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Estudiante</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;codigo&#39;</span><span class="p">,</span> <span class="s1">&#39;plan&#39;</span><span class="p">]]</span>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codigo</span><span class="p">,</span> <span class="s1">&#39;°&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EspacioCurricular">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.EspacioCurricular">[documentos]</a>
+<span class="k">class</span> <span class="nc">EspacioCurricular</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;anio&#39;</span><span class="p">,</span> <span class="s1">&#39;codigo&#39;</span><span class="p">]]</span>
+
+    <span class="n">anio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">AnioPlan</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Elija un año del plan&quot;</span><span class="p">,)</span>
+
+    <span class="n">codigo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: MAT-035&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">cantidadModulos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 5&quot;</span><span class="p">,)</span>
+
+    <span class="n">nombre</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Matematica&quot;</span>
+                              <span class="p">,</span><span class="n">max_length</span><span class="o">=</span> <span class="mi">50</span><span class="p">)</span>
+
+    <span class="n">contenido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Sumas y restas basicas&quot;</span>
+                                 <span class="p">,</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    
+    <span class="n">plan</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">PlanDeEstudios</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;estudiantes = models.ManyToManyField(Estudiante, through=&quot;Calificacion&quot;)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">, </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">codigo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nombre</span><span class="p">)</span></div>
+
+
+
+    
+
+    
+     
+<span class="c1">#__________________-------------------------________________________-----------------------__________</span>
+
+<div class="viewcode-block" id="Ciclo">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Ciclo">[documentos]</a>
+<span class="k">class</span> <span class="nc">Ciclo</span> <span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+
+    <span class="c1"># def tope(inicio):</span>
+
+    <span class="c1">#     if inicio &gt;= inicio:</span>
+    <span class="c1">#         raise ValidationError(&#39;La fecha ingresada es mayor a la actual&#39;)</span>
+    <span class="c1">#     return</span>
+    
+    <span class="n">anioCalendario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 2024&quot;</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">fechaInicio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 16/02/2024&quot;</span><span class="p">,</span>
+                                   <span class="n">default</span><span class="o">=</span><span class="n">now</span><span class="p">)</span>
+
+    <span class="n">plan</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">PlanDeEstudios</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+
+    <span class="n">fechaFin</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 28/11/2024&quot;</span><span class="p">,)</span>
+    
+    <span class="n">esActual</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">esta_vigente</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Método que verifica si el ciclo está vigente en función de la fecha actual.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fecha_actual</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fechaInicio</span> <span class="o">&lt;=</span> <span class="n">fecha_actual</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fechaFin</span>
+
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> Vigente desde </span><span class="si">{1}</span><span class="s2"> hasta </span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anioCalendario</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">fechaInicio</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-%m-%Y&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">fechaFin</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">-%m-%Y&quot;</span><span class="p">))</span>
+    
+<div class="viewcode-block" id="Ciclo.crear_division_para_anio_ciclo">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Ciclo.crear_division_para_anio_ciclo">[documentos]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">crear_division_para_anio_ciclo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">anios</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">anios</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">division</span><span class="o">=</span><span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">ciclo</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                             <span class="n">codigo</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                                             <span class="n">descripcion</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;Año Division A&#39;</span><span class="p">),</span>
+                                             <span class="n">anio</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+            <span class="n">Aula</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">division</span> <span class="o">=</span> <span class="n">division</span><span class="p">)</span>
+            <span class="n">division</span><span class="o">.</span><span class="n">crear_Horario_Division</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">division</span></div>
+
+<div class="viewcode-block" id="Ciclo.actualizar_actual">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Ciclo.actualizar_actual">[documentos]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">actualizar_actual</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># Establecer todos los planes como no actuales</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">esActual</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Ciclo.cambiar_actual">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Ciclo.cambiar_actual">[documentos]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">cambiar_actual</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">id_ciclo</span><span class="p">):</span>
+        <span class="c1"># Actualizar el estado de todos los ciclos</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">actualizar_actual</span><span class="p">()</span>
+
+        <span class="c1"># Establecer el ciclo específico como actual</span>
+        <span class="n">ciclo</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">id_ciclo</span><span class="p">)</span>
+        <span class="n">ciclo</span><span class="o">.</span><span class="n">esActual</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">ciclo</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Ciclo.crear_division_para_plan">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Ciclo.crear_division_para_plan">[documentos]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">crear_division_para_plan</span><span class="p">(</span><span class="n">ciclo</span><span class="p">,</span><span class="n">plan</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">plan</span><span class="o">.</span><span class="n">anios</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;entro&#39;</span><span class="p">)</span>
+            <span class="n">division</span><span class="o">=</span><span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">ciclo</span><span class="o">=</span><span class="n">ciclo</span><span class="p">,</span>
+                                             <span class="n">codigo</span><span class="o">=</span><span class="n">Division</span><span class="o">.</span><span class="n">PRIMERA</span><span class="p">,</span>
+                                             <span class="n">descripcion</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">Division</span><span class="o">.</span><span class="n">PRIMERA</span><span class="p">),</span>
+                                             <span class="n">anio</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+            <span class="n">division</span><span class="o">.</span><span class="n">crear_Horario_Division</span><span class="p">(</span><span class="n">division</span><span class="p">)</span>
+            <span class="n">Aula</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">division</span><span class="o">=</span><span class="n">division</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">division</span></div>
+</div>
+
+<div class="viewcode-block" id="ajustarCicloactual">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.ajustarCicloactual">[documentos]</a>
+<span class="nd">@receiver</span><span class="p">(</span><span class="n">post_save</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">Ciclo</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ajustarCicloactual</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+   <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">esActual</span><span class="p">:</span>
+        <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">esActual</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<span class="c1">#___________________________________________________________________</span>
+            
+<div class="viewcode-block" id="Instancia">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Instancia">[documentos]</a>
+<span class="k">class</span> <span class="nc">Instancia</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Ciclo</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">nombre</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Nota Final&quot;</span>
+                              <span class="p">,</span><span class="n">max_length</span><span class="o">=</span> <span class="mi">50</span><span class="p">)</span>    
+    <span class="n">disponible</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+    
+    <span class="n">fecha_inicio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 16/02/2024&quot;</span><span class="p">,</span>
+                                   <span class="n">default</span><span class="o">=</span><span class="n">now</span><span class="p">)</span>
+    
+    <span class="n">fecha_fin</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 16/02/2024&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Instancia: </span><span class="si">{0}</span><span class="s2">, disponible hasta: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nombre</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fecha_fin</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Calificacion">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Calificacion">[documentos]</a>
+<span class="k">class</span> <span class="nc">Calificacion</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">FINAL</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PARCIAL</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">CHOICES_TIPO</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">FINAL</span><span class="p">,</span> <span class="s1">&#39;final&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">PARCIAL</span><span class="p">,</span> <span class="s1">&#39;parcial&#39;</span><span class="p">))</span>
+
+    <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">CHOICES_TIPO</span><span class="p">)</span>
+
+    <span class="n">instancia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Instancia</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;docente&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">nota</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinValueValidator</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">MaxValueValidator</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span>
+
+    <span class="n">docente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Docente</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;docente&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">espacioCurricular</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">EspacioCurricular</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;espacioCurricular&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">estudiante</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Estudiante</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Ciclo</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+    <span class="p">)</span>   
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="c1"># Define la restricción de unicidad para instancia, ciclo y estudiante</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;instancia&#39;</span><span class="p">,</span> <span class="s1">&#39;ciclo&#39;</span><span class="p">,</span> <span class="s1">&#39;estudiante&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Calificacion.generate_calificacion">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Calificacion.generate_calificacion">[documentos]</a>
+    <span class="k">def</span> <span class="nf">generate_calificacion</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+        <span class="n">fake</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">(</span><span class="s1">&#39;es_ES&#39;</span><span class="p">)</span>
+        <span class="n">ciclos</span> <span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">docente</span> <span class="o">=</span> <span class="n">Docente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">instancia</span> <span class="o">=</span> <span class="n">Instancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">estudiantes</span> <span class="o">=</span> <span class="n">Estudiante</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">calificacion</span> <span class="o">=</span> <span class="n">EspacioCurricular</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+            <span class="n">ciclo</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">ciclos</span><span class="p">),</span>
+            <span class="n">inasistencia</span> <span class="o">=</span> <span class="n">Calificacion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">ciclo</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">ciclos</span><span class="p">),</span>
+                <span class="n">estudiante</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">estudiantes</span><span class="p">),</span>
+                <span class="n">nota</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+                <span class="n">espacioCurricular</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">calificacion</span><span class="p">),</span>
+                <span class="n">docente</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">docente</span><span class="p">),</span>
+                <span class="n">instancia</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">instancia</span><span class="p">),</span>
+                <span class="n">tipo</span><span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">inasistencia</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+</div>
+
+        
+<span class="c1">#--------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="Division">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Division">[documentos]</a>
+<span class="k">class</span> <span class="nc">Division</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">PRIMERA</span> <span class="o">=</span> <span class="s1">&#39;1ra&#39;</span>
+    <span class="n">SEGUNDA</span> <span class="o">=</span> <span class="s1">&#39;2da&#39;</span>
+    <span class="n">TERCERA</span> <span class="o">=</span> <span class="s1">&#39;3ra&#39;</span>
+    <span class="n">CUARTA</span> <span class="o">=</span> <span class="s1">&#39;4ta&#39;</span>
+    <span class="n">QUINTA</span> <span class="o">=</span> <span class="s1">&#39;5ta&#39;</span>
+    <span class="n">CHOICES_DIV</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">PRIMERA</span><span class="p">,</span> <span class="s1">&#39;Primera&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">SEGUNDA</span><span class="p">,</span> <span class="s1">&#39;Segunda&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">TERCERA</span><span class="p">,</span> <span class="s1">&#39;Tercera&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">CUARTA</span><span class="p">,</span> <span class="s1">&#39;Cuarta&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">QUINTA</span><span class="p">,</span> <span class="s1">&#39;Quinta&#39;</span><span class="p">))</span>
+
+    <span class="c1">#class Meta:</span>
+    <span class="c1">#   unique_together = ((&#39;codigo&#39;, &#39;anio&#39;, &#39;ciclo&#39;))</span>
+
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Ciclo</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;divisiones&quot;</span><span class="p">)</span>
+    
+    <span class="n">codigo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">CHOICES_DIV</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">PRIMERA</span><span class="p">)</span>
+    
+    <span class="n">descripcion</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    
+    <span class="n">anio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">AnioPlan</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    
+    <span class="n">alumnos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">Estudiante</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">,</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anio</span><span class="o">.</span><span class="n">codigo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codigo</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Division.generarCodigoDiv">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Division.generarCodigoDiv">[documentos]</a>
+    <span class="k">def</span> <span class="nf">generarCodigoDiv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">anio</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">anio</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">codigo</span><span class="o">=</span> <span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span><span class="o">.</span><span class="n">count</span></div>
+
+
+<div class="viewcode-block" id="Division.crear_Horario_Division">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Division.crear_Horario_Division">[documentos]</a>
+    <span class="k">def</span> <span class="nf">crear_Horario_Division</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;entre a crear horario divisioon&quot;</span><span class="p">)</span>
+        <span class="n">Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">division</span><span class="o">=</span> <span class="bp">self</span><span class="p">)</span>    </div>
+
+
+<div class="viewcode-block" id="Division.agregar_materia">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Division.agregar_materia">[documentos]</a>
+    <span class="k">def</span> <span class="nf">agregar_materia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">materia</span><span class="p">,</span> <span class="n">dia</span><span class="p">,</span> <span class="n">hora</span><span class="p">,</span> <span class="n">modulos</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">division</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">espacioCurricular</span><span class="o">=</span><span class="n">materia</span><span class="p">,</span>
+            <span class="n">dia</span><span class="o">=</span><span class="n">dia</span><span class="p">,</span>
+            <span class="n">hora</span><span class="o">=</span><span class="n">hora</span><span class="p">,</span>
+            <span class="n">cantidad_modulo</span><span class="o">=</span><span class="n">modulos</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Division.asigar_estudiante_a_division">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Division.asigar_estudiante_a_division">[documentos]</a>
+    <span class="k">def</span> <span class="nf">asigar_estudiante_a_division</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+<div class="viewcode-block" id="Horario">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Horario">[documentos]</a>
+<span class="k">class</span> <span class="nc">Horario</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">LUNES</span><span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MARTES</span><span class="o">=</span> <span class="mi">2</span>
+    <span class="n">MIERCOLES</span><span class="o">=</span> <span class="mi">3</span>
+    <span class="n">JUEVES</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">VIERNES</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">SABADO</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">DOMINGO</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">CHOICES_DIA</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">LUNES</span><span class="p">,</span> <span class="s1">&#39;Lunes&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MARTES</span><span class="p">,</span> <span class="s1">&#39;Martes&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MIERCOLES</span><span class="p">,</span> <span class="s1">&#39;Miercoles&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">JUEVES</span><span class="p">,</span> <span class="s1">&#39;Jueves&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">VIERNES</span><span class="p">,</span> <span class="s1">&#39;Viernes&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">SABADO</span><span class="p">,</span> <span class="s1">&#39;Sabado&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">DOMINGO</span><span class="p">,</span> <span class="s1">&#39;Domingo&#39;</span><span class="p">))</span>
+
+
+    <span class="n">MODUNO</span><span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MODDOS</span><span class="o">=</span> <span class="mi">2</span>
+    <span class="n">MODTRES</span><span class="o">=</span> <span class="mi">3</span>
+    <span class="n">MODCUATRO</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">MODCINCO</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">MODSEIS</span><span class="o">=</span> <span class="mi">6</span>
+    <span class="n">MODSIETE</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">MODOCHO</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">CHOICES_HORA</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">MODUNO</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MODDOS</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MODTRES</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MODCUATRO</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MODCINCO</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MODSEIS</span><span class="p">,</span><span class="s1">&#39;6&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">MODOCHO</span><span class="p">,</span> <span class="s1">&#39;7&#39;</span><span class="p">))</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;division&#39;</span><span class="p">),)</span>
+
+    <span class="n">division</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Division</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;horarios&#39;</span><span class="p">,</span><span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">cantidad_modulo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">docente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Docente</span><span class="p">,</span>
+        <span class="n">null</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="Horario.control_modulos">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Horario.control_modulos">[documentos]</a>
+    <span class="k">def</span> <span class="nf">control_modulos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">modulo</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cantidad_modulo</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cantidad_modulo</span> <span class="o">-</span> <span class="n">modulo</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Horario.asignar_a_modulos">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Horario.asignar_a_modulos">[documentos]</a>
+    <span class="k">def</span> <span class="nf">asignar_a_modulos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cant</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">cant</span><span class="p">)</span>
+        <span class="n">i</span><span class="o">=</span><span class="mi">1</span>
+        <span class="k">while</span> <span class="n">cant</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">cant</span> <span class="o">=</span> <span class="n">cant</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">division</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">division</span><span class="p">,</span> <span class="n">espacioCurricular</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">espacioCurricular</span><span class="p">,</span><span class="n">cantidad_modulo</span><span class="o">=</span> <span class="n">cant</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dia</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dia</span><span class="p">,</span><span class="n">hora</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hora</span><span class="o">+</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">, &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">division</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Detalle_Horario">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Detalle_Horario">[documentos]</a>
+<span class="k">class</span> <span class="nc">Detalle_Horario</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">horario</span><span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Horario</span><span class="p">,</span><span class="n">on_delete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">espacioCurricular</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">EspacioCurricular</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;horarios&#39;</span><span class="p">)</span>
+    <span class="n">dia</span><span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Lunes&quot;</span><span class="p">,</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,)</span>
+    <span class="n">hora</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Modulo 1&quot;</span><span class="p">,</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">docente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Docente</span><span class="p">,</span> <span class="n">on_delete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">null</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+    
+    
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;horario&#39;</span><span class="p">,</span><span class="s1">&#39;espacioCurricular&#39;</span><span class="p">,</span><span class="s1">&#39;dia&#39;</span><span class="p">,</span><span class="s1">&#39;hora&#39;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horario</span><span class="o">.</span><span class="n">division</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="InscripcionDocente">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.InscripcionDocente">[documentos]</a>
+<span class="k">class</span> <span class="nc">InscripcionDocente</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">docente</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Docente</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Juan Perez&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Ciclo</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Actual&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">anio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">AnioPlan</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 1,año&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fecha</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">now</span><span class="p">,</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 16/02/2024&quot;</span><span class="p">,)</span></div>
+
+
+        
+
+<div class="viewcode-block" id="Inscripcion">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Inscripcion">[documentos]</a>
+<span class="k">class</span> <span class="nc">Inscripcion</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">estudiante</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Estudiante</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Juan Perez&quot;</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+    <span class="p">)</span>
+    
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">Ciclo</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: Actual&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">anio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">AnioPlan</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 1,año&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fecha</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">now</span><span class="p">,</span><span class="n">help_text</span><span class="o">=</span><span class="s2">&quot;Ej: 16/02/2024&quot;</span><span class="p">,)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;estudiante&#39;</span><span class="p">,</span> <span class="s1">&#39;ciclo&#39;</span><span class="p">,</span> <span class="s1">&#39;anio&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Inscripcion.seed_db">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Inscripcion.seed_db">[documentos]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">seed_db</span><span class="p">(</span><span class="n">this</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">fake</span> <span class="o">=</span> <span class="n">Faker</span><span class="p">()</span>
+        <span class="n">ciclo_actual</span> <span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">esActual</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Obtener todos los estudiantes que no están inscritos en el ciclo actual</span>
+        <span class="n">estudiantes_sin_inscripcion</span> <span class="o">=</span> <span class="n">Estudiante</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">inscripcion__ciclo</span><span class="o">=</span><span class="n">ciclo_actual</span><span class="p">)</span>
+        
+        <span class="c1"># Verificar si hay suficientes estudiantes disponibles para seleccionar aleatoriamente</span>
+        <span class="k">if</span> <span class="n">estudiantes_sin_inscripcion</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No hay suficientes estudiantes disponibles.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># Seleccionar n estudiantes al azar sin repetición de la lista de estudiantes sin inscripción</span>
+        <span class="n">estudiantes_aleatorios</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">estudiantes_sin_inscripcion</span><span class="p">),</span> <span class="n">n</span><span class="p">)</span>
+        
+        <span class="c1"># Crear inscripciones para los estudiantes seleccionados</span>
+        <span class="k">for</span> <span class="n">estudiante</span> <span class="ow">in</span> <span class="n">estudiantes_aleatorios</span><span class="p">:</span>
+            <span class="n">Inscripcion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">estudiante</span><span class="o">=</span><span class="n">estudiante</span><span class="p">,</span>
+                <span class="n">ciclo</span><span class="o">=</span><span class="n">ciclo_actual</span><span class="p">,</span>
+                <span class="n">anio</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">AnioPlan</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">plan</span><span class="o">=</span><span class="n">PlanDeEstudios</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">esActual</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)))),</span>
+                <span class="n">fecha</span><span class="o">=</span><span class="n">fake</span><span class="o">.</span><span class="n">date_between</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;-365d&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s1">&#39;today&#39;</span><span class="p">),</span>  <span class="c1"># fecha aleatoria en el último año</span>
+            <span class="p">)</span></div>
+</div>
+
+
+<div class="viewcode-block" id="Aula">
+<a class="viewcode-back" href="../../modules/modules.html#Core.models.Aula">[documentos]</a>
+<span class="k">class</span> <span class="nc">Aula</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">estudiantes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
+        <span class="s1">&#39;Estudiante&#39;</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;estudiantes&quot;</span><span class="p">,</span>
+    <span class="p">)</span>   
+    
+    <span class="n">division</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="s1">&#39;Division&#39;</span><span class="p">,</span>
+        <span class="n">unique</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Asegura que cada aula tenga una división asociada</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s2">&quot;aulas&quot;</span>  <span class="c1"># Hace que el acceso a las aulas asociadas con una división sea más claro</span>
+    <span class="p">)</span>
+    
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">db_table</span> <span class="o">=</span> <span class="s1">&#39;Aula&#39;</span></div>
+
+    
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Índice de Módulos Python"
+             >módulos</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">documentación de Sge - 1.0</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Código de módulo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Core.models</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Jonathan Torres.
+      Creado usando <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+  </body>
+</html>

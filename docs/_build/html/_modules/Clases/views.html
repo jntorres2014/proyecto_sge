@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+
+<html lang="es" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clases.views &#8212; documentación de Sge - 1.0</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=4848ba22" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pyramid.css?v=310c80ee" />
+    <script src="../../_static/documentation_options.js?v=4936afed"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/translations.js?v=efdbd0b9"></script>
+    <link rel="index" title="Índice" href="../../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../../search.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="../../_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             accesskey="I">índice</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Índice de Módulos Python"
+             >módulos</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">documentación de Sge - 1.0</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Código de módulo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Clases.views</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Código fuente para Clases.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">calendar</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">count</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">IntegrityError</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponseForbidden</span><span class="p">,</span> <span class="n">JsonResponse</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">HttpResponseRedirect</span><span class="p">,</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="kn">import</span> <span class="n">ListView</span>
+<span class="kn">from</span> <span class="nn">Clases.forms</span> <span class="kn">import</span> <span class="n">CalificacionForm</span><span class="p">,</span> <span class="n">ConsultaForm</span><span class="p">,</span> <span class="n">Detalle_HorarioForm</span><span class="p">,</span> <span class="n">HabilitarInstanciaForm</span><span class="p">,</span> <span class="n">InasistenciasForm</span><span class="p">,</span> <span class="n">Inasistencias</span><span class="p">,</span> <span class="n">InstanciaForm</span><span class="p">,</span> <span class="n">ReporteForm</span>
+<span class="kn">from</span> <span class="nn">Core.models</span> <span class="kn">import</span> <span class="n">Aula</span><span class="p">,</span> <span class="n">Calificacion</span><span class="p">,</span> <span class="n">Ciclo</span><span class="p">,</span> <span class="n">Detalle_Horario</span><span class="p">,</span> <span class="n">Docente</span><span class="p">,</span> <span class="n">EspacioCurricular</span><span class="p">,</span> <span class="n">Estudiante</span><span class="p">,</span> <span class="n">Horario</span><span class="p">,</span> <span class="n">InscripcionDocente</span><span class="p">,</span> <span class="n">Instancia</span><span class="p">,</span> <span class="n">PlanDeEstudios</span><span class="p">,</span> <span class="n">Inscripcion</span><span class="p">,</span><span class="n">Division</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.http</span> <span class="kn">import</span> <span class="n">require_POST</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Q</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">messages</span>
+<span class="c1"># Create your views here.</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">Inasistencias</span>
+<span class="kn">import</span> <span class="nn">plotly.graph_objs</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Count</span>
+<span class="kn">from</span> <span class="nn">django.db.models.functions</span> <span class="kn">import</span> <span class="n">ExtractYear</span><span class="p">,</span><span class="n">ExtractMonth</span>
+<span class="kn">from</span> <span class="nn">django.core.serializers</span> <span class="kn">import</span> <span class="n">serialize</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Avg</span>
+
+
+<div class="viewcode-block" id="crearBoletin">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.crearBoletin">[documentos]</a>
+<span class="k">def</span> <span class="nf">crearBoletin</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="n">id_estudiante</span><span class="p">):</span>
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span>
+    <span class="n">materias</span> <span class="o">=</span> <span class="n">EspacioCurricular</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">plan_id</span><span class="o">=</span><span class="n">ciclo</span><span class="o">.</span><span class="n">plan_id</span><span class="p">)</span>
+    <span class="n">calificaciones</span> <span class="o">=</span> <span class="n">Calificacion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">materias</span></div>
+
+
+
+<div class="viewcode-block" id="inasistencias_por_anio">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.inasistencias_por_anio">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">inasistencias_por_anio</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">inasistencias_por_anio</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">ExtractYear</span><span class="p">(</span><span class="s1">&#39;dia&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;inasistencias_por_anio&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">inasistencias_por_anio</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="inasistencias_por_mes">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.inasistencias_por_mes">[documentos]</a>
+<span class="k">def</span> <span class="nf">inasistencias_por_mes</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Entreeeee&quot;</span><span class="p">)</span>
+    <span class="n">inasistencias_por_mes</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dia__year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">ExtractMonth</span><span class="p">(</span><span class="s1">&#39;dia&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;inasistencias_por_mes&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">inasistencias_por_mes</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="reporteNotas">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.reporteNotas">[documentos]</a>
+<span class="k">def</span> <span class="nf">reporteNotas</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;GET&#39;</span><span class="p">:</span>
+        <span class="n">espacio_curricular_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;espacio_curricular&#39;</span><span class="p">)</span>
+        <span class="n">instancia_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;instancia&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Obtener las calificaciones basadas en el espacio curricular y la instancia seleccionados</span>
+        <span class="n">calificaciones</span> <span class="o">=</span> <span class="n">Calificacion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">espacioCurricular_id</span><span class="o">=</span><span class="n">espacio_curricular_id</span><span class="p">,</span> <span class="n">instancia_id</span><span class="o">=</span><span class="n">instancia_id</span><span class="p">)</span>
+        
+        <span class="c1"># Calcular el promedio de notas por ciclo lectivo</span>
+        <span class="n">promedios_por_ciclo</span> <span class="o">=</span> <span class="n">calificaciones</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;ciclo&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">promedio</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s1">&#39;nota&#39;</span><span class="p">))</span>
+        
+        <span class="c1"># Preparar los datos en un formato JSON para enviar al frontend</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">promedio</span> <span class="ow">in</span> <span class="n">promedios_por_ciclo</span><span class="p">:</span>
+            <span class="n">ciclo_id</span> <span class="o">=</span> <span class="n">promedio</span><span class="p">[</span><span class="s1">&#39;ciclo&#39;</span><span class="p">]</span>
+            <span class="n">promedio_valor</span> <span class="o">=</span> <span class="n">promedio</span><span class="p">[</span><span class="s1">&#39;promedio&#39;</span><span class="p">]</span>
+            
+            <span class="c1"># Obtener el nombre o cualquier otro campo relevante del ciclo si es necesario</span>
+            <span class="n">ciclo_nombre</span> <span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ciclo_id</span><span class="p">)</span><span class="o">.</span><span class="n">nombre</span>
+            
+            <span class="c1"># Agregar el ciclo y su promedio al diccionario</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;ciclo&#39;</span><span class="p">:</span> <span class="n">ciclo_nombre</span><span class="p">,</span> <span class="s1">&#39;promedio&#39;</span><span class="p">:</span> <span class="n">promedio_valor</span><span class="p">})</span>
+        
+            <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s1">&#39;application/json&#39;</span><span class="p">)</span>   
+    <span class="n">espacios_curriculares</span> <span class="o">=</span> <span class="n">EspacioCurricular</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">instancias</span> <span class="o">=</span> <span class="n">Instancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Calificacion/reporteNotas.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;espacios_curriculares&#39;</span><span class="p">:</span> <span class="n">espacios_curriculares</span><span class="p">,</span> <span class="s1">&#39;instancias&#39;</span><span class="p">:</span> <span class="n">instancias</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="reportes_graficos">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.reportes_graficos">[documentos]</a>
+<span class="k">def</span> <span class="nf">reportes_graficos</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">inasistencias_por_anio</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">ExtractYear</span><span class="p">(</span><span class="s1">&#39;dia&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">Count</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">)</span>
+    <span class="n">inasistencias</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">inasistencias_por_anio</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/reportesGraficos.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;inasistencias_por_anio&#39;</span><span class="p">:</span> <span class="n">inasistencias</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="calificacion_view">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.calificacion_view">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">calificacion_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;**********FORMULARIOOO******&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">CalificacionForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;**********FORMULARIOOO******&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+           <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">CalificacionForm</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Calificacion/calificacionForm.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="boletinEstudiante">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.boletinEstudiante">[documentos]</a>
+<span class="k">def</span> <span class="nf">boletinEstudiante</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">estudiante_id</span><span class="p">,</span> <span class="n">ciclo_id</span><span class="p">):</span>
+    <span class="c1">#Obtengo la inscripcion para poder quedarme con el año que cursa</span>
+    <span class="n">inscripcion</span> <span class="o">=</span> <span class="n">Inscripcion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">estudiante_id</span> <span class="o">=</span> <span class="n">estudiante_id</span><span class="p">,</span> <span class="n">ciclo_id</span><span class="o">=</span> <span class="n">ciclo_id</span><span class="p">)</span>
+    <span class="n">instancias</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Instancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">instancias</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Anio de inscripcion&quot;</span><span class="p">,</span><span class="n">inscripcion</span><span class="o">.</span><span class="n">anio</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="c1">#Obtener los espacios curruculares a ese anio de ese plan</span>
+    <span class="n">espacios</span> <span class="o">=</span> <span class="n">EspacioCurricular</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">anio_id</span><span class="o">=</span> <span class="n">inscripcion</span><span class="o">.</span><span class="n">anio</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="n">plan</span> <span class="o">=</span> <span class="n">PlanDeEstudios</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span> <span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span> <span class="o">=</span> <span class="n">ciclo_id</span><span class="p">)</span><span class="o">.</span><span class="n">plan</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;espacios&quot;</span><span class="p">,</span> <span class="n">espacios</span><span class="p">)</span>
+    
+  <span class="c1"># Obtener todas las instancias únicas para el ciclo dado</span>
+    <span class="n">instancias</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">ciclo_id</span><span class="p">)</span><span class="o">.</span><span class="n">calificacion_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">estudiante_id</span><span class="o">=</span><span class="n">estudiante_id</span><span class="p">)</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span><span class="s1">&#39;instancia__nombre&#39;</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;instancias&quot;</span><span class="p">,</span><span class="n">instancias</span><span class="p">)</span>
+    <span class="c1"># Obtener todas las calificaciones del estudiante para el ciclo dado, agrupadas por materia</span>
+    <span class="n">calificaciones</span> <span class="o">=</span> <span class="n">Calificacion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">estudiante_id</span><span class="o">=</span><span class="n">estudiante_id</span><span class="p">,</span> <span class="n">ciclo_id</span><span class="o">=</span><span class="n">ciclo_id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Calificaciones&quot;</span><span class="p">,</span><span class="n">calificaciones</span><span class="p">)</span>
+    <span class="c1"># Crear una lista de listas para almacenar las calificaciones</span>
+
+    <span class="c1"># Calcular el promedio general del estudiante para el ciclo</span>
+    <span class="n">promedio_general</span> <span class="o">=</span> <span class="n">calificaciones</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">promedio_general</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s1">&#39;nota&#39;</span><span class="p">))[</span><span class="s1">&#39;promedio_general&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Renderizar la plantilla con los datos del boletín y el promedio general</span>
+    <span class="c1"># Renderizar la plantilla con los datos del boletín y el promedio general</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Calificacion/boletinEstudiante.html&#39;</span><span class="p">,</span> 
+                  <span class="p">{</span><span class="s1">&#39;calificaciones&#39;</span><span class="p">:</span> <span class="n">calificaciones</span><span class="p">,</span>
+                   <span class="s1">&#39;espacios&#39;</span><span class="p">:</span> <span class="n">espacios</span><span class="p">,</span>
+                   <span class="s1">&#39;promedio&#39;</span><span class="p">:</span><span class="n">promedio_general</span><span class="p">,</span>
+                   <span class="s1">&#39;instancias&#39;</span><span class="p">:</span> <span class="n">instancias</span>
+                   <span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="menuCursada">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.menuCursada">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">menuCursada</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">fecha_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">fecha_str</span><span class="p">)</span>
+    <span class="n">instanciaDisponible</span> <span class="o">=</span> <span class="n">Instancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">disponible</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">fecha_iso</span> <span class="o">=</span> <span class="n">fecha_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Obtiene solo la parte de la fecha (AAAA-MM-DD)</span>
+    <span class="n">fecha_hoy</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">fecha_iso</span><span class="p">)</span>
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span>
+    <span class="n">inscriptos</span> <span class="o">=</span> <span class="n">Inscripcion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ciclo</span> <span class="o">=</span> <span class="n">ciclo</span><span class="p">)</span>
+    <span class="n">cantInscriptos</span> <span class="o">=</span> <span class="n">inscriptos</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">cantDocInsciptos</span> <span class="o">=</span> <span class="n">InscripcionDocente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ciclo</span> <span class="o">=</span> <span class="n">ciclo</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">estudiantes_sin_inscripcion</span> <span class="o">=</span> <span class="n">Estudiante</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">inscripcion__ciclo</span><span class="o">=</span><span class="n">ciclo</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="n">inasistencias_hoy</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dia</span> <span class="o">=</span> <span class="n">fecha_hoy</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">cantInscriptos</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">porcentaje</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">porcentaje</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">inasistencias_hoy</span> <span class="o">/</span> <span class="n">cantInscriptos</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span> <span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ACAAAAAAAAA INASISTENCIAS&quot;</span><span class="p">,</span><span class="n">inasistencias_hoy</span><span class="p">)</span>
+   
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/menuCursada.html&#39;</span><span class="p">,{</span>
+        <span class="s1">&#39;ciclo &#39;</span><span class="p">:</span> <span class="n">ciclo</span><span class="p">,</span>
+        <span class="s1">&#39;cantInscriptos&#39;</span> <span class="p">:</span> <span class="n">cantInscriptos</span><span class="p">,</span>
+        <span class="s1">&#39;cantDocInscriptos&#39;</span> <span class="p">:</span> <span class="n">cantDocInsciptos</span><span class="p">,</span>
+        <span class="s1">&#39;total&#39;</span> <span class="p">:</span> <span class="n">cantInscriptos</span> <span class="o">+</span> <span class="n">cantDocInsciptos</span><span class="p">,</span>
+        <span class="s1">&#39;sinInscripcion&#39;</span> <span class="p">:</span> <span class="n">estudiantes_sin_inscripcion</span><span class="p">,</span>
+        <span class="s1">&#39;inasistencias&#39;</span> <span class="p">:</span> <span class="n">inasistencias_hoy</span><span class="p">,</span>
+        <span class="s1">&#39;instanciaDisponible&#39;</span> <span class="p">:</span> <span class="n">instanciaDisponible</span><span class="p">,</span>
+        <span class="s1">&#39;porcentaje&#39;</span><span class="p">:</span> <span class="n">porcentaje</span>
+
+    <span class="p">})</span></div>
+
+
+<span class="c1"># Create your views here.</span>
+<div class="viewcode-block" id="calificacion_edit">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.calificacion_edit">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">calificacion_edit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">id_calificacion</span><span class="p">):</span>
+    <span class="n">espacio</span> <span class="o">=</span> <span class="n">Calificacion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">id_calificacion</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;GET&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">CalificacionForm</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span> <span class="n">espacio</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">CalificacionForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span> <span class="n">espacio</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s2">&quot;/Notas/verCalificacion&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Calificacion/calificacionForm.html&#39;</span><span class="p">,{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span><span class="n">form</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="calificacion_list">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.calificacion_list">[documentos]</a>
+<span class="k">class</span> <span class="nc">calificacion_list</span><span class="p">(</span><span class="n">ListView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Calificacion</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;Calificacion/verCalificacion.html&#39;</span></div>
+
+
+<div class="viewcode-block" id="instancias_list">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.instancias_list">[documentos]</a>
+<span class="k">class</span> <span class="nc">instancias_list</span><span class="p">(</span><span class="n">ListView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Instancia</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;Calificacion/instancias.html&#39;</span></div>
+
+<span class="c1">#-------------------------------------------------------------------</span>
+<div class="viewcode-block" id="inasistencia_view">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.inasistencia_view">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">inasistencia_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">InasistenciasForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+           <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">InasistenciasForm</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Inasistencia/inasistenciaForm.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+
+<span class="c1"># Create your views here.</span>
+<div class="viewcode-block" id="Inasistencia_edit">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.Inasistencia_edit">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">Inasistencia_edit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">id_inasistencia</span><span class="p">):</span>
+    <span class="n">inasistencia</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">id_inasistencia</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;GET&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">InasistenciasForm</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span> <span class="n">inasistencia</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">InasistenciasForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">instance</span><span class="o">=</span> <span class="n">inasistencia</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">HttpResponseRedirect</span><span class="p">(</span><span class="s2">&quot;/Notas/verInasistencias&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Inasistencia/inasistenciaForm.html&#39;</span><span class="p">,{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span><span class="n">form</span><span class="p">})</span></div>
+
+
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">consultar_faltas</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Methodo&#39;</span><span class="p">,</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span> <span class="p">:</span>
+        <span class="n">fecha_inicio</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fecha_inicio&#39;</span><span class="p">)</span>
+        <span class="n">fecha_fin</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fecha_fin&#39;</span><span class="p">)</span>
+        <span class="n">estudiante_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;estudiante_id&#39;</span><span class="p">)</span>  <span class="c1"># Nuevo campo para el estudiante</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;HASTA ACA VAMOOOOS*****&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fecha_inicio</span> <span class="ow">and</span> <span class="n">fecha_fin</span><span class="p">:</span>
+            <span class="c1"># Si fecha_inicio está vacía pero fecha_fin tiene valor, establece fecha_inicio igual a fecha_fin</span>
+            <span class="n">fecha_inicio</span> <span class="o">=</span> <span class="n">fecha_fin</span>
+        <span class="k">elif</span> <span class="n">fecha_inicio</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fecha_fin</span><span class="p">:</span>
+            <span class="c1"># Si fecha_fin está vacía pero fecha_inicio tiene valor, establece fecha_fin igual a fecha_inicio</span>
+            <span class="n">fecha_fin</span> <span class="o">=</span> <span class="n">fecha_inicio</span>
+        <span class="c1"># Construir consulta para faltas según fecha y estudiante</span>
+        <span class="n">consulta_faltas</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="n">dia__range</span><span class="o">=</span><span class="p">[</span><span class="n">fecha_inicio</span><span class="p">,</span> <span class="n">fecha_fin</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">estudiante_id</span><span class="p">:</span>
+            <span class="n">consulta_faltas</span> <span class="o">&amp;=</span> <span class="n">Q</span><span class="p">(</span><span class="n">estudiante_id</span><span class="o">=</span><span class="n">estudiante_id</span><span class="p">)</span>
+
+        <span class="c1"># Realizar la consulta de faltas</span>
+        <span class="n">inasistencias</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">consulta_faltas</span><span class="p">)</span>
+
+        <span class="c1"># Serializar los resultados si es necesario</span>
+        <span class="n">resultados</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;nombre_alumno&#39;</span><span class="p">:</span> <span class="n">falta</span><span class="o">.</span><span class="n">estudiante</span><span class="o">.</span><span class="n">nombre</span><span class="p">,</span> <span class="s1">&#39;fecha&#39;</span><span class="p">:</span> <span class="n">falta</span><span class="o">.</span><span class="n">dia</span><span class="p">}</span> <span class="k">for</span> <span class="n">falta</span> <span class="ow">in</span> <span class="n">inasistencias</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;resultados&#39;</span><span class="p">:</span> <span class="n">resultados</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/reporte_inasistencia.html&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="instancia_view">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.instancia_view">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">instancia_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;entre a instancias&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">InstanciaForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+           <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+           <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/Clases/verInstancias&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">InstanciaForm</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Calificacion/instanciaForm.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="habilitarInstancia">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.habilitarInstancia">[documentos]</a>
+<span class="nd">@require_POST</span>
+<span class="k">def</span> <span class="nf">habilitarInstancia</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">instancia_id</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ACAAAAAA&quot;</span><span class="p">)</span>
+    <span class="n">instancia</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Instancia</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">instancia_id</span><span class="p">)</span>
+    <span class="n">fecha_fin</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fecha_fin&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+    <span class="n">fecha_fin</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fecha_fin&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;fecha fin&quot;</span><span class="p">,</span><span class="n">fecha_fin</span><span class="p">)</span>
+    <span class="n">fecha</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">(),</span> <span class="s2">&quot;%Y-%M-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estoy acaaaaa&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;fin&#39;</span><span class="p">,</span><span class="n">fecha_fin</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">fecha_fin</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;hoy&#39;</span><span class="p">,</span><span class="n">fecha</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">fecha</span><span class="p">))</span>
+    <span class="k">if</span>   <span class="n">fecha_fin</span> <span class="o">&gt;=</span> <span class="n">fecha</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;El docente se editó correctamente.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;fecha ingresada es menor a la fecha actual&#39;</span><span class="p">})</span>
+    <span class="n">instancia</span><span class="o">.</span><span class="n">disponible</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">instancia</span><span class="o">.</span><span class="n">fecha_inicio</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">instancia</span><span class="o">.</span><span class="n">fecha_fin</span> <span class="o">=</span> <span class="n">fecha_fin</span>
+    <span class="n">instancia</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="c1"># Deshabilitar las otras instancias</span>
+    <span class="n">otras_instancias</span> <span class="o">=</span> <span class="n">Instancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">instancia_id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">otra_instancia</span> <span class="ow">in</span> <span class="n">otras_instancias</span><span class="p">:</span>
+        <span class="n">otra_instancia</span><span class="o">.</span><span class="n">disponible</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">otra_instancia</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Instancia habilitada exitosamente&#39;</span><span class="p">})</span></div>
+
+    <span class="c1"># return redirect(&#39;/Clases/verInstancias&#39;)</span>
+
+<div class="viewcode-block" id="habilitar_instancia">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.habilitar_instancia">[documentos]</a>
+<span class="nd">@require_POST</span>
+<span class="k">def</span> <span class="nf">habilitar_instancia</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">instancia_id</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="n">instancia</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Instancia</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">instancia_id</span><span class="p">)</span>
+    <span class="n">fecha_fin</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fecha_fin&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Convertir la fecha ingresada y la fecha actual a objetos datetime.date</span>
+    <span class="n">fecha_fin_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">fecha_fin</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    <span class="n">fecha_actual</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+    
+    <span class="c1"># Verificar si la fecha ingresada es menor que la fecha actual</span>
+    <span class="k">if</span> <span class="n">fecha_fin_date</span> <span class="o">&lt;</span> <span class="n">fecha_actual</span><span class="p">:</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;La fecha ingresada es menor a la fecha actual.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;La fecha ingresada es menor a la fecha actual&#39;</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+    
+    <span class="n">instancia</span><span class="o">.</span><span class="n">disponible</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">instancia</span><span class="o">.</span><span class="n">fecha_fin</span> <span class="o">=</span> <span class="n">fecha_fin_date</span>
+    <span class="n">instancia</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;La instancia se habilitó correctamente.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Instancia habilitada exitosamente&#39;</span><span class="p">})</span></div>
+
+
+<span class="c1">#*************************************************</span>
+<div class="viewcode-block" id="reporte_view">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.reporte_view">[documentos]</a>
+<span class="k">def</span> <span class="nf">reporte_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">ReporteForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">GET</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/reporte.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_reporte_data">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.get_reporte_data">[documentos]</a>
+<span class="k">def</span> <span class="nf">get_reporte_data</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">plan_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plan&#39;</span><span class="p">)</span>
+    <span class="n">ciclo_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ciclo&#39;</span><span class="p">)</span>
+    <span class="n">instancia_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;instancia&#39;</span><span class="p">)</span>
+    <span class="n">calificaciones</span> <span class="o">=</span> <span class="n">Calificacion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;todas las notas&quot;</span><span class="p">,</span><span class="n">calificaciones</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plan_id</span><span class="p">:</span>
+        <span class="n">calificaciones</span> <span class="o">=</span> <span class="n">calificaciones</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ciclo__plan_id</span><span class="o">=</span><span class="n">plan_id</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;notassssss&quot;</span><span class="p">,</span><span class="n">calificaciones</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ciclo_id</span><span class="p">:</span>
+        <span class="n">calificaciones</span> <span class="o">=</span> <span class="n">calificaciones</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ciclo_id</span><span class="o">=</span><span class="n">ciclo_id</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;notassssss Cilooo&quot;</span><span class="p">,</span><span class="n">calificaciones</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">instancia_id</span><span class="p">:</span>
+        <span class="n">calificaciones</span> <span class="o">=</span> <span class="n">calificaciones</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">instancia_id</span><span class="o">=</span><span class="n">instancia_id</span><span class="p">)</span>
+
+    <span class="c1"># Agrupar calificaciones por espacio curricular</span>
+    <span class="n">promedio_notas</span> <span class="o">=</span> <span class="n">calificaciones</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;espacioCurricular__nombre&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">promedio</span><span class="o">=</span><span class="n">Avg</span><span class="p">(</span><span class="s1">&#39;nota&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;espacioCurricular__nombre&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ver promedio notas&quot;</span><span class="p">,</span> <span class="n">promedio_notas</span><span class="p">)</span>
+    <span class="c1"># Preparar los datos para Chart.js</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;espacioCurricular__nombre&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">promedio_notas</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ver labels&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;promedio&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">promedio_notas</span><span class="p">]</span>
+
+    <span class="n">chart_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
+        <span class="s1">&#39;datasets&#39;</span><span class="p">:</span> <span class="p">[{</span>
+            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;Promedio de Notas&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+            <span class="s1">&#39;backgroundColor&#39;</span><span class="p">:</span> <span class="s1">&#39;rgba(75, 192, 192, 0.2)&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;borderColor&#39;</span><span class="p">:</span> <span class="s1">&#39;rgba(75, 192, 192, 1)&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;borderWidth&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">}]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">chart_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_ciclos">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.get_ciclos">[documentos]</a>
+<span class="k">def</span> <span class="nf">get_ciclos</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Entre a reporte ciclos&quot;</span><span class="p">)</span>
+    <span class="n">plan_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plan&#39;</span><span class="p">)</span>
+    <span class="n">ciclos</span> <span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">plan_id</span><span class="o">=</span><span class="n">plan_id</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;anioCalendario&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ciclos&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">ciclos</span><span class="p">)}</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_instancias">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.get_instancias">[documentos]</a>
+<span class="k">def</span> <span class="nf">get_instancias</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="n">ciclo_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ciclo&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ciclo_id</span><span class="p">)</span>
+    <span class="n">instancias</span> <span class="o">=</span> <span class="n">Instancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ciclo_id</span><span class="o">=</span><span class="n">ciclo_id</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;nombre&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;instancias&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">instancias</span><span class="p">)}</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<span class="c1">#**************************************************</span>
+<span class="c1"># def consultar_faltas(request):</span>
+<span class="c1">#     if request.method == &#39;POST&#39; and request.headers.get(&#39;HTTP_X_REQUESTED_WITH&#39;) == &#39;XMLHttpRequest&#39;:</span>
+<span class="c1">#         form = ConsultaForm(request.POST)</span>
+
+<span class="c1">#         if form.is_valid():</span>
+<span class="c1">#             fecha_inicio = form.cleaned_data[&#39;fecha_inicio&#39;]</span>
+<span class="c1">#             fecha_fin = form.cleaned_data[&#39;fecha_fin&#39;]</span>
+<span class="c1">#             estudiante_id = form.cleaned_data[&#39;estudiante&#39;]</span>
+
+<span class="c1">#             consulta_faltas = Q(fecha__range=[fecha_inicio, fecha_fin])</span>
+<span class="c1">#             if estudiante_id:</span>
+<span class="c1">#                 consulta_faltas &amp;= Q(alumno_id=estudiante_id)</span>
+
+<span class="c1">#             faltas = Inasistencias.objects.filter(consulta_faltas)</span>
+
+<span class="c1">#             resultados = [{&#39;nombre_alumno&#39;: falta.estudiante.Nombre, &#39;fecha&#39;: falta.dia} for falta in faltas]</span>
+
+<span class="c1">#             return JsonResponse({&#39;resultados&#39;: resultados})</span>
+
+<span class="c1">#     else:</span>
+<span class="c1">#         form = ConsultaForm()</span>
+
+<span class="c1">#     return render(request, &#39;Cursada/reporte_inasistencia.html&#39;, {&#39;form&#39;: form})</span>
+
+
+
+<span class="c1">#     return render(request, &#39;Cursada/reporte_inasistencia.html&#39;)</span>
+<div class="viewcode-block" id="inasistencia_list">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.inasistencia_list">[documentos]</a>
+<span class="k">class</span> <span class="nc">inasistencia_list</span><span class="p">(</span><span class="n">ListView</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Inasistencias</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;Inasistencia/verInasistencias.html&#39;</span></div>
+
+
+
+<span class="c1">#************************Horarios************************</span>
+    
+<div class="viewcode-block" id="crear_horario">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.crear_horario">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">crear_horario</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="n">idDivision</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="n">horarios</span> <span class="o">=</span> <span class="n">Detalle_Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">horario</span> <span class="o">=</span> <span class="n">Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">division_id</span><span class="o">=</span><span class="n">idDivision</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;******Entre al post******&quot;</span><span class="p">)</span>
+        <span class="n">division</span> <span class="o">=</span> <span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">idDivision</span><span class="p">)</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">Detalle_HorarioForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span> <span class="n">division</span><span class="o">=</span><span class="n">division</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Era valido&quot;</span><span class="p">)</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>            
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;el Horario se cargó correctamente&#39;</span><span class="p">)</span>
+            <span class="n">mensaje</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mensaje</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">errors</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">mensaje</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;/Clases/crear_horario/&quot;</span> <span class="o">+</span> <span class="n">idDivision</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;mensaje&#39;</span> <span class="p">:</span> <span class="n">mensaje</span><span class="p">,</span>
+                                                                <span class="s1">&#39;form&#39;</span><span class="p">:</span><span class="n">form</span><span class="p">})</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Horarios&quot;</span><span class="p">,</span><span class="n">horarios</span><span class="p">)</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">Detalle_HorarioForm</span><span class="p">(</span><span class="n">division</span> <span class="o">=</span> <span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">idDivision</span><span class="p">))</span>
+    <span class="n">dias</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tupla</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">tupla</span> <span class="ow">in</span> <span class="n">Horario</span><span class="o">.</span><span class="n">CHOICES_DIA</span><span class="p">]</span>
+    <span class="n">modulos</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tupla</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">tupla</span> <span class="ow">in</span> <span class="n">Horario</span><span class="o">.</span><span class="n">CHOICES_HORA</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">dias</span><span class="p">,</span><span class="n">modulos</span><span class="p">)</span>
+    <span class="n">division</span> <span class="o">=</span> <span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">idDivision</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Division/crearHorarioDivision.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;form&quot;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span> 
+                                                                  <span class="s2">&quot;horarios&quot;</span><span class="p">:</span> <span class="n">horarios</span><span class="p">,</span>
+                                                                  <span class="s2">&quot;dias&quot;</span><span class="p">:</span> <span class="n">dias</span><span class="p">,</span>
+                                                                  <span class="s1">&#39;modulos&#39;</span><span class="p">:</span> <span class="n">modulos</span><span class="p">,</span>
+                                                                  <span class="s1">&#39;idDivision&#39;</span><span class="p">:</span><span class="n">division</span><span class="p">})</span></div>
+
+
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span>
+<div class="viewcode-block" id="eliminarInasistencias">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.eliminarInasistencias">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">eliminarInasistencias</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">inasistencias_seleccionadas</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;inasistencias_seleccionadas&#39;</span><span class="p">)</span>
+        <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">id__in</span><span class="o">=</span><span class="n">inasistencias_seleccionadas</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/Core/aniosDePlanActual&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/Core/aniosDePlanActual&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="registrarInasistencia">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.registrarInasistencia">[documentos]</a>
+<span class="nd">@login_required</span>
+
+<span class="k">def</span> <span class="nf">registrarInasistencia</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">idAnio</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="c1"># ciclo = Ciclo.objects.get(esActual=True)</span>
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;aca andooooo&quot;</span><span class="p">)</span>
+        <span class="c1"># Obtener información del formulario</span>
+        <span class="n">inasistencias_seleccionadas</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s1">&#39;inasistencias_seleccionadas&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inasistencias_seleccionadas</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">estudiante_id</span> <span class="ow">in</span> <span class="n">inasistencias_seleccionadas</span><span class="p">:</span>
+                <span class="n">falta_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;falta_</span><span class="si">{</span><span class="n">estudiante_id</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">falta</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">falta_key</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                
+                <span class="n">justificado_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;justificado_</span><span class="si">{</span><span class="n">estudiante_id</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">justificado</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">justificado_key</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                
+                <span class="n">estudiante</span> <span class="o">=</span> <span class="n">Estudiante</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">estudiante_id</span><span class="p">)</span>
+                <span class="n">nueva_inasistencia</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="p">(</span><span class="n">ciclo</span><span class="o">=</span><span class="n">ciclo</span><span class="p">,</span> <span class="n">estudiante</span><span class="o">=</span><span class="n">estudiante</span><span class="p">,</span> <span class="n">falta</span><span class="o">=</span><span class="n">falta</span><span class="p">,</span> <span class="n">justificacion</span><span class="o">=</span><span class="n">justificado</span><span class="p">)</span>
+                <span class="n">nueva_inasistencia</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="c1"># Después de guardar las inasistencias, redirigir a la misma página con un parámetro de éxito</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/Core/corregirAlumnoInasistencia/&#39;</span><span class="o">+</span><span class="n">idAnio</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;success&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span><span class="s1">&#39;estudiantes&#39;</span><span class="p">:</span> <span class="n">estudiante</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/cargarInasistencia.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s2">&quot;estudiante&quot;</span><span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/cargarInasistencia.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;estudiantes&#39;</span><span class="p">:</span> <span class="n">estudiante</span><span class="p">})</span></div>
+
+    
+    <span class="c1"># Mostrarlos y registrar los que no estan marcados</span>
+<div class="viewcode-block" id="obtener_aulas">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.obtener_aulas">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">obtener_aulas</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;asignar aulas&quot;</span><span class="p">)</span>
+    <span class="c1"># Lógica para obtener aulas desde la base de datos</span>
+    <span class="n">aulas</span> <span class="o">=</span> <span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ciclo</span><span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">esActual</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span><span class="p">),</span><span class="n">anio</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># Obtén las aulas desde tu modelo</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;aulas.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;aulas&#39;</span><span class="p">:</span> <span class="n">aulas</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="asignar_alumno_a_aula">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.asignar_alumno_a_aula">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">asignar_alumno_a_aula</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">idAnio</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;asignar alumno&quot;</span><span class="p">,</span> <span class="n">idAnio</span><span class="p">)</span>
+    <span class="n">ciclo</span> <span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">esActual</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span><span class="p">)</span>
+    <span class="c1">#ciclo=request.ciclo</span>
+    <span class="n">divisiones</span> <span class="o">=</span> <span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">anio_id</span><span class="o">=</span><span class="n">idAnio</span><span class="p">,</span><span class="n">ciclo</span><span class="o">=</span><span class="n">ciclo</span><span class="p">)</span>
+    <span class="n">estudiantes_inscritos</span> <span class="o">=</span> <span class="n">Inscripcion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">anio</span><span class="o">=</span><span class="n">idAnio</span><span class="p">,</span><span class="n">ciclo</span> <span class="o">=</span> <span class="n">ciclo</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;estudiuantes inscriptos&quot;</span><span class="p">,</span><span class="n">estudiantes_inscritos</span><span class="p">)</span>
+    <span class="c1"># Verificar si las aulas existen para cada división</span>
+    <span class="c1"># for division in divisiones:</span>
+    <span class="c1">#     aulas_existen = Aula.objects.filter(division=division).exists()</span>
+    <span class="c1">#     if not aulas_existen:</span>
+    <span class="c1">#         Aula.objects.create(division=division)</span>
+
+    <span class="c1"># Obtener las aulas después de verificar o crear</span>
+    <span class="n">aulas</span> <span class="o">=</span> <span class="n">Aula</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">division__in</span><span class="o">=</span><span class="n">divisiones</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estoy en aulaaass&quot;</span><span class="p">,</span><span class="n">aulas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">estudiantes</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="n">estudiantes_aula</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Cambiaremos a un diccionario para asociar estudiantes con aulas</span>
+    <span class="k">for</span> <span class="n">aula</span> <span class="ow">in</span> <span class="n">aulas</span><span class="p">:</span>
+        <span class="n">estudiantes_aula</span><span class="p">[</span><span class="n">aula</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">aula</span><span class="o">.</span><span class="n">estudiantes</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">aula</span><span class="o">.</span><span class="n">estudiantes</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+    <span class="n">estudiantes_no_en_aula</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ids_estudiantes_aula</span> <span class="o">=</span> <span class="p">[</span><span class="n">estudiante</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">aula_estudiantes</span> <span class="ow">in</span> <span class="n">estudiantes_aula</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">estudiante</span> <span class="ow">in</span> <span class="n">aula_estudiantes</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estudiates e aulas&quot;</span><span class="p">,</span><span class="n">ids_estudiantes_aula</span><span class="p">)</span>
+    <span class="c1"># Obtener los IDs de los estudiantes en aulas</span>
+    <span class="nb">print</span><span class="p">((</span><span class="n">ids_estudiantes_aula</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">estudiante</span> <span class="ow">in</span> <span class="n">estudiantes_inscritos</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;id estudiante*****&quot;</span><span class="p">,</span><span class="n">estudiante</span><span class="o">.</span><span class="n">estudiante</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="n">ids_estudiantes_aula</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">estudiante</span><span class="o">.</span><span class="n">estudiante</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ids_estudiantes_aula</span><span class="p">:</span>
+            <span class="n">estudiantes_no_en_aula</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estudiante</span><span class="p">)</span>
+
+    <span class="c1"># Obtener estudiantes que no están en ninguna aula</span>
+ <span class="c1">#   estudiantes_no_en_aula = estudiantes_inscritos.exclude(id__in=ids_estudiantes_aula)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no en aula&quot;</span><span class="p">,</span> <span class="n">estudiantes_no_en_aula</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Division/asignar_alumnno_aula.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;aulas&#39;</span><span class="p">:</span> <span class="n">aulas</span><span class="p">,</span> 
+                                                                <span class="s1">&#39;estudiantes&#39;</span><span class="p">:</span> <span class="n">estudiantes_no_en_aula</span><span class="p">,</span>
+                                                                <span class="s1">&#39;estudiantes_aula&#39;</span><span class="p">:</span> <span class="n">estudiantes_aula</span><span class="p">,</span>
+                                                                <span class="s1">&#39;estudiantes_no_en_aula&#39;</span><span class="p">:</span> <span class="n">estudiantes_no_en_aula</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="estudiantes_aulas">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.estudiantes_aulas">[documentos]</a>
+<span class="k">def</span> <span class="nf">estudiantes_aulas</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">id_division</span><span class="p">):</span>
+
+    <span class="n">aula</span> <span class="o">=</span> <span class="n">Aula</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">division_id</span> <span class="o">=</span> <span class="n">id_division</span><span class="p">)</span>
+    <span class="n">horario</span> <span class="o">=</span> <span class="n">Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">division_id</span> <span class="o">=</span> <span class="n">id_division</span><span class="p">)</span>
+    <span class="n">docente</span> <span class="o">=</span> <span class="n">Docente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dni</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Docente&#39;</span><span class="p">,</span><span class="n">docente</span><span class="p">)</span>
+    <span class="n">espacios</span> <span class="o">=</span> <span class="n">Detalle_Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">docente</span><span class="o">=</span> <span class="n">docente</span><span class="p">,</span> <span class="n">horario</span> <span class="o">=</span> <span class="n">horario</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="s1">&#39;espacioCurricular&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+    <span class="n">estudiantes</span> <span class="o">=</span> <span class="n">aula</span><span class="o">.</span><span class="n">estudiantes</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Aulaaaa&quot;</span><span class="p">,</span><span class="n">aula</span><span class="o">.</span><span class="n">division</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">estudiantes</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Espacioooos estudiantes&#39;</span><span class="p">,</span><span class="n">espacios</span><span class="p">)</span>
+    <span class="n">instancia</span> <span class="o">=</span> <span class="n">Instancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">disponible</span><span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">estudiantes_ids</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">estudiantes</span><span class="p">)</span>
+    <span class="n">calificacion</span> <span class="o">=</span> <span class="n">Calificacion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">docente_id</span><span class="o">=</span><span class="n">docente</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">instancia_id</span><span class="o">=</span><span class="n">instancia</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">estudiante__in</span><span class="o">=</span><span class="n">estudiantes</span><span class="p">,</span>
+            <span class="n">ciclo</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">ciclo</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;espacioCurricular&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;GET&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">CalificacionForm</span><span class="p">(</span><span class="n">espacios</span><span class="o">=</span> <span class="n">espacios</span><span class="p">,</span><span class="n">estudiantes</span><span class="o">=</span> <span class="n">estudiantes</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;****FORMULARIO****&quot;</span><span class="p">)</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">CalificacionForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ciclo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span>
+                <span class="n">docente_id</span> <span class="o">=</span> <span class="n">Docente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dni</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+                <span class="n">calificacion_obj</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">calificacion_obj</span><span class="o">.</span><span class="n">ciclo</span> <span class="o">=</span> <span class="n">ciclo</span>
+                <span class="n">calificacion_obj</span><span class="o">.</span><span class="n">docente</span> <span class="o">=</span> <span class="n">docente_id</span>
+                <span class="n">calificacion_obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;nota cargada correctamente.&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">IntegrityError</span><span class="p">:</span>
+                <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Ya existe una calificación para esta instancia, ciclo y estudiante.&#39;</span><span class="p">)</span> 
+                
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;El formulariooooo&quot;</span><span class="p">,</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">form</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+
+    <span class="n">form</span> <span class="o">=</span> <span class="n">CalificacionForm</span><span class="p">(</span><span class="n">espacios</span><span class="o">=</span> <span class="n">espacios</span><span class="p">,</span><span class="n">estudiantes</span><span class="o">=</span> <span class="n">estudiantes</span><span class="p">)</span>        
+    <span class="k">return</span> <span class="n">render</span> <span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Calificacion/verEstudiante2.html&#39;</span><span class="p">,{</span>
+        <span class="s1">&#39;estudiantes&#39;</span><span class="p">:</span> <span class="n">estudiantes</span><span class="p">,</span>
+        <span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span>
+        <span class="s1">&#39;espacios&#39;</span><span class="p">:</span> <span class="n">espacios</span><span class="p">,</span>
+        <span class="s1">&#39;calificacion&#39;</span><span class="p">:</span> <span class="n">calificacion</span>
+    <span class="p">})</span></div>
+
+
+    
+
+<div class="viewcode-block" id="obtener_alumnos">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.obtener_alumnos">[documentos]</a>
+<span class="k">def</span> <span class="nf">obtener_alumnos</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">idEstudiante</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Obteniendo las inscripciones del estudiante&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Obtener las inscripciones del estudiante</span>
+    <span class="n">alumnos_inscripciones</span> <span class="o">=</span> <span class="n">Inscripcion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">estudiante_id</span><span class="o">=</span><span class="n">idEstudiante</span><span class="p">)</span>
+    <span class="n">alumno</span> <span class="o">=</span> <span class="n">Estudiante</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">alumnos_inscripciones</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">estudiante_id</span><span class="p">)</span>
+    <span class="c1"># Diccionario para almacenar la información</span>
+    <span class="n">info_alumnos</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">estudiante</span> <span class="ow">in</span> <span class="n">alumnos_inscripciones</span><span class="p">:</span>
+        <span class="n">ciclos</span> <span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">estudiante</span><span class="o">.</span><span class="n">ciclo_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ciclo</span> <span class="ow">in</span> <span class="n">ciclos</span><span class="p">:</span>
+            <span class="n">plan</span> <span class="o">=</span> <span class="n">PlanDeEstudios</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ciclo</span><span class="o">.</span><span class="n">plan_id</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">plan</span><span class="p">)</span>
+            <span class="c1"># Agregar la información al diccionario</span>
+            <span class="k">if</span> <span class="n">estudiante</span><span class="o">.</span><span class="n">estudiante_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_alumnos</span><span class="p">:</span>
+                <span class="n">info_alumnos</span><span class="p">[</span><span class="n">estudiante</span><span class="o">.</span><span class="n">estudiante_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;ciclos&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;inscripciones&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;planes&#39;</span><span class="p">:</span> <span class="p">[]</span>
+                <span class="p">}</span>
+        
+            <span class="n">info_alumnos</span><span class="p">[</span><span class="n">estudiante</span><span class="o">.</span><span class="n">estudiante_id</span><span class="p">][</span><span class="s1">&#39;ciclos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ciclo</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Mostrando inscripciones&#39;</span><span class="p">,</span><span class="n">estudiante</span><span class="o">.</span><span class="n">fecha</span><span class="p">)</span>
+            <span class="n">info_alumnos</span><span class="p">[</span><span class="n">estudiante</span><span class="o">.</span><span class="n">estudiante_id</span><span class="p">][</span><span class="s1">&#39;inscripciones&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estudiante</span><span class="p">)</span>
+            <span class="n">info_alumnos</span><span class="p">[</span><span class="n">estudiante</span><span class="o">.</span><span class="n">estudiante_id</span><span class="p">][</span><span class="s1">&#39;planes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plan</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">estudiante_id</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">info_alumnos</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">ciclos_serializables</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">estudiante_id</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">info_alumnos</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">ciclos_serializables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ciclo</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;ciclos&#39;</span><span class="p">]:</span>
+            <span class="n">ciclo_serializable</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">ciclo</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="s1">&#39;nombre&#39;</span><span class="p">:</span> <span class="n">ciclo</span><span class="o">.</span><span class="n">anioCalendario</span><span class="p">,</span>
+                <span class="c1"># Agregar otros campos necesarios aquí</span>
+            <span class="p">}</span>
+            <span class="n">ciclos_serializables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ciclo_serializable</span><span class="p">)</span>
+        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;ciclos&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ciclos_serializables</span>
+
+        <span class="c1"># Construir un diccionario serializable para cada objeto de tipo PlanDeEstudios</span>
+        <span class="n">planes_serializables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">plan</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;planes&#39;</span><span class="p">]:</span>
+            <span class="n">plan_serializable</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">plan</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="s1">&#39;nombre&#39;</span><span class="p">:</span> <span class="n">plan</span><span class="o">.</span><span class="n">codigo</span><span class="p">,</span>
+                <span class="c1"># Agregar otros campos necesarios aquí</span>
+            <span class="p">}</span>
+            <span class="n">planes_serializables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plan_serializable</span><span class="p">)</span>
+        <span class="n">inscripciones_serializables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">inscripcion</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;inscripciones&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;en teoria tiene que estar la inscripcion&#39;</span><span class="p">,</span><span class="n">inscripcion</span><span class="o">.</span><span class="n">fecha</span><span class="p">)</span>
+            <span class="n">inscripcion_serializable</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">inscripcion</span><span class="o">.</span><span class="n">anio</span><span class="o">.</span><span class="n">codigo</span><span class="p">,</span>
+                <span class="s1">&#39;fecha&#39;</span><span class="p">:</span> <span class="n">inscripcion</span><span class="o">.</span><span class="n">fecha</span>
+                <span class="c1"># Incluye otros campos necesarios aquí</span>
+            <span class="p">}</span>
+            <span class="n">inscripciones_serializables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inscripcion_serializable</span><span class="p">)</span>   
+        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;inscripciones&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inscripciones_serializables</span>
+
+        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;planes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planes_serializables</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">info_alumnos</span><span class="p">)</span>
+    <span class="c1"># Devolver los datos como respuesta JSON</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">info_alumnos</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">alumno</span><span class="o">.</span><span class="n">fechaInscripcion</span><span class="p">,</span><span class="n">info_alumnos</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">info_alumnos</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="actualizar_relacion">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.actualizar_relacion">[documentos]</a>
+<span class="k">def</span> <span class="nf">actualizar_relacion</span><span class="p">(</span><span class="n">request</span><span class="p">):</span> 
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_staff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">(</span><span class="s1">&#39;Acceso denegado.&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;entre actualizar relacion&quot;</span><span class="p">)</span>
+    <span class="c1">#ciclo_actual = Ciclo.objects.get(esActual=True)</span>
+    <span class="n">ciclo_actual</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span>
+    <span class="n">divisiones</span> <span class="o">=</span> <span class="n">Division</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ciclo</span><span class="o">=</span><span class="n">ciclo_actual</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;vengo por aca&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="n">alumno_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;estudiante_id&#39;</span><span class="p">)</span>
+        <span class="n">aula_nombre</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;aula_nombre&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;recuperados&quot;</span><span class="p">,</span> <span class="n">alumno_id</span><span class="p">,</span> <span class="n">aula_nombre</span><span class="p">)</span>
+        <span class="n">estudiante</span> <span class="o">=</span> <span class="n">Estudiante</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dni</span><span class="o">=</span><span class="n">alumno_id</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;estudiantes&quot;</span><span class="p">,</span> <span class="n">estudiante</span><span class="p">)</span>
+
+        <span class="c1"># Obtener el aula específica</span>
+        <span class="n">aula_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">aula_nombre</span><span class="p">)</span>
+        <span class="n">aula</span> <span class="o">=</span> <span class="n">Aula</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">aula_id</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estudiantes de aulaa*****&quot;</span><span class="p">,</span> <span class="n">aula</span><span class="o">.</span><span class="n">estudiantes</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+
+        <span class="c1"># Asignar al estudiante al aula</span>
+        <span class="n">aula</span><span class="o">.</span><span class="n">estudiantes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">estudiante</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estudiantes de aulaa*****&quot;</span><span class="p">,</span> <span class="n">aula</span><span class="o">.</span><span class="n">estudiantes</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+
+        <span class="n">mensaje_exito</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Se cargó el alumno </span><span class="si">{</span><span class="n">alumno_id</span><span class="si">}</span><span class="s1"> al aula </span><span class="si">{</span><span class="n">aula_nombre</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">contenido_html</span> <span class="o">=</span> <span class="s2">&quot;&lt;h1&gt;Mi HTML&lt;/h1&gt;&lt;p&gt;Este es un párrafo.&lt;/p&gt;&quot;</span>
+
+        <span class="c1"># Serializar el contenido HTML</span>
+        <span class="n">datos_json</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;contenido_html&#39;</span><span class="p">:</span> <span class="n">contenido_html</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> 
+                             <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="n">mensaje_exito</span><span class="p">,</span>
+                             <span class="s1">&#39;datos&#39;</span><span class="p">:</span> <span class="n">datos_json</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>    </div>
+
+<div class="viewcode-block" id="obtenerHorarios">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.obtenerHorarios">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">obtenerHorarios</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;entre&quot;</span><span class="p">)</span>
+    <span class="n">detalles</span> <span class="o">=</span> <span class="n">Detalle_Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">detalles</span><span class="p">)</span>
+    <span class="n">detalles_json</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;dia&#39;</span><span class="p">:</span> <span class="n">detalle</span><span class="o">.</span><span class="n">dia</span><span class="p">,</span> <span class="s1">&#39;hora&#39;</span><span class="p">:</span> <span class="n">detalle</span><span class="o">.</span><span class="n">hora</span><span class="p">,</span> <span class="s1">&#39;espacioCurricular&#39;</span><span class="p">:</span> <span class="n">detalle</span><span class="o">.</span><span class="n">espacioCurricular</span><span class="o">.</span><span class="n">nombre</span><span class="p">}</span> <span class="k">for</span> <span class="n">detalle</span> <span class="ow">in</span> <span class="n">detalles</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;detalles&#39;</span><span class="p">:</span> <span class="n">detalles_json</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="eliminar_detalle_horario">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.eliminar_detalle_horario">[documentos]</a>
+<span class="nd">@require_POST</span>
+<span class="k">def</span> <span class="nf">eliminar_detalle_horario</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">detalle_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;detalle_id&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">detalle</span> <span class="o">=</span> <span class="n">Detalle_Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">detalle_id</span><span class="p">)</span>
+        <span class="n">detalle</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="n">Detalle_Horario</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="n">success</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="verBoletines">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.verBoletines">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">verBoletines</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;GET&#39;</span><span class="p">:</span>
+        <span class="n">inscripciones</span> <span class="o">=</span> <span class="n">Inscripcion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">ciclo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span><span class="p">)</span>
+        <span class="n">estudiantes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">inscripcion</span> <span class="ow">in</span> <span class="n">inscripciones</span><span class="p">:</span>
+            <span class="n">estudiantes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inscripcion</span><span class="o">.</span><span class="n">estudiante</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Calificacion/verBoletines.html&#39;</span><span class="p">,</span>
+                      <span class="p">{</span><span class="s1">&#39;estudiantes&#39;</span><span class="p">:</span><span class="n">estudiantes</span><span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">estudiante_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;estudiante_id&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estuidiateeee&quot;</span><span class="p">,</span><span class="n">estudiante_id</span><span class="p">)</span>
+        <span class="n">estudiante</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Estudiante</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">estudiante_id</span><span class="p">)</span>
+        <span class="n">inscripcion</span> <span class="o">=</span> <span class="n">Inscripcion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">estudiante</span> <span class="o">=</span> <span class="n">estudiante</span><span class="p">,</span> <span class="n">ciclo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span><span class="p">)</span>
+        <span class="n">calificaciones</span> <span class="o">=</span> <span class="n">Calificacion</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">estudiante</span><span class="o">=</span><span class="n">estudiante</span><span class="p">,</span><span class="n">ciclo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span><span class="p">)</span>
+        <span class="n">espacios</span> <span class="o">=</span> <span class="n">EspacioCurricular</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">plan</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">ciclo</span><span class="o">.</span><span class="n">plan</span><span class="p">,</span> <span class="n">anio</span><span class="o">=</span> <span class="n">inscripcion</span><span class="o">.</span><span class="n">anio</span><span class="p">)</span>
+        <span class="n">instancias</span> <span class="o">=</span> <span class="n">Instancia</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;espacios&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">espacio</span><span class="o">.</span><span class="n">nombre</span> <span class="k">for</span> <span class="n">espacio</span> <span class="ow">in</span> <span class="n">espacios</span><span class="p">],</span>
+            <span class="s1">&#39;instancias&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">instancia</span><span class="o">.</span><span class="n">nombre</span> <span class="k">for</span> <span class="n">instancia</span> <span class="ow">in</span> <span class="n">instancias</span><span class="p">],</span>
+            <span class="s1">&#39;calificaciones&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;espacio&#39;</span><span class="p">:</span> <span class="n">calificacion</span><span class="o">.</span><span class="n">espacioCurricular</span><span class="o">.</span><span class="n">nombre</span><span class="p">,</span>
+                    <span class="s1">&#39;instancia&#39;</span><span class="p">:</span> <span class="n">calificacion</span><span class="o">.</span><span class="n">instancia</span><span class="o">.</span><span class="n">nombre</span><span class="p">,</span>
+                    <span class="s1">&#39;nota&#39;</span><span class="p">:</span> <span class="n">calificacion</span><span class="o">.</span><span class="n">nota</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">calificacion</span> <span class="ow">in</span> <span class="n">calificaciones</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;promedio&#39;</span><span class="p">:</span> <span class="n">calificaciones</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Avg</span><span class="p">(</span><span class="s1">&#39;nota&#39;</span><span class="p">))[</span><span class="s1">&#39;nota__avg&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">calificaciones</span> <span class="k">else</span> <span class="s1">&#39;No existen notas cargadas&#39;</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="eliminarAlumno">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.eliminarAlumno">[documentos]</a>
+<span class="nd">@require_POST</span>
+<span class="k">def</span> <span class="nf">eliminarAlumno</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">aula_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;aula_id&#39;</span><span class="p">)</span>
+    <span class="n">estudiante_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;estudiante_id&#39;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Encuentra el aula por su ID</span>
+        <span class="n">aula</span> <span class="o">=</span> <span class="n">Aula</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">aula_id</span><span class="p">)</span>
+        
+        <span class="c1"># Elimina al estudiante del aula</span>
+        <span class="n">aula</span><span class="o">.</span><span class="n">estudiantes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">estudiante_id</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="n">Aula</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">except</span> <span class="n">Estudiante</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="n">success</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="reporte_alumno">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.reporte_alumno">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">reporte_alumno</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/reporte_alumno.html&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="reporte_inasistencias">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.reporte_inasistencias">[documentos]</a>
+<span class="k">def</span> <span class="nf">reporte_inasistencias</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Lógica para manejar las solicitudes del usuario y filtrar los datos</span>
+    <span class="c1"># Puedes usar los parámetros de la URL o un formulario para recibir los filtros</span>
+    
+    <span class="c1"># Por ejemplo, supongamos que los usuarios pueden filtrar por mes y aula</span>
+    <span class="n">mes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mes&#39;</span><span class="p">)</span>
+    <span class="n">aula_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;aula&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Filtrar las inasistencias según los filtros seleccionados</span>
+    <span class="n">inasistencias</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># Obtener todas las inasistencias inicialmente</span>
+    
+    <span class="k">if</span> <span class="n">mes</span><span class="p">:</span>
+        <span class="n">inasistencias</span> <span class="o">=</span> <span class="n">inasistencias</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dia__month</span><span class="o">=</span><span class="n">mes</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">inasistencias</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">aula_id</span><span class="p">:</span>
+        <span class="n">inasistencias</span> <span class="o">=</span> <span class="n">inasistencias</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">aula_id</span><span class="o">=</span><span class="n">aula_id</span><span class="p">)</span>
+    
+    <span class="c1"># Obtener los datos necesarios para el gráfico</span>
+    <span class="c1"># Esto dependerá de cómo estructures tus datos y de la biblioteca de gráficos que elijas</span>
+
+    <span class="c1"># Generar el gráfico con Plotly</span>
+    <span class="c1"># Aquí hay un ejemplo básico, debes adaptarlo a tus necesidades específicas</span>
+    <span class="n">grafico</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Categoria1&#39;</span><span class="p">,</span> <span class="s1">&#39;Categoria2&#39;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])])</span>
+
+    <span class="c1"># Convertir el gráfico a HTML para mostrarlo en el template</span>
+    <span class="n">grafico_html</span> <span class="o">=</span> <span class="n">grafico</span><span class="o">.</span><span class="n">to_html</span><span class="p">(</span><span class="n">full_html</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default_height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">default_width</span><span class="o">=</span><span class="mi">700</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/graficoInasistencia.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;grafico_html&#39;</span><span class="p">:</span> <span class="n">grafico_html</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="reporte_inasistencias_por_aula">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.reporte_inasistencias_por_aula">[documentos]</a>
+<span class="k">def</span> <span class="nf">reporte_inasistencias_por_aula</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">aulas</span> <span class="o">=</span> <span class="n">Aula</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">aulas</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">aula</span> <span class="ow">in</span> <span class="n">aulas</span><span class="p">:</span>
+        <span class="n">inasistencias</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">estudiante__aula</span><span class="o">=</span><span class="n">aula</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">inasistencias</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;aula&#39;</span><span class="p">:</span> <span class="n">aula</span><span class="o">.</span><span class="n">division</span><span class="p">,</span>
+            <span class="s1">&#39;inasistencias&#39;</span><span class="p">:</span> <span class="n">inasistencias</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="p">})</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/inasistencia.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="consultar_faltas">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.consultar_faltas">[documentos]</a>
+<span class="k">def</span> <span class="nf">consultar_faltas</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">fecha_consulta</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fecha_consulta&#39;</span><span class="p">)</span>
+        <span class="n">faltas</span> <span class="o">=</span> <span class="n">Inasistencias</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">fecha</span><span class="o">=</span><span class="n">fecha_consulta</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;faltas.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;faltas&#39;</span><span class="p">:</span> <span class="n">faltas</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Cursada/consulta_faltas.html&#39;</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="horarioDocente">
+<a class="viewcode-back" href="../../modules/views.html#Clases.views.horarioDocente">[documentos]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span> <span class="nf">horarioDocente</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="n">idDocente</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*******entre aca**** &quot;</span><span class="p">,</span><span class="n">idDocente</span><span class="p">,</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+    <span class="n">ciclo_actual</span> <span class="o">=</span> <span class="n">Ciclo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">isActual</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">docente</span> <span class="o">=</span> <span class="n">Docente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span> <span class="n">idDocente</span><span class="p">)</span>
+    <span class="n">horarios</span> <span class="o">=</span> <span class="n">Horario</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">division__ciclo</span><span class="o">=</span><span class="n">ciclo_actual</span><span class="p">,</span> <span class="n">docente</span><span class="o">=</span><span class="n">docente</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hasta aca va,oms?&quot;</span><span class="p">)</span>
+   <span class="c1"># El formulario no es válido, imprimir los mensajes de error</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Horarios&quot;</span><span class="p">,</span><span class="n">horarios</span><span class="p">)</span>
+    <span class="n">dias</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tupla</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">tupla</span> <span class="ow">in</span> <span class="n">Horario</span><span class="o">.</span><span class="n">CHOICES_DIA</span><span class="p">]</span>
+    <span class="n">modulos</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tupla</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">tupla</span> <span class="ow">in</span> <span class="n">Horario</span><span class="o">.</span><span class="n">CHOICES_HORA</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">dias</span><span class="p">,</span><span class="n">modulos</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;    html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;horarios&quot;</span><span class="p">:</span> <span class="n">horarios</span><span class="p">,</span>
+                                                                  <span class="s2">&quot;dias&quot;</span><span class="p">:</span> <span class="n">dias</span><span class="p">,</span>
+                                                                  <span class="s1">&#39;modulos&#39;</span><span class="p">:</span> <span class="n">modulos</span><span class="p">,})</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Ir a" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navegación</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="Índice General"
+             >índice</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Índice de Módulos Python"
+             >módulos</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">documentación de Sge - 1.0</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Código de módulo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Clases.views</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Jonathan Torres.
+      Creado usando <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+  </body>
+</html>
