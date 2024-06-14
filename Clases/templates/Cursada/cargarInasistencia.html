@@ -6,10 +6,12 @@
   <div class="alert alert-success" role="alert">
     Las inasistencias se han registrado correctamente.
   </div>
-{% endif %}
+
+  {% endif %}
+  {{division}}
   <div class="container container-fluid">
     <h1>Alumnos</h1>
-    <form method="post" action="/Clases/cargarInasistencia/{{idDivision}}/">
+    <form method="post" action="/Clases/cargarInasistencia/{{ division.id }}/">
       {% csrf_token %}
       <table class="table">
         <thead>

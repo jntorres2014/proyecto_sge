@@ -73,7 +73,7 @@ class DocenteHoraAutocomplete(autocomplete.Select2QuerySetView):
 
 
 class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
-    print("Entre a localidad autocomplete")
+
     def get_queryset(self):
         qs = Localidad.objects.all()
         print(qs)
@@ -497,7 +497,7 @@ def menuDocente(request):
     aulas = list(set(aulas))
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
     modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]  
-    instancia = Instancia.objects.get(disponible = 'True')  
+    instancia = Instancia.objects.filter(disponible = 'True')  
 
     return render(request, 'Core/Persona/menuDocente.html',{ 'inscripciones': inscripciones,
                                                             'aulas': aulas,
@@ -511,7 +511,6 @@ def menuCiclo(request):
     hay_ciclo = Ciclo.objects.exists()
     try:
         ciclo_activo =  Ciclo.objects.get(esActual='True').fechaInicio <= timezone.now().date() >= Ciclo.objects.get(esActual='True').fechaInicio
-        print("HAY CICLOOOOOOO1",ciclo_activo)
     except Ciclo.DoesNotExist:
         ciclo_activo = False
     print('ciclo',ciclo_activo)
@@ -534,7 +533,7 @@ def eliminarCiclo(request, idCiclo):
     return HttpResponseRedirect("/Core/plan/ver")
 
 def aniosDePlanActual(request):
-    ciclo = Ciclo.objects.get(esActual=True)
+    ciclo = request.ciclo
     print("ciclo", ciclo)
     plan = PlanDeEstudios.objects.get(id=ciclo.plan.id)
     print("plan",plan)
@@ -558,7 +557,7 @@ def cargarEspacios(request):
 @login_required
 def anioList(request, id):
     print("llegue",id)
-    ciclo = Ciclo.objects.get(esActual = 'True')
+    ciclo = Ciclo.objects.get(id=id)
     print((ciclo))
     anioPlan = AnioPlan.objects.filter(plan = ciclo.plan)
     print(anioPlan)
@@ -580,11 +579,10 @@ def cicloPlanList(request, id):
     print(id)
     plan = PlanDeEstudios.objects.get(id=id)
     print("VER CICLO estoy aca", plan.id)
-    
     anioCicloPlan= Ciclo.objects.filter(plan=plan).order_by('-esActual')
-
-    print (anioCicloPlan)
     return render(request, 'Core/Plan/verCiclo.html',{'ciclo': anioCicloPlan, 'id':id, 'plan':plan })    
+
+
 @login_required
 def cicloView(request):
     print('entre acaaaaa',id)
@@ -659,8 +657,8 @@ def eliminarDivision(request, id, idCiclo):
 @login_required
 def divisionList(request, id, idCiclo):
     anio = AnioPlan.objects.get(id=id)
-    ciclo = Ciclo.objects.get(esActual='True')
-    division = Division.objects.filter(anio=id, ciclo=idCiclo)
+    ciclo = Ciclo.objects.get(id = idCiclo)
+    division = Division.objects.filter(anio=id, ciclo=ciclo)
     alumnos = Inscripcion.objects.filter(anio=anio, ciclo=ciclo)
 
     return render(request, 'Core/Plan/verDivision.html', {

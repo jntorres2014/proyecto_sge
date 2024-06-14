@@ -24,7 +24,7 @@ from django.core.serializers import serialize
 
 
 def crearBoletin(request,id_estudiante):
-    ciclo = Ciclo.objects.get(esActual = True)
+    ciclo = request.ciclo
     materias = EspacioCurricular.objects.filter(plan_id=ciclo.plan_id)
     calificaciones = Calificacion.objects.filter()
     return materias
@@ -136,7 +136,7 @@ def menuCursada(request):
     instanciaDisponible = Instancia.objects.filter(disponible = True)
     fecha_iso = fecha_str.split(" ")[0]  # Obtiene solo la parte de la fecha (AAAA-MM-DD)
     fecha_hoy = datetime.fromisoformat(fecha_iso)
-    ciclo = Ciclo.objects.get(esActual = True)
+    ciclo = request.ciclo
     inscriptos = Inscripcion.objects.filter(ciclo = ciclo)
     cantInscriptos = inscriptos.count()
     cantDocInsciptos = InscripcionDocente.objects.filter(ciclo = ciclo).count()
@@ -419,7 +419,7 @@ def crear_horario(request,idDivision):
             messages.success(request, 'el Horario se cargó correctamente')
             mensaje = ''
         else:
-            mensaje = "form.errors"
+            mensaje = form.errors
             messages.success(request, mensaje)
         return redirect("/Clases/crear_horario/" + idDivision, {'mensaje' : mensaje,
                                                                 'form':form})
@@ -446,10 +446,12 @@ def eliminarInasistencias(request):
     else:
         return redirect('/Core/aniosDePlanActual')
 @login_required
+
 def registrarInasistencia(request, idAnio):
-    ciclo = Ciclo.objects.get(esActual=True)
-    
+    # ciclo = Ciclo.objects.get(esActual=True)
+    ciclo = request.ciclo
     if request.method == "POST":
+        print("aca andooooo")
         # Obtener información del formulario
         inasistencias_seleccionadas = request.POST.getlist('inasistencias_seleccionadas')
         if inasistencias_seleccionadas:
@@ -465,7 +467,7 @@ def registrarInasistencia(request, idAnio):
                 nueva_inasistencia.save()
             
             # Después de guardar las inasistencias, redirigir a la misma página con un parámetro de éxito
-            return redirect('/Core/verDivisionInasistencia/1/1/', {'success':True,'estudiantes': estudiante})
+            return redirect('/Core/corregirAlumnoInasistencia/'+idAnio, {'success':True,'estudiantes': estudiante})
         else:
             return render(request, 'Cursada/cargarInasistencia.html', {'error': "estudiante"})
 
@@ -483,7 +485,8 @@ def obtener_aulas(request):
 @login_required
 def asignar_alumno_a_aula(request, idAnio):
     print("asignar alumno", idAnio)
-    ciclo = Ciclo.objects.get(esActual = 'True')
+    #ciclo = Ciclo.objects.get(esActual = 'True')
+    ciclo=request.ciclo
     divisiones = Division.objects.filter(anio_id=idAnio,ciclo=ciclo)
     estudiantes_inscritos = Inscripcion.objects.filter(anio=idAnio,ciclo = ciclo)
     print("estudiuantes inscriptos",estudiantes_inscritos)
@@ -531,10 +534,11 @@ def estudiantes_aulas(request, id_division):
     print("Aulaaaa",aula.division.id,request.user.id)
     print(estudiantes)
     print('Espacioooos estudiantes',espacios)
+    instancia = Instancia.objects.get(disponible= True)
     estudiantes_ids = request.GET.getlist(estudiantes)
     calificacion = Calificacion.objects.filter(
             docente_id=docente.id,
-            instancia_id=1,
+            instancia_id=instancia.id,
             estudiante__in=estudiantes,
             ciclo=request.ciclo,
         ).order_by('espacioCurricular')
@@ -555,7 +559,7 @@ def estudiantes_aulas(request, id_division):
                 messages.success(request, 'nota cargada correctamente.')
             except IntegrityError:
                 messages.error(request, 'Ya existe una calificación para esta instancia, ciclo y estudiante.') 
-                # request.message = 'Ya existe una calificación para esta instancia, ciclo y estudiante.'
+                
         else:
             print("El formulariooooo",request.POST)
             messages.error(request, form.errors)
@@ -640,11 +644,11 @@ def obtener_alumnos(request, idEstudiante):
 
 def actualizar_relacion(request): 
     print("entre actualizar relacion")
-    ciclo_actual = Ciclo.objects.get(esActual=True)
+    #ciclo_actual = Ciclo.objects.get(esActual=True)
+    ciclo_actual = request.ciclo
     divisiones = Division.objects.filter(ciclo=ciclo_actual)
     print(request.method)
     print('vengo por aca')
-
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         alumno_id = data.get('estudiante_id')

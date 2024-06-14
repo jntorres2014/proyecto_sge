@@ -16,7 +16,6 @@ class AgregarPlanAlContextoMiddleware:
             ciclos_activos = Ciclo.objects.filter(fechaInicio__lte=fecha_actual, fechaFin__gte=fecha_actual)
             if ciclos_activos.exists():
                 ciclo_activo = ciclos_activos.first()
-                print("HAY CICLOOOOOOO1", ciclo_activo)
                 request.hayCicloActivo = True
             else:
                 request.hayCicloActivo = False

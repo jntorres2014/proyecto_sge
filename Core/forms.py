@@ -114,10 +114,8 @@ class DocenteForm(forms.ModelForm):
             'tituloHabilitante',
         ]                
 
-        print("acaaaaaaaaaaaaaaasdasdas")
         widgets_localidad = autocomplete.ModelSelect2(url='core:localidad-autocomplete',attrs={'class': 'input-group'})
-        print('Estamos aca',widgets_localidad)
-         
+        
         widgets = {
             'localidad': widgets_localidad,
         
@@ -161,9 +159,7 @@ class EstudianteForm(forms.ModelForm):
                   'telefono',
                   ]
 
-        print("acaaaaaaaaaaaaaaasdasdas")
         widgets_localidad = autocomplete.ModelSelect2(url='core:localidad-autocomplete',attrs={'class': 'input-group'})
-        print('Estamos aca',widgets_localidad)
         fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
         
         widgets = {
@@ -427,6 +423,7 @@ class inscripcionAlumnoForm(forms.ModelForm):
         super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)
         # Obtener el ciclo actual y asignarlo al campo 'ciclo'
         ciclo_actual = Ciclo.objects.get(esActual=True)
+        
         self.fields['ciclo'] = forms.ModelChoiceField(queryset=Ciclo.objects.all(), initial=ciclo_actual, widget=forms.HiddenInput())
         self.fields['anio'].queryset = ciclo_actual.plan.anios.all()
     class Meta:

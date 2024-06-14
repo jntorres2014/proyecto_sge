@@ -1,6 +1,6 @@
 from datetime import datetime
 from django import forms
-from Core.models import Calificacion, Ciclo, Detalle_Horario, EspacioCurricular, Estudiante, Horario, Instancia, PlanDeEstudios
+from Core.models import Calificacion, Ciclo, Detalle_Horario, EspacioCurricular, Estudiante, Horario, InscripcionDocente, Instancia, PlanDeEstudios
 from dal import autocomplete
 from Clases.models import Inasistencias
 from django.utils import timezone
@@ -144,9 +144,13 @@ class Detalle_HorarioForm(forms.ModelForm):
         dia = cleaned_data.get("dia")
         hora = cleaned_data.get("hora")
         docente = cleaned_data.get("docente")
-        
+        horario = cleaned_data.get("horario")
+        ciclo= Ciclo.objects.filter(fechaInicio__lte=timezone.now(), fechaFin__gte=timezone.now()).first()
+        inscripciones = InscripcionDocente.objects.filter(docente= docente,ciclo=ciclo)
+        anios_inscritos = inscripciones.values_list('anio_id', flat=True)
+        Detalle_Horario.objects.filter(docente=docente, horario__division__anio__in=anios_inscritos)
         # Verificar si el docente ya está asignado en otro horario en el mismo día y módulo
-        if Detalle_Horario.objects.filter(docente=docente, dia=dia, hora=hora).exists():
+        if Detalle_Horario.objects.filter(horario = horario,docente=docente, dia=dia, hora=hora).exists():
             raise forms.ValidationError("El docente ya está asignado en otro horario en el mismo día y módulo.")
         
         return cleaned_data
