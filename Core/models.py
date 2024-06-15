@@ -540,7 +540,25 @@ class Calificacion(models.Model):
         # Define la restricción de unicidad para instancia, ciclo y estudiante
         unique_together = ('instancia', 'ciclo', 'estudiante')
 
-
+    def generate_calificacion(quantity):
+        fake = Faker('es_ES')
+        ciclos = Ciclo.objects.all()
+        docente = Docente.objects.all()
+        instancia = Instancia.objects.all()
+        estudiantes = Estudiante.objects.all()
+        calificacion = EspacioCurricular.objects.all()
+        for _ in range(quantity):
+            ciclo=random.choice(ciclos),
+            inasistencia = Calificacion.objects.create(
+                ciclo=random.choice(ciclos),
+                estudiante=random.choice(estudiantes),
+                nota = random.randint(1, 10),
+                espacioCurricular = random.choice(calificacion),
+                docente = random.choice(docente),
+                instancia = random.choice(instancia),
+                tipo= 1,
+            )
+            inasistencia.save()
         
 #--------------------------------------------------------------------------
 

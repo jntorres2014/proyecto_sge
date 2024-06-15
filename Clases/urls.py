@@ -3,8 +3,8 @@ from . import views
 
 app_name = "Clases"
 urlpatterns  = [
-path('reportesGraficos/', views.reportes_graficos, name='reportes_graficos'),
-path('reporteNotas/', views.reporteNotas, name='reporteNotas'),
+    path('reportesGraficos/', views.reportes_graficos, name='reportes_graficos'),
+    path('reporteNotas/', views.reporteNotas, name='reporteNotas'),
     path('reporte/', views.reporte_view, name='reporte'),
     path('reporte/data/', views.get_reporte_data, name='reporte_data'),
     path('reporte/ciclos/', views.get_ciclos, name='reporte_ciclos'),

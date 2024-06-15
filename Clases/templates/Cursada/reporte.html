@@ -32,6 +32,7 @@
 {% endblock content %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById('filtro-form');
@@ -62,27 +63,29 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
                     }
                 });
-            });
+            })
+            .catch(error => console.error('Error fetching data:', error));
     }
 
     planField.addEventListener('change', () => {
-        fetch(`/reporte/ciclos/?plan=${planField.value}`)
+        fetch(`/Clases/reporte/ciclos/?plan=${planField.value}`)
             .then(response => response.json())
             .then(data => {
                 cicloField.innerHTML = '<option value="">---------</option>';
                 data.ciclos.forEach(ciclo => {
                     const option = document.createElement('option');
                     option.value = ciclo.id;
-                    option.textContent = ciclo.nombre;
+                    option.textContent = ciclo.anioCalendario; // assuming 'anioCalendario' is the correct field
                     cicloField.appendChild(option);
                 });
                 instanciaField.innerHTML = '<option value="">---------</option>';
                 fetchAndUpdateChart();
-            });
+            })
+            .catch(error => console.error('Error fetching ciclos:', error));
     });
 
     cicloField.addEventListener('change', () => {
-        fetch(`/reporte/instancias/?ciclo=${cicloField.value}`)
+        fetch(`/Clases/reporte/instancias/?ciclo=${cicloField.value}`)
             .then(response => response.json())
             .then(data => {
                 instanciaField.innerHTML = '<option value="">---------</option>';
@@ -93,7 +96,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     instanciaField.appendChild(option);
                 });
                 fetchAndUpdateChart();
-            });
+            })
+            .catch(error => console.error('Error fetching instancias:', error));
     });
 
     instanciaField.addEventListener('change', fetchAndUpdateChart);

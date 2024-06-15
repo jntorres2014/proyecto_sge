@@ -2,7 +2,7 @@ import calendar
 from itertools import count
 import json
 from django.db import IntegrityError
-from django.http import JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
@@ -21,6 +21,7 @@ from datetime import datetime
 from django.db.models import Count
 from django.db.models.functions import ExtractYear,ExtractMonth
 from django.core.serializers import serialize
+from django.db.models import Avg
 
 
 def crearBoletin(request,id_estudiante):
@@ -97,7 +98,7 @@ def calificacion_view(request):
         form = CalificacionForm()
 
     return render(request, 'Calificacion/calificacionForm.html', {'form': form})
-from django.db.models import Avg
+
 def boletinEstudiante(request, estudiante_id, ciclo_id):
     #Obtengo la inscripcion para poder quedarme con el año que cursa
     inscripcion = Inscripcion.objects.get(estudiante_id= estudiante_id, ciclo_id= ciclo_id)
@@ -161,29 +162,6 @@ def menuCursada(request):
         'porcentaje': porcentaje
 
     })
-# @login_required
-# def menuCursada(request):
-#     fecha_str = str(timezone.now())
-#     print(fecha_str)
-#     instanciaDisponible = Instancia.objects.filter(disponible = True)
-#     fecha_iso = fecha_str.split(" ")[0]  # Obtiene solo la parte de la fecha (AAAA-MM-DD)
-#     fecha_hoy = datetime.fromisoformat(fecha_iso)
-#     ciclo = Ciclo.objects.get(esActual = True)
-#     inscriptos = Inscripcion.objects.filter(ciclo = ciclo)
-#     cantInscriptos = inscriptos.count()
-#     cantDocInsciptos = InscripcionDocente.objects.filter(ciclo = ciclo).count()
-#     estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcion__ciclo=ciclo).count()
-#     inasistencias_hoy = Inasistencias.objects.filter(dia = fecha_hoy).count()
-#     print("ACAAAAAAAAA INASISTENCIAS",inasistencias_hoy)
-#     return render(request, 'Cursada/menuCursada.html',{
-#         'ciclo ': ciclo,
-#         'cantInscriptos' : cantInscriptos,
-#         'cantDocInscriptos' : cantDocInsciptos,
-#         'total' : cantInscriptos + cantDocInsciptos,
-#         'sinInscripcion' : estudiantes_sin_inscripcion,
-#         'inasistencias' : inasistencias_hoy,
-#         'instanciaDisponible' : instanciaDisponible
-#     })
 
 # Create your views here.
 @login_required
@@ -235,6 +213,8 @@ def Inasistencia_edit(request, id_inasistencia):
 
 @login_required
 def consultar_faltas(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     print('Methodo',request.method)
     if request.method == 'POST' :
         fecha_inicio = request.POST.get('fecha_inicio')
@@ -264,6 +244,8 @@ def consultar_faltas(request):
 
 @login_required
 def instancia_view(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     print("entre a instancias")
     if request.method == 'POST':
         print(request.POST)
@@ -277,6 +259,8 @@ def instancia_view(request):
     return render(request, 'Calificacion/instanciaForm.html', {'form': form})
 @require_POST
 def habilitarInstancia(request, instancia_id):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     print("ACAAAAAA")
     instancia = get_object_or_404(Instancia, pk=instancia_id)
     fecha_fin = request.POST.get('fecha_fin')
@@ -305,6 +289,8 @@ def habilitarInstancia(request, instancia_id):
 
 @require_POST
 def habilitar_instancia(request, instancia_id):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     instancia = get_object_or_404(Instancia, pk=instancia_id)
     fecha_fin = request.POST.get('fecha_fin')
     
@@ -325,6 +311,8 @@ def habilitar_instancia(request, instancia_id):
 
 #*************************************************
 def reporte_view(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     form = ReporteForm(request.GET or None)
     context = {'form': form}
     return render(request, 'Cursada/reporte.html', context)
@@ -333,8 +321,8 @@ def get_reporte_data(request):
     plan_id = request.GET.get('plan')
     ciclo_id = request.GET.get('ciclo')
     instancia_id = request.GET.get('instancia')
-
     calificaciones = Calificacion.objects.all()
+
     if plan_id:
         calificaciones = calificaciones.filter(ciclo__plan_id=plan_id)
     if ciclo_id:
@@ -342,12 +330,14 @@ def get_reporte_data(request):
     if instancia_id:
         calificaciones = calificaciones.filter(instancia_id=instancia_id)
 
+    # Agrupar calificaciones por espacio curricular
     promedio_notas = calificaciones.values('espacioCurricular__nombre').annotate(promedio=Avg('nota')).order_by('espacioCurricular__nombre')
 
+    # Preparar los datos para Chart.js
     labels = [item['espacioCurricular__nombre'] for item in promedio_notas]
     data = [item['promedio'] for item in promedio_notas]
-    print("DATOOOOOS",data)
-    chart_data = { 
+
+    chart_data = {
         'labels': labels,
         'datasets': [{
             'label': 'Promedio de Notas',
@@ -360,6 +350,8 @@ def get_reporte_data(request):
     return JsonResponse(chart_data)
 
 def get_ciclos(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     print("Entre a reporte ciclos")
     plan_id = request.GET.get('plan')
     ciclos = Ciclo.objects.filter(plan_id=plan_id).values('id', 'anioCalendario')
@@ -367,6 +359,8 @@ def get_ciclos(request):
     return JsonResponse(data)
 
 def get_instancias(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     ciclo_id = request.GET.get('ciclo')
     instancias = Instancia.objects.filter(ciclo_id=ciclo_id).values('id', 'nombre')
     data = {'instancias': list(instancias)}
@@ -408,6 +402,8 @@ class inasistencia_list(ListView):
     
 @login_required
 def crear_horario(request,idDivision):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division_id=idDivision))
     if request.method == "POST":
         print("******Entre al post******")
@@ -439,6 +435,8 @@ def crear_horario(request,idDivision):
 from django.shortcuts import render, redirect
 @login_required
 def eliminarInasistencias(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     if request.method == 'POST':
         inasistencias_seleccionadas = request.POST.getlist('inasistencias_seleccionadas')
         Inasistencias.objects.filter(id__in=inasistencias_seleccionadas).delete()
@@ -448,6 +446,8 @@ def eliminarInasistencias(request):
 @login_required
 
 def registrarInasistencia(request, idAnio):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     # ciclo = Ciclo.objects.get(esActual=True)
     ciclo = request.ciclo
     if request.method == "POST":
@@ -484,6 +484,8 @@ def obtener_aulas(request):
 
 @login_required
 def asignar_alumno_a_aula(request, idAnio):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     print("asignar alumno", idAnio)
     #ciclo = Ciclo.objects.get(esActual = 'True')
     ciclo=request.ciclo
@@ -525,6 +527,7 @@ def asignar_alumno_a_aula(request, idAnio):
 
 
 def estudiantes_aulas(request, id_division):
+
     aula = Aula.objects.get(division_id = id_division)
     horario = Horario.objects.get(division_id = id_division)
     docente = Docente.objects.get(dni = request.user.username)
@@ -643,6 +646,8 @@ def obtener_alumnos(request, idEstudiante):
 
 
 def actualizar_relacion(request): 
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     print("entre actualizar relacion")
     #ciclo_actual = Ciclo.objects.get(esActual=True)
     ciclo_actual = request.ciclo
@@ -680,11 +685,6 @@ def actualizar_relacion(request):
 @login_required
 def obtenerHorarios(request):
     print("entre")
-    # data = json.loads(request.body.decode('utf-8'))
-    # print(data)
-    # horario_id = data.get('division_id')
-    # print(horario_id)
-    #horario = get_object_or_404(Horario, id=horario_id)
     detalles = Detalle_Horario.objects.all()
     print(detalles)
     detalles_json = [{'dia': detalle.dia, 'hora': detalle.hora, 'espacioCurricular': detalle.espacioCurricular.nombre} for detalle in detalles]

@@ -51,6 +51,8 @@ def home2(request):
 
 @login_required
 def inscripciones(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
     return render(request, 'inscripciones.html')
 
 @login_required
