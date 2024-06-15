@@ -30,7 +30,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="chart-area" id="monthlyDetailChart">
+                <div class="chart-area">
                     <canvas id="myMonthlyDetailChart"></canvas>
                 </div>
             </div>
@@ -42,150 +42,26 @@
 
 {% block scripts %}
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var ctx = document.getElementById("myAreaChart2");
+        var ctx = document.getElementById("myAreaChart2").getContext('2d');
+        var ctx2 = document.getElementById("myMonthlyDetailChart").getContext('2d');
 
-        var myLineChart;
+        var myLineChart = null;
+        var myMonthlyDetailChart = null;
 
         // Obtiene los datos de inasistencias por año desde Django
         fetch('/Clases/inasistencias_por_anio/')
-        .then(response => response.json())
-        .then(data => {
-            console.log("Datos para el gráfico:");
-            console.log(data);
-
-            var labels = [];
-            var dataValues = [];
-
-            for (var i = 0; i < data.inasistencias_por_anio.length; i++) {
-                labels.push(data.inasistencias_por_anio[i].year);
-                dataValues.push(data.inasistencias_por_anio[i].count);
-            }
-
-            console.log("Labels:");
-            console.log(labels);
-            console.log("Data:");
-            console.log(dataValues);
-
-            // Area Chart Example
-            myLineChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: "Inasistencias",
-                        lineTension: 0.3,
-                        backgroundColor: "rgba(78, 115, 223, 0.05)",
-                        borderColor: "rgba(78, 115, 223, 1)",
-                        pointRadius: 3,
-                        pointBackgroundColor: "rgba(78, 115, 223, 1)",
-                        pointBorderColor: "rgba(78, 115, 223, 1)",
-                        pointHoverRadius: 3,
-                        pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-                        pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-                        pointHitRadius: 10,
-                        pointBorderWidth: 2,
-                        data: dataValues, // Datos de inasistencias por año
-                    }],
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: {
-                            left: 10,
-                            right: 25,
-                            top: 25,
-                            bottom: 0
-                        }
-                    },
-                    scales: {
-                        xAxes: [{
-                            gridLines: {
-                                display: false,
-                                drawBorder: false
-                            },
-                            ticks: {
-                                maxTicksLimit: 7
-                            }
-                        }],
-                        yAxes: [{
-                            ticks: {
-                                maxTicksLimit: 5,
-                                padding: 10,
-                                // Include a dollar sign in the ticks
-                                callback: function(value, index, values) {
-                                    return value;
-                                }
-                            },
-                            gridLines: {
-                                color: "rgb(234, 236, 244)",
-                                zeroLineColor: "rgb(234, 236, 244)",
-                                drawBorder: false,
-                                borderDash: [2],
-                                zeroLineBorderDash: [2]
-                            }
-                        }],
-                    },
-                    legend: {
-                        display: false
-                    },
-                    tooltips: {
-                        backgroundColor: "rgb(255,255,255)",
-                        bodyFontColor: "#858796",
-                        titleMarginBottom: 10,
-                        titleFontColor: '#6e707e',
-                        titleFontSize: 14,
-                        borderColor: '#dddfeb',
-                        borderWidth: 1,
-                        xPadding: 15,
-                        yPadding: 15,
-                        displayColors: false,
-                        intersect: false,
-                        mode: 'index',
-                        caretPadding: 10,
-                        callbacks: {
-                            label: function(tooltipItem, chart) {
-                                var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                                return datasetLabel + ': ' + tooltipItem.yLabel;
-                            }
-                        }
-                    }
-                }
-            });
-        });
-
-        document.getElementById('selectYear').addEventListener('change', function() {
-            var selectedYear = this.value;
-            fetch('/Clases/inasistencias_por_mes/' + selectedYear + '/')
             .then(response => response.json())
             .then(data => {
-                console.log("Datos para el gráfico por mes:");
-                console.log(data);
+                var labels = data.inasistencias_por_anio.map(item => item.year);
+                var dataValues = data.inasistencias_por_anio.map(item => item.count);
 
-                var months = [];
-                var monthDataValues = [];
-
-                for (var i = 0; i < data.inasistencias_por_mes.length; i++) {
-                    months.push(data.inasistencias_por_mes[i].month);
-                    monthDataValues.push(data.inasistencias_por_mes[i].count);
-                }
-
-                console.log("Months:");
-                console.log(months);
-                console.log("Data:");
-                console.log(monthDataValues);
-
-                var ctx2 = document.getElementById("myMonthlyDetailChart");
-
-                if (myLineChart) {
-                    myLineChart.destroy();
-                }
-
-                myLineChart = new Chart(ctx2, {
+                myLineChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: months,
+                        labels: labels,
                         datasets: [{
                             label: "Inasistencias",
                             lineTension: 0.3,
@@ -199,7 +75,7 @@
                             pointHoverBorderColor: "rgba(78, 115, 223, 1)",
                             pointHitRadius: 10,
                             pointBorderWidth: 2,
-                            data: monthDataValues, // Datos de inasistencias por mes
+                            data: dataValues, // Datos de inasistencias por año
                         }],
                     },
                     options: {
@@ -226,8 +102,7 @@
                                 ticks: {
                                     maxTicksLimit: 5,
                                     padding: 10,
-                                    // Include a dollar sign in the ticks
-                                    callback: function(value, index, values) {
+                                    callback: function(value) {
                                         return value;
                                     }
                                 },
@@ -267,6 +142,103 @@
                     }
                 });
             });
+
+        document.getElementById('selectYear').addEventListener('change', function() {
+            var selectedYear = this.value;
+            fetch('/Clases/inasistencias_por_mes/' + selectedYear + '/')
+                .then(response => response.json())
+                .then(data => {
+                    var months = data.inasistencias_por_mes.map(item => item.month);
+                    var monthDataValues = data.inasistencias_por_mes.map(item => item.count);
+
+                    if (myMonthlyDetailChart) {
+                        myMonthlyDetailChart.destroy();
+                    }
+
+                    myMonthlyDetailChart = new Chart(ctx2, {
+                        type: 'line',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: "Inasistencias",
+                                lineTension: 0.3,
+                                backgroundColor: "rgba(78, 115, 223, 0.05)",
+                                borderColor: "rgba(78, 115, 223, 1)",
+                                pointRadius: 3,
+                                pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                                pointBorderColor: "rgba(78, 115, 223, 1)",
+                                pointHoverRadius: 3,
+                                pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                                pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                                pointHitRadius: 10,
+                                pointBorderWidth: 2,
+                                data: monthDataValues, // Datos de inasistencias por mes
+                            }],
+                        },
+                        options: {
+                            maintainAspectRatio: false,
+                            layout: {
+                                padding: {
+                                    left: 10,
+                                    right: 25,
+                                    top: 25,
+                                    bottom: 0
+                                }
+                            },
+                            scales: {
+                                xAxes: [{
+                                    gridLines: {
+                                        display: false,
+                                        drawBorder: false
+                                    },
+                                    ticks: {
+                                        maxTicksLimit: 7
+                                    }
+                                }],
+                                yAxes: [{
+                                    ticks: {
+                                        maxTicksLimit: 5,
+                                        padding: 10,
+                                        callback: function(value) {
+                                            return value;
+                                        }
+                                    },
+                                    gridLines: {
+                                        color: "rgb(234, 236, 244)",
+                                        zeroLineColor: "rgb(234, 236, 244)",
+                                        drawBorder: false,
+                                        borderDash: [2],
+                                        zeroLineBorderDash: [2]
+                                    }
+                                }],
+                            },
+                            legend: {
+                                display: false
+                            },
+                            tooltips: {
+                                backgroundColor: "rgb(255,255,255)",
+                                bodyFontColor: "#858796",
+                                titleMarginBottom: 10,
+                                titleFontColor: '#6e707e',
+                                titleFontSize: 14,
+                                borderColor: '#dddfeb',
+                                borderWidth: 1,
+                                xPadding: 15,
+                                yPadding: 15,
+                                displayColors: false,
+                                intersect: false,
+                                mode: 'index',
+                                caretPadding: 10,
+                                callbacks: {
+                                    label: function(tooltipItem, chart) {
+                                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                                        return datasetLabel + ': ' + tooltipItem.yLabel;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
         });
     });
 </script>

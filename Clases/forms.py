@@ -172,9 +172,9 @@ class Detalle_HorarioForm(forms.ModelForm):
         self.fields['hora'].widget = forms.Select(choices=Horario.CHOICES_HORA)
 
 class ReporteForm(forms.Form):
-    plan = forms.ModelChoiceField(queryset=PlanDeEstudios.objects.all(), required=True)
-    ciclo = forms.ModelChoiceField(queryset=Ciclo.objects.none(), required=False)
-    instancia = forms.ModelChoiceField(queryset=Instancia.objects.none(), required=False)
+    plan = forms.ModelChoiceField(queryset=PlanDeEstudios.objects.all(), required=True,widget=forms.Select(attrs={'class': 'form-control'}))
+    ciclo = forms.ModelChoiceField(queryset=Ciclo.objects.none(), required=False,widget=forms.Select(attrs={'class': 'form-control'}))
+    instancia = forms.ModelChoiceField(queryset=Instancia.objects.none(), required=False,widget=forms.Select(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         super(ReporteForm, self).__init__(*args, **kwargs)
