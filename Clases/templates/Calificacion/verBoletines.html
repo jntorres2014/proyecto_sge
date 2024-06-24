@@ -16,16 +16,14 @@
             text-align: left;
         }
     </style>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 <body>
     <h1>Boletín del Estudiante</h1>
     <div>
-        <label for="estudiante">Seleccione un estudiante:</label>
-        <select class="form-select form-select-lg" id="estudiante" name="estudiante">
-            {% for estudiante in estudiantes %}
-                <option value="{{ estudiante.id }}">{{ estudiante }}</option>
-            {% endfor %}
-        </select>
+        <label for="estudiante-autocomplete">Seleccione un estudiante:</label>
+        <input type="text" class="form-control" id="estudiante-autocomplete" placeholder="Buscar estudiante...">
+        <input type="hidden" id="estudiante-id">
         <button class="btn btn-primary mb-3" id="buscar">Buscar</button>
     </div>
     <div id="boletin">
@@ -41,14 +39,38 @@
         </table>
         <p id="promedio"></p>
     </div>
-
-</body>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
         $(document).ready(function() {
-            console.log("eoeoeo!")
+            $('#estudiante-autocomplete').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: '/Clases/autocomplete_estudiantes',
+                        dataType: "json",
+                        data: {
+                            term: request.term
+                        },
+                        success: function(data) {
+                            response($.map(data, function(item) {
+                                return {
+                                    label: item.dni + ': '+ item.nombre + ' ' + item.apellido,
+                                    value: item.id
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function(event, ui) {
+                    $('#estudiante-id').val(ui.item.value);
+                    $('#estudiante-autocomplete').val(ui.item.label);
+                    return false;
+                }
+            });
+
             $('#buscar').on('click', function() {
-                const estudianteId = $('#estudiante').val();
+                const estudianteId = $('#estudiante-id').val();
                 $.ajax({
                     type: 'POST',
                     url: '/Clases/verBoletines/',
@@ -61,7 +83,7 @@
                         const espacios = response.espacios;
                         const calificaciones = response.calificaciones;
                         const promedio = response.promedio;
-                        console.log({response})
+
                         // Limpiar la tabla y el promedio anterior
                         $('#tabla-notas thead tr').empty();
                         $('#tabla-notas tbody').empty();
@@ -77,11 +99,9 @@
                         espacios.forEach(espacio => {
                             const row = $('<tr></tr>');
                             row.append(`<td>${espacio}</td>`);
-                            console.log({calificaciones})
                             instancias.forEach(instancia => {
                                 const celda = $('<td></td>');
                                 const calificacion = calificaciones.find(c => c.espacio === espacio && c.instancia === instancia);
-                                console.log(calificacion)
                                 if (calificacion) {
                                     celda.text(calificacion.nota);
                                 }
@@ -104,5 +124,5 @@
             });
         });
     </script>
-
+</body>
 {% endblock %}

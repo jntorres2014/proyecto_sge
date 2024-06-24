@@ -3,6 +3,7 @@ from . import views
 
 app_name = "Clases"
 urlpatterns  = [
+        path('autocomplete_estudiantes/', views.autocomplete_estudiantes, name='autocomplete_estudiantes'),
     path('reportesGraficos/', views.reportes_graficos, name='reportes_graficos'),
     path('reporteNotas/', views.reporteNotas, name='reporteNotas'),
     path('reporte/', views.reporte_view, name='reporte'),
@@ -24,6 +25,9 @@ urlpatterns  = [
     re_path(r'^modificarInasistencia/(?P<id_inasistencia>\d+)/$', views.calificacion_edit, name='modificarInasistencia'),
      path('reporte/inasistencias/', views.reporte_inasistencias, name='reporte_inasistencias'),
     re_path(r'^altaHorario$', views.crear_horario),
+
+    re_path(r'^nota/eliminar/$', views.eliminarNota, name='nota/eliminar'),
+
      #****************************** Cursada ****************************** # 
     re_path(r'^clases/menu$', views.menuCursada,name='clases/menu'),
     path('eliminarInasistencias/', views.eliminarInasistencias, name='eliminarInasistencias'),

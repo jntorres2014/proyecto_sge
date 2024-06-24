@@ -33,7 +33,7 @@ class CalificacionForm(forms.ModelForm):
             self.fields['espacioCurricular'].choices = unique_espacios
         
         if estudiantes:
-            choices = [(estudiante.id, estudiante.nombre) for estudiante in estudiantes]
+            choices = [(estudiante.id, estudiante.nombre + ' ' + estudiante.apellido) for estudiante in estudiantes]
             self.fields['estudiante'].choices = choices
         else:
             self.fields['estudiante'].choices = []

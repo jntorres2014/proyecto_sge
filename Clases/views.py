@@ -185,8 +185,19 @@ class calificacion_list(ListView):
 class instancias_list(ListView):
     model = Instancia
     template_name = 'Calificacion/instancias.html'
-#-------------------------------------------------------------------
+
+@require_POST
 @login_required
+def eliminarNota(request):
+    print("eliminar notaaa")
+    nota_id = request.POST.get('nota_id')
+    nota = get_object_or_404(Calificacion, id=nota_id)
+    nota.delete()
+    messages.success(request, 'La nota se eliminó correctamente.')
+    return JsonResponse({'success': True})
+
+#-------------------------------------------------------------------
+@login_required 
 def inasistencia_view(request):
     if request.method == 'POST':
         form = InasistenciasForm(request.POST)
@@ -257,11 +268,13 @@ def instancia_view(request):
         form = InstanciaForm()
 
     return render(request, 'Calificacion/instanciaForm.html', {'form': form})
+
 @require_POST
 def habilitarInstancia(request, instancia_id):
     if not request.user.is_staff:
         return HttpResponseForbidden('Acceso denegado.')
     print("ACAAAAAA")
+
     instancia = get_object_or_404(Instancia, pk=instancia_id)
     fecha_fin = request.POST.get('fecha_fin')
     data = json.loads(request.body)
@@ -272,7 +285,7 @@ def habilitarInstancia(request, instancia_id):
     print('fin',fecha_fin, type(fecha_fin))
     print('hoy',fecha, type(fecha))
     if   fecha_fin >= fecha:
-        messages.success(request, 'El docente se editó correctamente.')
+        messages.success(request, 'fecha ingresada es menor a la fecha actual')
         return JsonResponse({'fecha ingresada es menor a la fecha actual'})
     instancia.disponible = True
     instancia.fecha_inicio = datetime.now().date()
@@ -707,6 +720,15 @@ def eliminar_detalle_horario(request):
         success = False
 
     return JsonResponse({'success': success})
+
+@login_required
+def autocomplete_estudiantes(request):
+    print("estoy aca")
+    if 'term' in request.GET:
+        qs = Estudiante.objects.filter(nombre__icontains=request.GET.get('term'))
+        estudiantes = list(qs.values('id', 'nombre', 'apellido', 'dni'))
+        return JsonResponse(estudiantes, safe=False)
+    return JsonResponse([], safe=False)
 
 @login_required
 def verBoletines(request):
