@@ -266,6 +266,7 @@ def consultar_faltas(request):
 def instancia_view(request):
     print("entre a instancias")
     if request.method == 'POST':
+        print(request.POST)
         form = InstanciaForm(request.POST)
         if form.is_valid():
            form.save()
@@ -282,7 +283,13 @@ def habilitarInstancia(request, instancia_id):
     data = json.loads(request.body)
     fecha_fin = data.get('fecha_fin')
     print("fecha fin",fecha_fin)
-
+    fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+    print("Estoy acaaaaa")
+    print('fin',fecha_fin, type(fecha_fin))
+    print('hoy',fecha, type(fecha))
+    if   fecha_fin >= fecha:
+        messages.success(request, 'El docente se editó correctamente.')
+        return JsonResponse({'fecha ingresada es menor a la fecha actual'})
     instancia.disponible = True
     instancia.fecha_inicio = datetime.now().date()
     instancia.fecha_fin = fecha_fin
@@ -298,9 +305,16 @@ def habilitarInstancia(request, instancia_id):
 
 @require_POST
 def habilitar_instancia(request, instancia_id):
-    print("ACAAAAAA")
+    print("ACAAAAAAasd")
     instancia = get_object_or_404(Instancia, pk=instancia_id)
     fecha_fin = request.POST.get('fecha_fin')
+    fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+    print("Estoy acaaaaa")
+    print('fin',fecha_fin, type(fecha_fin))
+    print('hoy',fecha, type(fecha))
+    if   fecha_fin >= fecha:
+        messages.success(request, 'El docente se editó correctamente.')
+        return JsonResponse({'fecha ingresada es menor a la fecha actual'})
     instancia.disponible = True
     instancia.fecha_fin = fecha_fin
     instancia.save()

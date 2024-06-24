@@ -14,7 +14,8 @@ class CalificacionForm(forms.ModelForm):
             'espacioCurricular': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
             'tipo': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
             'instancia': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
-            'estudiante': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
+            'estudiante': forms.Select(attrs={'class': 'form-control input-group mb-3' }),
+            'nota': forms.TextInput(attrs={'type':'number', 'class': 'form-control input-group mb-3','max':'10','min':'1'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -35,13 +36,25 @@ class CalificacionForm(forms.ModelForm):
             self.fields['estudiante'].choices = choices
         else:
             self.fields['estudiante'].choices = []
+
 class HabilitarInstanciaForm(forms.ModelForm):
     fecha_fin = forms.DateField(label='Fecha Fin', widget=forms.TextInput(attrs={'type': 'date'}))
 
     class Meta:
         model = Instancia
         fields = ['fecha_fin']        
+    
+    def clean_fecha_fin(self):
+        fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+        fin = self.cleaned_data.get("fecha_fin")
+        print("Estoy acaaaaa")
+        print('fin',fin, type(fin))
 
+        print('hoy',fecha, type(fecha))
+        if   fin >= fecha:
+            raise forms.ValidationError("fecha ingresada es menor a la fecha actual")
+    
+        return fin
 class InasistenciasForm(forms.ModelForm):
     class Meta:
         model= Inasistencias
@@ -64,8 +77,6 @@ class InstanciaForm(forms.ModelForm):
         }
         labels={
             'nombre': 'Nombre',
-            'fecha_inicio': 'Fecha de inicio',
-            'fecha_fin': 'Fecha de finalizacion',
             'disponible': 'Disponible',            
             'ciclo': 'Ciclo actual'
         }
@@ -75,6 +86,25 @@ class InstanciaForm(forms.ModelForm):
             'fecha_fin': forms.TextInput(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),  
         }
         
+    # def clean_fecha_inicio(self):
+
+    #     print('entre acaaa')
+    #     inicio = self.cleaned_data.get("fecha_inicio")
+    #     fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
+    #     if fecha <= inicio:
+    #         raise forms.ValidationError("fecha ingresada es menor a la de inicio")
+    #     return inicio
+            
+    # def clean_fecha_fin(self):
+    #     inicio = self.cleaned_data.get("fecha_inicio")
+    #     fin = self.cleaned_data.get("fecha_fin")
+    #     print('inicio', inicio)
+    #     print("tipossss",type(inicio),type(fin))
+    #     print('fin',fin)
+    #     if inicio >= fin:
+    #         raise forms.ValidationError("fecha ingresada es menor a la de inicio")
+    
+    #     return fin
  
 
 class Detalle_HorarioForm(forms.ModelForm):
