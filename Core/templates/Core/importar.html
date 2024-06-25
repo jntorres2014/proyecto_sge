@@ -1,18 +1,26 @@
 {% extends 'index.html' %}
 {% block content %}
 {% load bootstrap5 %}
-<form method="post" enctype="multipart/form-data">  
-    {% csrf_token %}  
-    <input type="file" name="xlsfile">  
-    <button type="submit">Subir</button>  
-   </form>  
-   {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-            <div class="{{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
+
+<div class="container border">
+
+    <h2>Importar Localidades</h2>
+    <form method="post" enctype="multipart/form-data" action='/Core/importarLocalidades/'>
+    {% csrf_token %}
+    <input type="file" name="xlsfile_localidades">
+    <button class="btn btn-outline-primary" type="submit">Subir Localidades</button>
+    </form>
+</div>
+<br>
+<div class="container border">
+
+    <h2>Importar Espacios Curriculares</h2>
+<form method="post"  enctype="multipart/form-data" action='/Core/importarEspacios/' >
+    {% csrf_token %}
+<input type="file" name="xlsfile_espacios">
+<button class="btn btn-outline-primary" type="submit">Subir Espacios Curriculares</button>
+</form>
+
+</div>
+
 {% endblock %}

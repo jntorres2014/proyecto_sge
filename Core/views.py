@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from Clases.models import Inasistencias
 from Core import forms
 from django.urls import reverse
-from Core.resource import LocalidadResource
+from Core.resource import LocalidadResource, EspacioCurricularResource
 from .models import Aula, Calificacion, Detalle_Horario, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
 from django.views.generic import ListView,TemplateView
 from django.db.models import Q
@@ -27,6 +27,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from django.contrib.auth.models import User
 from datetime import date
+import pandas as pd
 
 from dal import autocomplete
 
@@ -113,8 +114,75 @@ class DocenteAutocomplete(autocomplete.Select2QuerySetView):
                 Q(dni__icontains=self.q))           
         return qs
     
+#################################################
+def importar_localidades(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
+    
+    if request.method == 'POST':
+        localidad_resource = LocalidadResource()
+        xls_file = request.FILES.get('xlsfile_localidades')
+        
+        
+        if xls_file:
+            try:
+                dataset = Dataset()  # Inicializa el dataset aquí
 
 
+                dataset.load(xls_file.read(), format='xlsx')  # Carga el contenido del archivo en el dataset
+                print(dataset)
+                result = localidad_resource.import_data(dataset, dry_run=False)
+
+                if not result.has_errors():
+                    messages.success(request, f'Se importaron los espacios curriculares exitosamente.')
+                else:
+                    messages.error(request, f'Error durante la importación de espacios curriculares: {result.base_errors}')
+            except Exception as e:
+                messages.error(request, f'Error durante la importación de espacios curriculares: {str(e)}')
+        else:
+            messages.error(request, 'No se ha proporcionado ningún archivo para importar.')
+    return render(request, 'Core/importar.html')
+
+def importar_espacios(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
+    
+    if request.method == 'POST':
+        xls_file = request.FILES.get('xlsfile_espacios')
+
+        if xls_file:
+            try:
+                # Cargar el archivo Excel usando pandas
+                df = pd.read_excel(xls_file, engine='openpyxl')
+
+                registros_anteriores = EspacioCurricular.objects.count()
+                registros_nuevos = 0  # Contador para nuevos registros agregados
+
+                # Iterar sobre cada fila del dataframe
+                for index, row in df.iterrows():
+                    anio_id = row['anio']  # Ajustar según tus datos
+                    codigo = row['codigo']
+
+                    # Verificar si ya existe un espacio curricular con el mismo anio_id y codigo
+                    if not EspacioCurricular.objects.filter(anio_id=anio_id, codigo=codigo).exists():
+                        # Si no existe, crear un nuevo espacio curricular
+                        EspacioCurricular.objects.create(
+                            anio_id=anio_id,
+                            codigo=codigo,
+                            cantidadModulos=row['cantidadModulos'],
+                            nombre=row['nombre'],
+                            contenido=row['contenido'],
+                            plan_id=row['plan']  # Ajustar según tus datos
+                        )
+                        registros_nuevos += 1
+
+                messages.success(request, f'Se agregaron {registros_nuevos} espacios curriculares nuevos.')
+            except Exception as e:
+                messages.error(request, f'Error durante la importación de espacios curriculares: {str(e)}')
+        else:
+            messages.error(request, 'No se ha proporcionado ningún archivo para importar.')
+
+    return render(request, 'Core/importar.html')
 ##################################################################
 def importar(request):
     if not request.user.is_staff:

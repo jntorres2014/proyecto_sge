@@ -14,6 +14,8 @@ urlpatterns = [
     re_path(r'^localidad/alta$', views.localidadView, name='localidad/alta'),
     re_path(r'^localidad/ver$', views.localidadList, name='localidad/ver'),
     re_path(r'^importar/$', views.importar, name='importar'),
+    path('importarLocalidades/', views.importar_localidades, name='importarLocalidades'),
+    path('importarEspacios/', views.importar_espacios, name='importarEspacios'),
     re_path(r'^localidad/modificar/(?P<id_localidad>\d+)/$', views.localidadEdit, name='localidad/modificar'),
     re_path(r'^localidad/eliminar/(?P<idLocalidad>\d+)/$', views.eliminarLocalidad, name='localidad/eliminar'),
     #****************************** DOCENTE ****************************** # 
