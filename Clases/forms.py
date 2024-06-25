@@ -152,6 +152,7 @@ class Detalle_HorarioForm(forms.ModelForm):
         cleaned_data = super().clean()
         dia = cleaned_data.get("dia")
         hora = cleaned_data.get("hora")
+        espacio_curricular = cleaned_data.get('espacioCurricular')
         docente = cleaned_data.get("docente")
         horario = cleaned_data.get("horario")
         ciclo= Ciclo.objects.filter(fechaInicio__lte=timezone.now(), fechaFin__gte=timezone.now()).first()
@@ -161,7 +162,20 @@ class Detalle_HorarioForm(forms.ModelForm):
         # Verificar si el docente ya está asignado en otro horario en el mismo día y módulo
         if Detalle_Horario.objects.filter(horario = horario,docente=docente, dia=dia, hora=hora).exists():
             raise forms.ValidationError("El docente ya está asignado en otro horario en el mismo día y módulo.")
-        
+        if espacio_curricular and dia and horario:
+            # Obtener la cantidad de módulos permitidos para el espacio curricular
+            cantidad_modulos_permitidos = espacio_curricular.cantidadModulos
+
+            # Calcular cuántos módulos están asignados para este espacio en este horario
+            cant = Detalle_Horario.objects.filter(
+                horario = horario,
+                espacioCurricular=espacio_curricular,
+            ).count()
+            
+            print("cantidad", cant, cantidad_modulos_permitidos)
+            # Comparar con la cantidad máxima permitida
+            if  cant > cantidad_modulos_permitidos:
+                raise forms.ValidationError(f"El espacio curricular '{espacio_curricular}' ya tiene asignados todos los módulos permitidos ({cantidad_modulos_permitidos}) para este horario y día.")
         return cleaned_data
     def __init__(self, *args, **kwargs):
         division = kwargs.pop('division', None)
