@@ -225,7 +225,7 @@ def Inasistencia_edit(request, id_inasistencia):
 @login_required
 def consultar_faltas(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print('Methodo',request.method)
     if request.method == 'POST' :
         fecha_inicio = request.POST.get('fecha_inicio')
@@ -256,7 +256,7 @@ def consultar_faltas(request):
 @login_required
 def instancia_view(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print("entre a instancias")
     if request.method == 'POST':
         print(request.POST)
@@ -272,7 +272,7 @@ def instancia_view(request):
 @require_POST
 def habilitarInstancia(request, instancia_id):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print("ACAAAAAA")
 
     instancia = get_object_or_404(Instancia, pk=instancia_id)
@@ -303,7 +303,7 @@ def habilitarInstancia(request, instancia_id):
 @require_POST
 def habilitar_instancia(request, instancia_id):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     instancia = get_object_or_404(Instancia, pk=instancia_id)
     fecha_fin = request.POST.get('fecha_fin')
     
@@ -325,7 +325,7 @@ def habilitar_instancia(request, instancia_id):
 #*************************************************
 def reporte_view(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     form = ReporteForm(request.GET or None)
     context = {'form': form}
     return render(request, 'Cursada/reporte.html', context)
@@ -368,7 +368,7 @@ def get_reporte_data(request):
 
 def get_ciclos(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print("Entre a reporte ciclos")
     plan_id = request.GET.get('plan')
     ciclos = Ciclo.objects.filter(plan_id=plan_id).values('id', 'anioCalendario')
@@ -377,7 +377,7 @@ def get_ciclos(request):
 
 def get_instancias(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     ciclo_id = request.GET.get('ciclo')
     print(ciclo_id)
     instancias = Instancia.objects.filter(ciclo_id=ciclo_id).values('id', 'nombre')
@@ -419,42 +419,40 @@ class inasistencia_list(ListView):
 #************************Horarios************************
     
 @login_required
-def crear_horario(request,idDivision):
+def crear_horario(request, idDivision):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
-    horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division_id=idDivision))
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
+
+    division = get_object_or_404(Division, id=idDivision)
+    horarios = Detalle_Horario.objects.filter(horario__division_id=idDivision)
+
     if request.method == "POST":
-        print("******Entre al post******")
-        division = Division.objects.get(id=idDivision)
         form = Detalle_HorarioForm(request.POST, division=division)
         if form.is_valid():
-            print("Era valido")
-            form.save()            
-            messages.success(request, 'el Horario se cargó correctamente')
-            mensaje = ''
+            form.save()
+            messages.success(request, 'El horario se creó correctamente.')
+            return redirect(f"/Clases/crear_horario/{idDivision}/")
         else:
-            mensaje = form.errors
-            messages.success(request, mensaje)
-        return redirect("/Clases/crear_horario/" + idDivision, {'mensaje' : mensaje,
-                                                                'form':form})
+            pass
+            #messages.error(request, 'Error al crear el horario. Por favor, corrige los errores indicados.')
+    else:
+        form = Detalle_HorarioForm(division=division)
 
-    print("Horarios",horarios)
-    form = Detalle_HorarioForm(division = Division.objects.get(id=idDivision))
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
     modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]
-    print(dias,modulos)
-    division = Division.objects.get(id=idDivision)
-    return render(request, "Division/crearHorarioDivision.html", {"form": form, 
-                                                                  "horarios": horarios,
-                                                                  "dias": dias,
-                                                                  'modulos': modulos,
-                                                                  'idDivision':division})
 
+    return render(request, "Division/crearHorarioDivision.html", {
+        "form": form,
+        "horarios": horarios,
+        "dias": dias,
+        "modulos": modulos,
+        "idDivision": division,
+    })
 from django.shortcuts import render, redirect
 @login_required
 def eliminarInasistencias(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         inasistencias_seleccionadas = request.POST.getlist('inasistencias_seleccionadas')
         Inasistencias.objects.filter(id__in=inasistencias_seleccionadas).delete()
@@ -465,7 +463,7 @@ def eliminarInasistencias(request):
 
 def registrarInasistencia(request, idAnio):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     # ciclo = Ciclo.objects.get(esActual=True)
     ciclo = request.ciclo
     if request.method == "POST":
@@ -503,7 +501,7 @@ def obtener_aulas(request):
 @login_required
 def asignar_alumno_a_aula(request, idAnio):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print("asignar alumno", idAnio)
     ciclo = Ciclo.objects.get(esActual = 'True')
     #ciclo=request.ciclo
@@ -665,7 +663,7 @@ def obtener_alumnos(request, idEstudiante):
 
 def actualizar_relacion(request): 
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print("entre actualizar relacion")
     #ciclo_actual = Ciclo.objects.get(esActual=True)
     ciclo_actual = request.ciclo

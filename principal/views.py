@@ -37,7 +37,7 @@ class PasswordResetDoneView(PasswordResetDoneView):
 @login_required
 def home2(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
         print("tengo que echarlo")
     hay_plan = PlanDeEstudios.objects.exists()
     hay_ciclo = Ciclo.objects.exists()
@@ -52,7 +52,7 @@ def home2(request):
 @login_required
 def inscripciones(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     return render(request, 'inscripciones.html')
 
 @login_required

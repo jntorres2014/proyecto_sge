@@ -1,0 +1,17 @@
+{% extends 'Core/Plan/menuCiclo.html' %}
+{% block content %}
+{% load bootstrap5 %}
+   <!-- Begin Page Content -->
+   <div class="container-fluid">
+
+    <!-- 404 Error Text -->
+    <div class="text-center">
+        <div class="error mx-auto" data-text="404">Error</div>
+        <p class="lead text-gray-800 mb-5">No tiene permisos para esta vista</p>
+        <p class="text-gray-500 mb-0">Por favor navegar en lugares permitidos</p>
+        <a href="/Core/docente/menu">&larr; Volver al menu principal</a>
+    </div>
+
+</div>
+
+{% endblock content %}

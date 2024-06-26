@@ -30,7 +30,6 @@
                     </div>
                 </form>
             </div>  
-                {{ mensaje }}
 
             <!-- Columna para la tabla -->
             <div class="container table-responsive">
@@ -97,44 +96,50 @@
 
     <script>
 
-        function eliminarDetalleHorario(detalleId) {
-            console.log("entre aca")
+function eliminarDetalleHorario(detalleId) {
+    swal({
+        title: "¿Estás seguro?",
+        text: "Una vez eliminado, no podrás recuperar este detalle de horario.",
+        icon: "warning",
+        buttons: ["Cancelar", "Eliminar"],
+        dangerMode: true,
+    }).then((willDelete) => {
+        if (willDelete) {
             // Realiza una solicitud AJAX para eliminar el detalle de horario
             $.ajax({
-                type: 'POST',  // Puedes ajustar el método según tu vista de Django
+                type: 'POST',  // Ajusta el método según tu vista de Django
                 url: '/Clases/eliminar_detalle_horario/',
                 data: {
-                detalle_id: detalleId,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function (data) {
+                    detalle_id: detalleId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (data) {
                     if (data.success) {
-                        location.reload()
-                        $('#mensaje').html('<div class="alert alert-warning" role="alert"> Mensaje de exito</div>');
                         // Actualiza el mensaje con éxito
                         mostrarMensaje("Detalle de horario eliminado con éxito");
+                        location.reload(); // Recarga la página para reflejar los cambios
                     } else {
                         // Actualiza el mensaje con error
                         mostrarMensaje("Error al eliminar el detalle de horario", true);
                     }
+                },
+                error: function () {
+                    // En caso de error en la solicitud AJAX
+                    mostrarMensaje("Error al eliminar el detalle de horario", true);
                 }
             });
+        } else {
+            swal("Operación cancelada.");
         }
-
-        function mostrarMensaje(mensaje, esError = false) {
-            // Selecciona el elemento del mensaje
-            var mensajeElemento = $('#mensaje');
-            
-            // Establece el contenido del mensaje
-            mensajeElemento.text(mensaje);
-
-            // Agrega clases de estilo según si es un mensaje de éxito o error
-            if (esError) {
-                mensajeElemento.removeClass('mensaje-exito').addClass('mensaje-error');
-            } else {
-                mensajeElemento.removeClass('mensaje-error').addClass('mensaje-exito');
-            }
-        }
+    });
+}
+function mostrarMensaje(mensaje, esError = false) {
+    // Utiliza SweetAlert para mostrar el mensaje
+    swal({
+        title: mensaje,
+        icon: esError ? "error" : "success",
+    });
+}
     </script>
     <script type="text/javascript" src="{% static 'autocomplete_light/select2.js' %}"></script>
 

@@ -117,8 +117,8 @@ class DocenteAutocomplete(autocomplete.Select2QuerySetView):
 #################################################
 def importar_localidades(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
-    
+        # return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         localidad_resource = LocalidadResource()
         xls_file = request.FILES.get('xlsfile_localidades')
@@ -145,7 +145,7 @@ def importar_localidades(request):
 
 def importar_espacios(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     
     if request.method == 'POST':
         xls_file = request.FILES.get('xlsfile_espacios')
@@ -186,7 +186,7 @@ def importar_espacios(request):
 ##################################################################
 def importar(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     
     print("Llegué a importar")
     resultado = None
@@ -226,7 +226,7 @@ def importar(request):
 @login_required
 def localidadView(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         form = forms.LocalidadForm(request.POST)
         if form.is_valid():
@@ -240,7 +240,7 @@ def localidadView(request):
 
 def localidadList(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     localidades = Localidad.objects.all()
     return render(request, 'Core/verLocalidad.html',{'localidades': localidades})
 
@@ -248,7 +248,7 @@ def localidadList(request):
 @login_required
 def localidadEdit(request, id_localidad):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     localidad = Localidad.objects.get(id=id_localidad)
     if request.method == 'GET':
         form = forms.LocalidadForm(instance= localidad)
@@ -264,7 +264,7 @@ def localidadEdit(request, id_localidad):
 @login_required
 def eliminarLocalidad(request, idLocalidad):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     try:
         localidad = Localidad.objects.get(id=idLocalidad)
         localidad.delete()
@@ -281,7 +281,7 @@ def eliminarLocalidad(request, idLocalidad):
 @login_required
 def estudianteView(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         form = forms.EstudianteForm(request.POST)
         if form.is_valid():
@@ -297,7 +297,7 @@ def estudianteView(request):
 @login_required
 def docenteView(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         form = forms.DocenteForm(request.POST)
         if form.is_valid():
@@ -326,7 +326,7 @@ def docenteView(request):
 @login_required
 def inscripcionDeDocenteCiclo(request, id_ciclo=1):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     id_ciclo_actual = request.ciclo
     inscriptos = [] if not id_ciclo_actual else InscripcionDocente.objects.filter(ciclo=id_ciclo_actual)
     cant_inscriptos = inscriptos.count()
@@ -386,7 +386,7 @@ def docenteEdit(request, id_docente):
 @login_required
 def eliminarDocente(request, id_docente):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     try:
         docente= Docente.objects.get(id=id_docente)
         docente.delete()
@@ -399,7 +399,7 @@ def eliminarDocente(request, id_docente):
 @login_required
 def eliminarEstudiante(request, id_estudiante):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     try:
         estudiante = Estudiante.objects.get(id=id_estudiante)
         estudiante.delete()
@@ -413,7 +413,7 @@ def eliminarEstudiante(request, id_estudiante):
 @login_required
 def eliminarInscripcion(request, id_estudiante):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     try:
         inscripcion = Inscripcion.objects.get(estudiante_id=id_estudiante)
         inscripcion.delete()
@@ -427,7 +427,7 @@ def eliminarInscripcion(request, id_estudiante):
 @login_required
 def eliminarInscripcionDocente(request, id_docente,id_anio,id_ciclo):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     try:
         inscripcion = InscripcionDocente.objects.get(docente_id=id_docente,anio_id= id_anio,ciclo_id= id_ciclo)
         inscripcion.delete()
@@ -441,7 +441,7 @@ def eliminarInscripcionDocente(request, id_docente,id_anio,id_ciclo):
 @login_required
 def estudianteEdit(request, id_estudiante):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     estudiante = Estudiante.objects.get(id=id_estudiante)
     if request.method == 'GET':
         form = forms.EstudianteForm(instance= estudiante)
@@ -465,7 +465,7 @@ class estudianteList(ListView):
 @login_required
 def planDeEstudiosView(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         form = forms.PlanDeEstudiosForm(request.POST)
         if form.is_valid():
@@ -480,7 +480,7 @@ def planDeEstudiosView(request):
 @login_required    
 def planList(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     planes=PlanDeEstudios.objects.all().order_by('-esActual')
     print(planes)
     return render(request, 'Core/Plan/verPlan.html', {
@@ -490,7 +490,7 @@ def planList(request):
 @login_required    
 def planDetalle(request,id_plan):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     plan=PlanDeEstudios.objects.get(id = id_plan)
     cantidadAnios = plan.cantidadAnios
     print(type(plan.cantidadAnios))
@@ -504,7 +504,7 @@ def planDetalle(request,id_plan):
 @login_required
 def planEdit(request, id_plan):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     plan = PlanDeEstudios.objects.get(id=id_plan)
     if request.method == 'GET':
         form = forms.PlanDeEstudiosEditForm(instance=plan)
@@ -518,7 +518,7 @@ def planEdit(request, id_plan):
 
 def cambiarActual(request, id_plan):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     # Llama al método cambiar_actual de la clase PlanDeEstudios
     PlanDeEstudios.cambiar_actual(request, id_plan)
 
@@ -529,7 +529,7 @@ def cambiarActual(request, id_plan):
 @login_required
 def espacioView(request,id):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     #id = 1
     print(id)
     plan = PlanDeEstudios.objects.get(id=id)
@@ -556,7 +556,7 @@ def espacioView(request,id):
 @login_required
 def espacioEliminar(request, id_espacio):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     try:
         espacio = EspacioCurricular.objects.get(id=id_espacio)
         plan_id = espacio.plan.id  # Obtener el ID del plan antes de eliminar el espacio
@@ -574,7 +574,7 @@ def espacioEliminar(request, id_espacio):
 @login_required
 def espacioEdit(request, id_espacio):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     espacio = EspacioCurricular.objects.get(id=id_espacio)
     
     if request.method == 'GET':
@@ -591,7 +591,7 @@ def espacioEdit(request, id_espacio):
 @login_required
 def menuPlan(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     return render(request, 'Core/Plan/menuPlan.html')
 
 @login_required
@@ -635,7 +635,7 @@ def menuCiclo(request):
 @login_required
 def eliminarCiclo(request, idCiclo):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     try:
         ciclo = Ciclo.objects.get(id=idCiclo)
         if not (Ciclo.objects.filter(Q(plan=ciclo.plan) & ~Q(id=idCiclo)).exists()):
@@ -652,7 +652,7 @@ def eliminarCiclo(request, idCiclo):
 
 def aniosDePlanActual(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     ciclo = request.ciclo
     print("ciclo", ciclo)
     plan = PlanDeEstudios.objects.get(id=ciclo.plan.id)
@@ -705,7 +705,7 @@ def cicloList(request, id):
 @login_required
 def cicloPlanList(request, id):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print(id)
     plan = PlanDeEstudios.objects.get(id=id)
     print("VER CICLO estoy aca", plan.id)
@@ -716,7 +716,7 @@ def cicloPlanList(request, id):
 @login_required
 def cicloView(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print('entre acaaaaa',id)
     plan = get_object_or_404(PlanDeEstudios, esActual='True')
     anios = AnioPlan.objects.filter(plan=plan.id)
@@ -737,7 +737,7 @@ def cicloView(request):
 
 def cambiarActual(request, id_plan):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     # Llama al método cambiar_actual de la clase PlanDeEstudios
     PlanDeEstudios.cambiar_actual(request, id_plan)
 
@@ -747,7 +747,7 @@ def cambiarActual(request, id_plan):
 @login_required
 def cicloEdit(request, id_ciclo):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     ciclo = Ciclo.objects.get(id=id_ciclo)
     if request.method == 'GET':
         form = forms.CicloEditForm(instance=ciclo)
@@ -763,7 +763,7 @@ def cicloEdit(request, id_ciclo):
 @login_required
 def eliminarDivision(request, id, idCiclo):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         anio = AnioPlan.objects.get(id=id)
         ciclo = Ciclo.objects.get(esActual='True')
@@ -795,7 +795,7 @@ def eliminarDivision(request, id, idCiclo):
 @login_required
 def divisionList(request, id, idCiclo):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     anio = AnioPlan.objects.get(id=id)
     ciclo = Ciclo.objects.get(id = idCiclo)
     division = Division.objects.filter(anio=id, ciclo=ciclo)
@@ -813,7 +813,7 @@ def divisionList(request, id, idCiclo):
 @login_required
 def crearDivision(request, id, idCiclo):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         anio = AnioPlan.objects.get(id=id)
         ciclo = Ciclo.objects.get(esActual='True')
@@ -842,7 +842,7 @@ def crearDivision(request, id, idCiclo):
 @login_required
 def verDivisionInasistencia(request, id,idCiclo):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print(id)
     print("VER Division")
     division= list(Division.objects.filter(anio = id,ciclo = idCiclo))
@@ -856,7 +856,7 @@ def verDivisionInasistencia(request, id,idCiclo):
 @login_required
 def inscripcionDeEstudianteCiclo(request, id_ciclo=1):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     id_ciclo_actual = Ciclo.objects.get(esActual=True)
     inscriptos = [] if not id_ciclo_actual else Inscripcion.objects.filter(ciclo=id_ciclo_actual)
     cant_inscriptos = inscriptos.count()
@@ -897,7 +897,7 @@ def listEstudianteAula(request,idDivision):
 
 def corregirInasistenciaAula(request,idDivision):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print("llegue acaaa")
     today = date.today()
     aula = Aula.objects.get(division_id=idDivision)
@@ -937,7 +937,7 @@ def asignarEstudianteDivision(request, idAnio, idCiclo):
 
 def asignarEstudianteAula(request,id_anio):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     ciclo_actual = Ciclo.objects.get(esActual=True)
     # Obtener las divisiones del año y ciclo actual
     divisiones = Division.objects.filter(anio=id_anio, ciclo=ciclo_actual)
@@ -957,7 +957,7 @@ def asignarEstudianteAula(request,id_anio):
 
 def exportarHistorialPdf(request, estudiante_id):
     if not request.user.is_staff:
-        return HttpResponseForbidden('Acceso denegado.')
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
 
     estudiante = Estudiante.objects.get(pk=estudiante_id)
     inscripciones = Inscripcion.objects.filter(estudiante=estudiante).order_by('fecha')
