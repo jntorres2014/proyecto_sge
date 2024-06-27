@@ -1,0 +1,65 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aulas y Estudiantes</title>
+    <!-- Incluir Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        {% for aula in aulas %}
+        <div class="container">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ aula.division }}</h5>
+                    <ul class="list-group list-group-flush" style="display: none;"> <!-- Estilo para que la lista esté oculta por defecto -->
+                        {% for estudiante_id, estudiante in estudiantes_aula.items %}
+                            {% if estudiante_id == aula.id %}
+                                {% for e in estudiante %}
+                                    <li class="list-group-item">{{ e.dni }}: {{ e.nombre }} {{ e.apellido }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    <button class="btn btn-outline-primary mt-3" onclick="toggleStudentsList(this)">
+                        Mostrar estudiantes
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Incluir Bootstrap JS y dependencias si es necesario -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function toggleStudentsList(button) {
+        var listGroup = button.previousElementSibling;
+        var buttonText = button.textContent;
+        
+        if (listGroup.style.display === 'none' || !listGroup.style.display) {
+            listGroup.style.display = 'block';
+            button.textContent = 'Ocultar estudiantes';
+        } else {
+            listGroup.style.display = 'none';
+            button.textContent = 'Mostrar estudiantes';
+        }
+    }
+</script>
+
+</body>
+</html>
+
+</html>
+{% endblock content %}

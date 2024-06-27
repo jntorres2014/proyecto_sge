@@ -276,7 +276,7 @@ class EspacioCurricularForm(forms.ModelForm):
         self.fields['plan'] = forms.ModelChoiceField(queryset=PlanDeEstudios.objects.filter(id=plan.id), initial=plan, widget=forms.HiddenInput())
         # self.fields['plan'].queryset = PlanDeEstudios.objects.filter(id=id_plan)
 
-        anios_plan_estudio = AnioPlan.objects.filter(plan=PlanDeEstudios.objects.get(esActual= 'True'))
+        anios_plan_estudio = AnioPlan.objects.filter(plan=plan)
         
         
         self.fields['anio'].queryset = anios_plan_estudio
@@ -422,7 +422,7 @@ class inscripcionAlumnoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(inscripcionAlumnoForm, self).__init__(*args, **kwargs)
         # Obtener el ciclo actual y asignarlo al campo 'ciclo'
-        ciclo_actual = Ciclo.objects.get(esActual=True)
+        ciclo_actual= Ciclo.objects.filter(fechaInicio__lte=timezone.now(), fechaFin__gte=timezone.now()).first()
         
         self.fields['ciclo'] = forms.ModelChoiceField(queryset=Ciclo.objects.all(), initial=ciclo_actual, widget=forms.HiddenInput())
         self.fields['anio'].queryset = ciclo_actual.plan.anios.all()
@@ -451,7 +451,8 @@ class inscripcionDocenteForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(inscripcionDocenteForm, self).__init__(*args, **kwargs)
         # Obtener el ciclo actual y asignarlo al campo 'ciclo'
-        ciclo_actual = Ciclo.objects.get(esActual=True)
+        
+        ciclo_actual= Ciclo.objects.filter(fechaInicio__lte=timezone.now(), fechaFin__gte=timezone.now()).first()
         self.fields['ciclo'] = forms.ModelChoiceField(queryset=Ciclo.objects.all(), initial=ciclo_actual, widget=forms.HiddenInput())
         self.fields['anio'].queryset = ciclo_actual.plan.anios.all()
     class Meta:

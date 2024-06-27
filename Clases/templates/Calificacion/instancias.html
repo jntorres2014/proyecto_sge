@@ -20,8 +20,8 @@
                     </thead>
                     <tbody>
                         {% block tabla %}
-                            {% if object_list %}
-                                {% for instancia in object_list %}
+                            {% if instancias %}
+                                {% for instancia in instancias %}
                                     <tr>
                                         <td>{{ instancia.nombre }}</td>
                                         <td>{{ instancia.fecha_inicio }}</td>

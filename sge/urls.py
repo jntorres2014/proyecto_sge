@@ -31,7 +31,6 @@ urlpatterns = [
     path('principal/<int:id>', views.principal_detail, name= 'principal_detail'),
     path('principal/<int:id>/complete', views.complete, name= 'complete'),
     path('principal/<int:id>/delete', views.delete, name= 'delete'),
-    #path('inscripciones/', views.inscripciones, name= "inscripciones"),
     path('cambiar-contrasena/', views.CustomPasswordChangeView.as_view(), name='cambiar-contrasena'),    
     path('logout/', views.signout, name= 'logout'),
     path('signin/', views.signin, name= 'login'),

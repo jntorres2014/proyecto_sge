@@ -44,8 +44,6 @@
                 <div id="collapseOne" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Materias</h6>
-
-                        <a class="collapse-item" id="abrirModalBtn">Mostrar Horario</a>
                         <a class="collapse-item" href="/Clases/docente/espacios"> Menu</a>
                     </div>
                 </div>
@@ -70,10 +68,14 @@
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
+
         
         </ul>
         {% endblock sidebar %}
         {% block content %}
+
+        <a class="collapse-item center left" id="abrirModalBtn">
+            <button class="btn btn-secondary">Mostrar Horario</button></a>
         {% if request.hayCicloActivo %}       
             <h1> Años inscriptos</h1>
             {% for insc in inscripciones %}

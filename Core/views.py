@@ -8,10 +8,9 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect, JsonRespons
 from django.shortcuts import render, redirect
 from Clases.models import Inasistencias
 from Core import forms
-from django.urls import reverse
-from Core.resource import LocalidadResource, EspacioCurricularResource
+from Core.resource import LocalidadResource
 from .models import Aula, Calificacion, Detalle_Horario, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Localidad, Docente,Estudiante,EspacioCurricular, AnioPlan, Ciclo, Persona,Inscripcion, Division
-from django.views.generic import ListView,TemplateView
+from django.views.generic import ListView
 from django.db.models import Q
 from tablib import Dataset 
 from django.contrib import messages
@@ -22,9 +21,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from .models import Estudiante, Inscripcion
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import styles,colors
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
+
 from django.contrib.auth.models import User
 from datetime import date
 import pandas as pd
@@ -57,7 +55,9 @@ class DocenteHoraAutocomplete(autocomplete.Select2QuerySetView):
         anio = AnioPlan.objects.get(id = horario.division.anio.id)
         print(anio)
         if anio:
-            qs = InscripcionDocente.objects.filter(anio = anio)
+            ciclo_actual= Ciclo.objects.filter(fechaInicio__lte=timezone.now(), fechaFin__gte=timezone.now()).first()
+
+            qs = InscripcionDocente.objects.filter(ciclo = ciclo_actual,anio = anio)
         else:
             qs = InscripcionDocente.objects.all()
         print(qs)
@@ -85,7 +85,7 @@ class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
 class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         print('ENTRE A AUTOCOMPLETE******')
-        ciclo_actual = Ciclo.objects.get(esActual=True)
+        ciclo_actual= Ciclo.objects.filter(fechaInicio__lte=timezone.now(), fechaFin__gte=timezone.now()).first()
         # Filtra los estudiantes que no están inscritos en el ciclo actual
         qs = Estudiante.objects.exclude(
             id__in=Inscripcion.objects.filter(
@@ -612,7 +612,7 @@ def menuDocente(request):
     aulas = list(set(aulas))
     dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
     modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]  
-    instancia = Instancia.objects.filter(disponible = 'True')  
+    instancia = Instancia.objects.filter(ciclo = request.ciclo,disponible = 'True')  
 
     return render(request, 'Core/Persona/menuDocente.html',{ 'inscripciones': inscripciones,
                                                             'aulas': aulas,
@@ -682,7 +682,8 @@ def anioList(request, id):
     anioPlan = AnioPlan.objects.filter(plan = ciclo.plan)
     print(anioPlan)
     return render(request, 'Core/Plan/verAnio.html',{'anioPlan': anioPlan,
-                                                     'id':ciclo.id})
+                                                     'id':ciclo.id,
+                                                     'ciclo': ciclo})
 
 @login_required
 def anioListActual(request):
@@ -691,7 +692,8 @@ def anioListActual(request):
     anioPlan = AnioPlan.objects.filter(plan = ciclo.plan)
     print(anioPlan)
     return render(request, 'Core/Plan/verAnio.html',{'anioPlan': anioPlan,
-                                                     'id':ciclo.id})
+                                                     'id':ciclo.id,
+                                                     'ciclo': ciclo})
 @login_required
 def cicloList(request, id):
     print(id)
@@ -766,7 +768,7 @@ def eliminarDivision(request, id, idCiclo):
         return HttpResponseForbidden(render(request, 'Core/403.html'))
     if request.method == 'POST':
         anio = AnioPlan.objects.get(id=id)
-        ciclo = Ciclo.objects.get(esActual='True')
+        ciclo = request.ciclo
         division = list(Division.objects.filter(anio=id, ciclo=idCiclo))
         if len(division) > 1:
             aula = Aula.objects.get(division=division[-1])
@@ -781,7 +783,7 @@ def eliminarDivision(request, id, idCiclo):
             return JsonResponse({'success': False, 'message': message})
 
     anio = AnioPlan.objects.get(id=id)
-    ciclo = Ciclo.objects.get(esActual='True')
+    ciclo = request.ciclo
     division = list(Division.objects.filter(anio=id, ciclo=idCiclo))
     alumnos = Inscripcion.objects.filter(anio=anio, ciclo=ciclo)
 
@@ -858,6 +860,7 @@ def inscripcionDeEstudianteCiclo(request, id_ciclo=1):
     if not request.user.is_staff:
         return HttpResponseForbidden(render(request, 'Core/403.html'))
     id_ciclo_actual = Ciclo.objects.get(esActual=True)
+    id_ciclo_actual = request.ciclo
     inscriptos = [] if not id_ciclo_actual else Inscripcion.objects.filter(ciclo=id_ciclo_actual)
     cant_inscriptos = inscriptos.count()
 
@@ -964,16 +967,16 @@ def exportarHistorialPdf(request, estudiante_id):
     faltas = Inasistencias.objects.filter(estudiante=estudiante).order_by('dia')
     calificaciones = Calificacion.objects.filter(estudiante=estudiante).order_by('ciclo', 'espacioCurricular')
 
+    # Obtener los estilos de muestra de ReportLab
+    styles = getSampleStyleSheet()
+
     # Crear un buffer de bytes en memoria para el PDF
     buffer = BytesIO()
     # Crear el documento PDF
     doc = SimpleDocTemplate(buffer, pagesize=letter)
     elements = []
 
-    # Obtener los estilos de muestra de ReportLab
-    styles = getSampleStyleSheet()
-
-    # Encabezado
+    # Encabezado principal
     elements.append(Paragraph("Historial del Estudiante", styles['Title']))
     elements.append(Spacer(1, 12))
     elements.append(Paragraph(f"Estudiante: {estudiante.nombre} {estudiante.apellido}", styles['Normal']))
@@ -991,11 +994,18 @@ def exportarHistorialPdf(request, estudiante_id):
             planes_ciclos[plan_anio][ciclo_anio] = []
         planes_ciclos[plan_anio][ciclo_anio].append(inscripcion)
 
-    # Datos del historial
+    # Datos del historial por planes y ciclos
     for plan_anio, ciclos in planes_ciclos.items():
-        elements.append(Paragraph(f"Plan de Estudio: {plan_anio}", styles['Title']))
+        # Encabezado del plan de estudio
+        elements.append(Paragraph(f"Plan de Estudio: {plan_anio}", styles['Heading1']))
+        elements.append(Spacer(1, 12))
+
         for ciclo_anio, inscripciones_ciclo in ciclos.items():
+            # Encabezado del ciclo
             elements.append(Paragraph(f"Ciclo: {ciclo_anio}", styles['Heading2']))
+            elements.append(Spacer(1, 6))
+
+            # Datos de inscripciones para este ciclo
             data = [["Año", "Fecha de Inscripción"]]
             for inscripcion in inscripciones_ciclo:
                 data.append([
@@ -1005,8 +1015,8 @@ def exportarHistorialPdf(request, estudiante_id):
             
             table = Table(data)
             table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.black),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
@@ -1019,18 +1029,19 @@ def exportarHistorialPdf(request, estudiante_id):
             # Calificaciones para el ciclo actual
             elements.append(Paragraph(f"Calificaciones del Ciclo: {ciclo_anio}", styles['Heading3']))
             calificaciones_ciclo = calificaciones.filter(ciclo__anioCalendario=ciclo_anio)
-            calificaciones_data = [["Espacio Curricular", "Nota", "Docente"]]
+            calificaciones_data = [["Espacio Curricular", "Nota","Instancia", "Docente"]]
             for calificacion in calificaciones_ciclo:
                 calificaciones_data.append([
                     calificacion.espacioCurricular.nombre,
                     calificacion.nota,
+                    calificacion.instancia.nombre,
                     f"{calificacion.docente.nombre} {calificacion.docente.apellido}"
                 ])
             
             table_calificaciones = Table(calificaciones_data)
             table_calificaciones.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.black),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
@@ -1041,7 +1052,8 @@ def exportarHistorialPdf(request, estudiante_id):
             elements.append(Spacer(1, 12))
 
     # Datos de inasistencias
-    elements.append(Paragraph("Inasistencias", styles['Title']))
+    elements.append(Paragraph("Inasistencias", styles['Heading1']))
+    elements.append(Spacer(1, 12))
     inasistencias_data = [['Fecha', 'Justificada?']]
     for falta in faltas:
         justificada = 'SI' if falta.justificacion else 'NO'
@@ -1052,8 +1064,8 @@ def exportarHistorialPdf(request, estudiante_id):
     
     table_inasistencias = Table(inasistencias_data)
     table_inasistencias.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.black),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),

@@ -3,6 +3,7 @@
 {% block content %}
 
 <div class="container container-fluid p-5 text-center">
+    <h1 >Años del ciclo: {{ ciclo.anioCalendario}} </h4>
     <div class="row container-fluid">
     {% for anio in anioPlan %}
     <div class="col-sm-4 mb-4">
@@ -10,7 +11,11 @@
                 <h1> {{ anio.codigo}}</h1>
                    <div class="card-body d-flex flex-column">
                       <a href="/Core/verDivision/{{anio.id }}/{{id}}/" class="btn btn-primary m-2">Ver Divisiones</a>
-                      <a href="/Clases/asignar_alumno_a_aula/{{anio.id}}" class="btn btn-primary m-2">Agregar Alumnos a division</a>
+                      {% if request.ciclo.id ==  id %}
+                      <a href="/Clases/asignar_alumno_a_aula/{{anio.id}}/" class="btn btn-primary m-2">Agregar estudiantes a division</a>
+                      {% else %}
+                      <a href="/Clases/verAulas/{{anio.id}}/{{id}}/" class="btn btn-primary m-2">Ver estudiantes en division</a>
+                      {% endif %}
                     </div>
                 </div>          
         </div>

@@ -15,7 +15,8 @@ urlpatterns  = [
     re_path(r'^modificarCalificacion/(?P<id_calificacion>\d+)/$', views.calificacion_edit, name='modificarCalificacion'),
     path('inasistencias_por_anio/', views.inasistencias_por_anio, name='inasistencias_por_anio'),
     path('inasistencias_por_mes/<int:year>/', views.inasistencias_por_mes, name='inasistencias_por_mes'),
-    re_path(r'^verInstancias$', views.instancias_list.as_view(), name='verInstancias'),
+    re_path(r'^verInstancias$', views.instancias_list, name='verInstancias'),
+
     re_path(r'^habilitarInstancia$', views.habilitarInstancia, name='habilitarInstancia'),
     # path('Clases/habilitarInstancia/<int:instancia_id>/', views.habilitar_instancia, name='habilitar_instancia'),
     re_path(r'^altaInstancia$', views.instancia_view),
@@ -34,7 +35,11 @@ urlpatterns  = [
     path('boletin/<int:estudiante_id>/<int:ciclo_id>/', views.boletinEstudiante, name='boletin'),
 
     re_path(r'^cargarInasistencia/(?P<idAnio>\d+)/$', views.registrarInasistencia, name= 'registrarInasistencia'),
-    re_path(r'^asignar_alumno_a_aula/(?P<idAnio>\d+)$', views.asignar_alumno_a_aula, name= 'asignar_alumno_a_aula'),
+    re_path(r'^asignar_alumno_a_aula/(?P<idAnio>\d+)/$', views.asignar_alumno_a_aula, name= 'asignar_alumno_a_aula'),
+    re_path(r'^verAulas/(?P<idAnio>\d+)/(?P<idCiclo>\d+)/$', views.verAulas, name= 'verAula'),
+    
+    # re_path(r'^crearDivision/(?P<id>\d+)/(?P<idCiclo>\d+)/$', views.crearDivision, name='crearDivision'), 
+    
     re_path(r'^crear_horario/(?P<idDivision>\d+)/$', views.crear_horario, name= 'crear_horario'),
     re_path(r'^consultar_faltas/$', views.consultar_faltas, name='consultar_faltas'),
     re_path(r'^obtener_alumnos/(?P<idEstudiante>\d+)/$', views.obtener_alumnos, name='obtener_alumnos'),

@@ -134,7 +134,7 @@ def boletinEstudiante(request, estudiante_id, ciclo_id):
 def menuCursada(request):
     fecha_str = str(timezone.now())
     print(fecha_str)
-    instanciaDisponible = Instancia.objects.filter(disponible = True)
+    instanciaDisponible = Instancia.objects.filter(ciclo = request.ciclo,disponible = True)
     fecha_iso = fecha_str.split(" ")[0]  # Obtiene solo la parte de la fecha (AAAA-MM-DD)
     fecha_hoy = datetime.fromisoformat(fecha_iso)
     ciclo = request.ciclo
@@ -182,10 +182,11 @@ class calificacion_list(ListView):
     model = Calificacion
     template_name = 'Calificacion/verCalificacion.html'
 
-class instancias_list(ListView):
-    model = Instancia
-    template_name = 'Calificacion/instancias.html'
-
+def instancias_list(request):
+    instancias = Instancia.objects.filter(ciclo = request.ciclo)
+    return render(request, 'Calificacion/instancias.html',{'instancias':instancias})
+   
+    
 @require_POST
 @login_required
 def eliminarNota(request):
@@ -325,7 +326,7 @@ def habilitar_instancia(request, instancia_id):
 #*************************************************
 def reporte_view(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden('Acceso denegado.')
     form = ReporteForm(request.GET or None)
     context = {'form': form}
     return render(request, 'Cursada/reporte.html', context)
@@ -368,7 +369,7 @@ def get_reporte_data(request):
 
 def get_ciclos(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden('Acceso denegado.')
     print("Entre a reporte ciclos")
     plan_id = request.GET.get('plan')
     ciclos = Ciclo.objects.filter(plan_id=plan_id).values('id', 'anioCalendario')
@@ -377,7 +378,7 @@ def get_ciclos(request):
 
 def get_instancias(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden('Acceso denegado.')
     ciclo_id = request.GET.get('ciclo')
     print(ciclo_id)
     instancias = Instancia.objects.filter(ciclo_id=ciclo_id).values('id', 'nombre')
@@ -421,7 +422,7 @@ class inasistencia_list(ListView):
 @login_required
 def crear_horario(request, idDivision):
     if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden('Acceso denegado.')
 
     division = get_object_or_404(Division, id=idDivision)
     horarios = Detalle_Horario.objects.filter(horario__division_id=idDivision)
@@ -452,7 +453,7 @@ from django.shortcuts import render, redirect
 @login_required
 def eliminarInasistencias(request):
     if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden('Acceso denegado.')
     if request.method == 'POST':
         inasistencias_seleccionadas = request.POST.getlist('inasistencias_seleccionadas')
         Inasistencias.objects.filter(id__in=inasistencias_seleccionadas).delete()
@@ -463,7 +464,7 @@ def eliminarInasistencias(request):
 
 def registrarInasistencia(request, idAnio):
     if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden('Acceso denegado.')
     # ciclo = Ciclo.objects.get(esActual=True)
     ciclo = request.ciclo
     if request.method == "POST":
@@ -498,23 +499,42 @@ def obtener_aulas(request):
     return render(request, 'aulas.html', {'aulas': aulas})
 
 
+@login_required 
+def verAulas(request, idAnio, idCiclo):
+    if not request.user.is_staff:
+        return HttpResponseForbidden('Acceso denegado.')
+    ciclo = Ciclo.objects.get(id= idCiclo)
+    divisiones = Division.objects.filter(anio_id=idAnio,ciclo=ciclo)
+    aulas = Aula.objects.filter(division__in=divisiones)
+    estudiantes_inscritos = Inscripcion.objects.filter(anio=idAnio,ciclo = ciclo)
+    estudiantes_aula = {}  # Cambiaremos a un diccionario para asociar estudiantes con aulas
+    for aula in aulas:
+        estudiantes_aula[aula.id] = aula.estudiantes.all()
+        print(aula.estudiantes.all())
+    estudiantes_no_en_aula = []
+    ids_estudiantes_aula = [estudiante.id for aula_estudiantes in estudiantes_aula.values() for estudiante in aula_estudiantes]
+
+    print("Estudiates e aulas",ids_estudiantes_aula)
+    # Obtener los IDs de los estudiantes en aulas
+    print((ids_estudiantes_aula))
+    for estudiante in estudiantes_inscritos:
+        print("id estudiante*****",estudiante.estudiante.id,ids_estudiantes_aula)
+        if estudiante.estudiante.id not in ids_estudiantes_aula:
+            estudiantes_no_en_aula.append(estudiante)
+    return render(request, 'Division/verEstudianteAula.html', {'aulas': aulas, 
+                                                                'estudiantes_aula': estudiantes_aula,
+                                                                })            
+    
 @login_required
 def asignar_alumno_a_aula(request, idAnio):
     if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden('Acceso denegado.')
     print("asignar alumno", idAnio)
     ciclo = Ciclo.objects.get(esActual = 'True')
-    #ciclo=request.ciclo
+    ciclo=request.ciclo
     divisiones = Division.objects.filter(anio_id=idAnio,ciclo=ciclo)
     estudiantes_inscritos = Inscripcion.objects.filter(anio=idAnio,ciclo = ciclo)
     print("estudiuantes inscriptos",estudiantes_inscritos)
-    # Verificar si las aulas existen para cada división
-    # for division in divisiones:
-    #     aulas_existen = Aula.objects.filter(division=division).exists()
-    #     if not aulas_existen:
-    #         Aula.objects.create(division=division)
-
-    # Obtener las aulas después de verificar o crear
     aulas = Aula.objects.filter(division__in=divisiones)
     print("Estoy en aulaaass",aulas[0].estudiantes.all())
     estudiantes_aula = {}  # Cambiaremos a un diccionario para asociar estudiantes con aulas
@@ -553,7 +573,7 @@ def estudiantes_aulas(request, id_division):
     print("Aulaaaa",aula.division.id,request.user.id)
     print(estudiantes)
     print('Espacioooos estudiantes',espacios)
-    instancia = Instancia.objects.get(disponible= True)
+    instancia = Instancia.objects.get(ciclo = request.ciclo , disponible= True)
     estudiantes_ids = request.GET.getlist(estudiantes)
     calificacion = Calificacion.objects.filter(
             docente_id=docente.id,
@@ -663,7 +683,7 @@ def obtener_alumnos(request, idEstudiante):
 
 def actualizar_relacion(request): 
     if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
+        return HttpResponseForbidden('Acceso denegado.')
     print("entre actualizar relacion")
     #ciclo_actual = Ciclo.objects.get(esActual=True)
     ciclo_actual = request.ciclo
@@ -844,7 +864,8 @@ def consultar_faltas(request):
 @login_required
 def horarioDocente(request,idDocente):
     print("*******entre aca**** ",idDocente,request.method)
-    ciclo_actual = Ciclo.objects.get(isActual = True)
+    #ciclo_actual = Ciclo.objects.get(isActual = True)
+    ciclo_actual = request.ciclo
     docente = Docente.objects.get(id= idDocente)
     horarios = Horario.objects.filter(division__ciclo=ciclo_actual, docente=docente)
     print("hasta aca va,oms?")

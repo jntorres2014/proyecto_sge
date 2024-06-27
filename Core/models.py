@@ -744,7 +744,7 @@ class Inscripcion(models.Model):
     @classmethod
     def seed_db(this, n):
         fake = Faker()
-        ciclo_actual = Ciclo.objects.get(esActual='True')
+        ciclo_actual = Ciclo.objects.get(esActual=True)
         
         # Obtener todos los estudiantes que no están inscritos en el ciclo actual
         estudiantes_sin_inscripcion = Estudiante.objects.exclude(inscripcion__ciclo=ciclo_actual)

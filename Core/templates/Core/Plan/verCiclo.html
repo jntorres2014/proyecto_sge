@@ -18,8 +18,8 @@
             {% for ciclo in ciclo %} 
                 <div class="col-sm-4 mb-4" data-anioCalendario="{{ ciclo.anioCalendario }}">
                     <div class="card" style="width: 18rem; height: 100%;">
-                        {% if ciclo.esActual %}
-                            <h2> Ciclo actual</h2>
+                        {% if ciclo == request.ciclo %}
+                            <h2> Ciclo Vigente</h2>
                         {% endif %}
                         <div>
                             <h5 style="text-align: left;">Año calendario: {{ ciclo.anioCalendario }}</h5>
@@ -28,9 +28,7 @@
                             <h5 style="text-align: left;">Fecha de fin: {{ ciclo.fechaFin}}</h5>
                         </div>
                         <div class="card-body d-flex flex-column ">
-                            {% if ciclo.esActual%}
-                            <a  class="btn btn-primary m-2" href="/Core/ciclo/inscribir/{{ciclo.id }}">Inscripciones </a>
-                            {% endif %}
+
                             <a  class="btn btn-primary m-2" href="/Core/ciclo/modificar/{{ciclo.id }}">Editar </a>
                             <a  class="btn btn-primary m-2" href="/Core/ciclo/eliminar/{{ciclo.id }}">Eliminar </a>
                             <a  class="btn btn-primary m-2" href="/Core/anio/ver/{{ciclo.id }}">Años </a>
