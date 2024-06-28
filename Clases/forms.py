@@ -10,6 +10,11 @@ class CalificacionForm(forms.ModelForm):
     class Meta:
         model = Calificacion
         fields = ['espacioCurricular', 'estudiante', 'nota', 'tipo', 'instancia']
+        labels={
+            'espacioCurricular': 'Espacio Curricular',
+            'estudiante': 'Estudiante',
+            'nota': 'Calificacion',            
+        }
         widgets = {
             'espacioCurricular': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
             'tipo': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
