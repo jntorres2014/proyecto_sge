@@ -894,8 +894,14 @@ def estudiantesDeAnioEnCiclo(request, idCiclo):
 
 def listEstudianteAula(request,idDivision):
     aula = Aula.objects.get(division_id=idDivision)
+    print("aulaaaaaa",aula)
+    today = date.today()
+    estudiantes = list(aula.estudiantes.all())
+    inasistencias_hoy = Inasistencias.objects.filter(dia=today, estudiante__in=aula.estudiantes.all())
+    estudiantes = aula.estudiantes.exclude(id__in=inasistencias_hoy.values_list('estudiante__id', flat=True))
+    print("estudianteessss",estudiantes)
     division = Division.objects.get(id=idDivision)
-    return render(request, 'Cursada/cargarInasistencia.html',{'inscriptos': list(aula.estudiantes.all()),
+    return render(request, 'Cursada/cargarInasistencia.html',{'inscriptos': estudiantes,
                                                                  'division': division})
 
 def corregirInasistenciaAula(request,idDivision):
