@@ -415,7 +415,7 @@ def eliminarInscripcion(request, id_estudiante):
     if not request.user.is_staff:
         return HttpResponseForbidden(render(request, 'Core/403.html'))
     try:
-        inscripcion = Inscripcion.objects.get(estudiante_id=id_estudiante)
+        inscripcion = Inscripcion.objects.get(ciclo = request.ciclo ,estudiante_id=id_estudiante)
         inscripcion.delete()
         messages.success(request, 'El estudiante se eliminó correctamente.')
     except Estudiante.DoesNotExist:
