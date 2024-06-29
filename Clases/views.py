@@ -563,6 +563,8 @@ def asignar_alumno_a_aula(request, idAnio):
 
 
 def estudiantes_aulas(request, id_division):
+    if request.user.is_staff:
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
 
     aula = Aula.objects.get(division_id = id_division)
     horario = Horario.objects.get(division_id = id_division)

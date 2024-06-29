@@ -1,7 +1,9 @@
-{% extends 'Core/Persona/menuDocente.html' %}
+{% extends 'index.html' %}
 {% block content %}
 {% load bootstrap5 %}
    <!-- Begin Page Content -->
+   {% block sidebar %}
+   {% endblock sidebar %}
    <div class="container-fluid">
 
     <!-- 404 Error Text -->
@@ -9,7 +11,11 @@
         <div class="error mx-auto" data-text="404">Error</div>
         <p class="lead text-gray-800 mb-5">No tiene permisos para esta vista</p>
         <p class="text-gray-500 mb-0">Por favor navegar en lugares permitidos</p>
+        {% if not request.user.is_staff %}
         <a href="/Core/docente/menu">&larr; Volver al menu principal</a>
+        {% else %}
+        <a href="/">&larr; Volver al menu principal</a>
+        {% endif %}
     </div>
 
 </div>

@@ -596,6 +596,8 @@ def menuPlan(request):
 
 @login_required
 def menuDocente(request):
+    if request.user.is_staff:
+        return HttpResponseForbidden(render(request, 'Core/403.html'))
     print("Usuariooooo:",type(request.user.username))
     dni = int(request.user.username)
     docente = Docente.objects.get(dni = dni)
