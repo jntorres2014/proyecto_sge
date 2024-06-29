@@ -237,8 +237,16 @@
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
     <div class="container input-group btn-primary d-flex flex-column">
+        {% if request.hayPlan %}
         <h4 class="mb-0">{{request.plan}}</h4>
+        {% else %}
+        <h4> No hay plan vigente</h4>
+        {% endif %}
+        {% if request.ciclo %}
         <h4 class="mb-0">Ciclo: {{request.ciclo}}</h4>
+        {% else %}
+        <h4> No hay ciclo vigente</h4>
+        {% endif %}
     </div>
     <!-- Sidebar Toggle (Topbar) -->
     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">

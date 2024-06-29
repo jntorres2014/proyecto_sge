@@ -516,14 +516,7 @@ def planEdit(request, id_plan):
             return HttpResponseRedirect("/Core/plan/ver")
     return render(request, 'Core/Plan/PlanDeEstudios.html',{'form':form})
 
-def cambiarActual(request, id_plan):
-    if not request.user.is_staff:
-        return HttpResponseForbidden(render(request, 'Core/403.html'))
-    # Llama al método cambiar_actual de la clase PlanDeEstudios
-    PlanDeEstudios.cambiar_actual(request, id_plan)
 
-    # Redirige a la página deseada después de realizar el cambio
-    return HttpResponseRedirect("/Core/plan/ver")
 #########################################################################
 
 @login_required
@@ -644,7 +637,6 @@ def eliminarCiclo(request, idCiclo):
             plan = PlanDeEstudios.objects.get(id = ciclo.plan.id)
             plan.implementado = 'False' 
             plan.save()
-            messages.success(request, 'Se elimino el ciclo correctamente.')
         ciclo.delete()
         messages.success(request, 'El Ciclo se eliminó correctamente.')
     except Estudiante.DoesNotExist:
@@ -710,7 +702,6 @@ def cicloList(request, id):
 def cicloPlanList(request, id):
     if not request.user.is_staff:
         return HttpResponseForbidden(render(request, 'Core/403.html'))
-    print(id)
     plan = PlanDeEstudios.objects.get(id=id)
     print("VER CICLO estoy aca", plan.id)
     anioCicloPlan= Ciclo.objects.filter(plan=plan).order_by('-esActual')
@@ -744,6 +735,7 @@ def cambiarActual(request, id_plan):
         return HttpResponseForbidden(render(request, 'Core/403.html'))
     # Llama al método cambiar_actual de la clase PlanDeEstudios
     PlanDeEstudios.cambiar_actual(request, id_plan)
+    messages.success(request, 'Se actualizo el plan correctamente.')
 
     # Redirige a la página deseada después de realizar el cambio
     return HttpResponseRedirect("/Core/plan/ver")
