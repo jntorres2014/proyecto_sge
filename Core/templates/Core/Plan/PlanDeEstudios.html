@@ -3,7 +3,11 @@
 {% load bootstrap5 %}
 
     <div class="container contact-form">
+        {% if edit == True %}
+        <h1> Modificar Plan</h1>
+        {% else %}
         <h1>Alta Plan</h1>
+        {% endif %}
         <hr>
         <form class="form" method="post">
             {% csrf_token %}

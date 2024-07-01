@@ -82,6 +82,19 @@ class LocalidadAutocomplete(autocomplete.Select2QuerySetView):
             qs = qs.filter( Q(nombre__icontains=self.q) |    
                 Q(codigoPostal__icontains=self.q) )           
         return qs
+class EstudianteAutocompleteAula(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        print('ENTRE A AUTOCOMPLETE******')
+    def get_queryset(self):
+        qs = Estudiante.objects.all()
+        
+        # Obtener los estudiantes del request
+        estudiantes = self.forwarded.get('estudiantes', None)
+        if estudiantes:
+            # Filtrar los estudiantes según la lista pasada en el request
+            qs = qs.filter(id__in=estudiantes)
+        
+        return qs
 class EstudianteAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         print('ENTRE A AUTOCOMPLETE******')
@@ -258,7 +271,7 @@ def localidadEdit(request, id_localidad):
             form.save()
             messages.success(request, 'La localidad se editó correctamente.')
             return HttpResponseRedirect("/Core/localidad/ver")
-    return render(request, 'Core/LocalidadForm.html',{'form': form})
+    return render(request, 'Core/LocalidadForm.html',{'form': form, 'edit': True})
 
 
 @login_required
@@ -514,7 +527,7 @@ def planEdit(request, id_plan):
             form.save()
             messages.success(request, 'Se edito el plan correctamente.')
             return HttpResponseRedirect("/Core/plan/ver")
-    return render(request, 'Core/Plan/PlanDeEstudios.html',{'form':form})
+    return render(request, 'Core/Plan/PlanDeEstudios.html',{'form':form, 'edit':True})
 
 
 #########################################################################
@@ -753,7 +766,7 @@ def cicloEdit(request, id_ciclo):
             form.save()
             messages.success(request, 'El ciclo se editó correctamente.')
             return HttpResponseRedirect("/Core/plan/ver")
-    return render(request, 'Core/Plan/CicloForm.html',{'form': form})
+    return render(request, 'Core/Plan/CicloForm.html',{'form': form, 'edit': True})
 
 ################################################
 @login_required
@@ -768,12 +781,11 @@ def eliminarDivision(request, id, idCiclo):
             aula = Aula.objects.get(division=division[-1])
             division[-1].delete()
             aula.delete()
-            message = 'Division eliminada correctamente'
-            messages.error(request, message)
+            message = messages.error(request, 'Division eliminada correctamente.')
             return JsonResponse({'success': True,'message': message})
         else:
-            message = 'Debe existir al menos una división'
-            messages.error(request, message)
+            message = messages.error(request, 'Debe existir al menos una división')
+
             return JsonResponse({'success': False, 'message': message})
 
     anio = AnioPlan.objects.get(id=id)
@@ -829,8 +841,7 @@ def crearDivision(request, id, idCiclo):
                 'id': nueva_division.id
             }
         }
-        message = 'Division creada correctamente'
-        messages.error(request, message)
+        messages.success(request, 'Division creada correctamente.')
 
         return JsonResponse(response_data)
     return JsonResponse({'success': False})

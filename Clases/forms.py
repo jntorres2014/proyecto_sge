@@ -19,7 +19,9 @@ class CalificacionForm(forms.ModelForm):
             'espacioCurricular': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
             'tipo': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
             'instancia': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
+             'estudiante': autocomplete.ModelSelect2(url='core:estudiantes-autocomplete-aula', forward=['estudiantes'], attrs={'class': 'form-control input-group mb-3'}),
             'estudiante': forms.Select(attrs={'class': 'form-control input-group mb-3' }),
+
             'nota': forms.TextInput(attrs={'type':'number', 'class': 'form-control input-group mb-3','max':'10','min':'1'})
         }
 
@@ -88,24 +90,6 @@ class InstanciaForm(forms.ModelForm):
             'ciclo': 'Ciclo actual',
             'disponible': 'Disponible',            
         }
-        #fecha = datetime.today().date()
-        # fecha_inicio = forms.DateField(label='Fecha Fin', widget=forms.TextInput(attrs={'type': 'date','value': fecha}))
-        # fecha_fin = forms.DateField(label='Fecha Fin', widget=forms.TextInput(attrs={'type': 'date','value': fecha}))
-        # widgets = {
-        #     'fecha_inicio': forms.DateField(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),
-        #     'fecha_fin': forms.DateField(attrs={'class': 'datepicker input-group mb-3', 'type': 'date', 'value': fecha}),  
-        # }
-        
-    # def clean_fecha_inicio(self):
-
-    #     print('entre acaaa')
-    #     inicio = self.cleaned_data.get("fecha_inicio")
-    #     #fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-    #     fecha = datetime.today().date()
-    #     import pdb; pdb.set_trace()
-    #     if fecha <= inicio:
-    #         raise forms.ValidationError("fecha ingresada es menor a la de inicio")
-    #     return inicio
             
     def clean_fecha_fin(self):
         inicio = self.cleaned_data.get("fecha_inicio")

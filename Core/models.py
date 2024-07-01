@@ -539,7 +539,7 @@ class Calificacion(models.Model):
     )   
     class Meta:
         # Define la restricción de unicidad para instancia, ciclo y estudiante
-        unique_together = ('instancia', 'ciclo', 'estudiante')
+        unique_together = ('instancia', 'ciclo', 'estudiante','espacioCurricular')
 
     def generate_calificacion(quantity):
         fake = Faker('es_ES')

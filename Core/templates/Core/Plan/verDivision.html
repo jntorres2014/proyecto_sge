@@ -3,14 +3,6 @@
 {% block content %}
 {% load bootstrap5 %}
 
-<div class="container-fluid">
-    <ul class="messages" id="messages">
-        {% for message in messages %}
-        <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-
 <div class="container contenedor-tabla">
     <div>
         <h1><a href="#">Lista Division</a></h1>
@@ -67,6 +59,19 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Check the number of rows in the table
+        function checkDivisionCount() {
+            const rowCount = $('#divisions-table-body tr').length;
+            if (rowCount <= 1) {
+                $('#delete-division-btn').prop('disabled', true);
+            } else {
+                $('#delete-division-btn').prop('disabled', false);
+            }
+        }
+
+        // Initial check
+        checkDivisionCount();
+
         $('#create-division-btn').click(function() {
             $.ajax({
                 url: '/Core/crearDivision/{{ anio }}/{{ id }}/',
@@ -108,6 +113,4 @@
         }
     });
 </script>
-
-
 {% endblock scripts %}

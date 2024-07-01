@@ -5,6 +5,7 @@ app_name = "Core"
 urlpatterns = [
     
     #****************************** AUTOCOMPLETE ****************************** # 
+    path('estudiantes-autocomplete-aula', views.EstudianteAutocompleteAula.as_view(), name='estudiantes-autocomplete-aula'),
     path('estudiante-autocomplete', views.EstudianteAutocomplete.as_view(), name='estudiante-autocomplete'),
     path('localidad-autocomplete', views.LocalidadAutocomplete.as_view(), name='localidad-autocomplete'),
     path('espacio-autocomplete', views.MateriaAutocomplete.as_view(), name='espacio-autocomplete'),

@@ -4,7 +4,11 @@
 
 {{ form.media }}
 <div class="container contact-form">
-    <h1>Alta Ciclo para plan <strong class="text-primary" >{{request.plan.codigo}}</strong>  </h1>
+    {% if edit == True %}
+        <h1> Modificar Ciclo</h1>
+        {% else %}
+        <h1>Alta Ciclo para plan <strong class="text-primary" >{{request.plan.codigo}}</strong>  </h1>
+        {% endif %}
     <form class="form " method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
