@@ -270,24 +270,33 @@ def instancia_view(request):
 
     return render(request, 'Calificacion/instanciaForm.html', {'form': form})
 
+
+def inhabilitarInstancia(request, instancia_id):
+    instancia = get_object_or_404(Instancia, pk=instancia_id)
+    instancia.disponible = False  # Cambiar el estado de disponible
+    instancia.save()
+    return redirect('/Clases/verInstancias')
+
 @require_POST
 def habilitarInstancia(request, instancia_id):
     if not request.user.is_staff:
         return HttpResponseForbidden(render(request, 'Core/403.html'))
-    print("ACAAAAAA")
 
     instancia = get_object_or_404(Instancia, pk=instancia_id)
-    fecha_fin = request.POST.get('fecha_fin')
     data = json.loads(request.body)
     fecha_fin = data.get('fecha_fin')
-    print("fecha fin",fecha_fin)
-    fecha = datetime.strftime(datetime.today(), "%Y-%M-%d")
-    print("Estoy acaaaaa")
-    print('fin',fecha_fin, type(fecha_fin))
-    print('hoy',fecha, type(fecha))
-    if   fecha_fin >= fecha:
-        messages.success(request, 'fecha ingresada es menor a la fecha actual')
-        return JsonResponse({'fecha ingresada es menor a la fecha actual'})
+
+    # Validar si la fecha_fin es válida
+    try:
+        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+    except ValueError:
+        return JsonResponse({'error': 'Formato de fecha incorrecto'}, status=400)
+
+    # Validar si la fecha_fin es menor que la fecha actual
+    if fecha_fin < datetime.now().date():
+        return JsonResponse({'error': 'La fecha ingresada es menor a la fecha actual'}, status=400)
+
+    # Procesar la habilitación de la instancia
     instancia.disponible = True
     instancia.fecha_inicio = datetime.now().date()
     instancia.fecha_fin = fecha_fin
@@ -298,8 +307,8 @@ def habilitarInstancia(request, instancia_id):
     for otra_instancia in otras_instancias:
         otra_instancia.disponible = False
         otra_instancia.save()
+
     return JsonResponse({'message': 'Instancia habilitada exitosamente'})
-    # return redirect('/Clases/verInstancias')
 
 @require_POST
 def habilitar_instancia(request, instancia_id):

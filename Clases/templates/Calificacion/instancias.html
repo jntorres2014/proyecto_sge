@@ -1,11 +1,12 @@
 {% extends 'index.html' %}
 {% load bootstrap5 %}
+
 {% block content %}
     <div class="content">
-        <a href="/Clases\altaInstancia">
+        <a href="/Clases/altaInstancia">
             <button class="btn btn-primary">Nueva Instancia</button>
         </a>
-        <h1><a href="#">Instancias de evaluacion</a></h1>
+        <h1><a href="#">Instancias de evaluación</a></h1>
         <div class="hidden orden-listado">
             <div class="flex-md-column-reverse">
                 <table class="table table-bordered table-hover">
@@ -28,14 +29,15 @@
                                         <td>{{ instancia.fecha_fin }}</td>
                                         {% if instancia.disponible %}
                                             <td>Habilitada</td>
+                                            <td>
+                                                <button class="btn btn-danger btn-inhabilitar" data-instancia-id="{{ instancia.id }}" data-bs-toggle="modal" data-bs-target="#inhabilitarModal">Inhabilitar</button>
+                                            </td>
                                         {% else %}
-                                        <td>No Disponible</td>
-                                        {% endif %}
-                                        <td>
-                                            {% if not instancia.disponible %}
+                                            <td>No Disponible</td>
+                                            <td>
                                                 <button class="btn btn-success btn-habilitar" data-instancia-id="{{ instancia.id }}" data-bs-toggle="modal" data-bs-target="#habilitarModal">Habilitar</button>
-                                            {% endif %}
-                                        </td>
+                                            </td>
+                                        {% endif %}
                                     </tr>
                                 {% endfor %}
                             {% else %}
@@ -50,7 +52,28 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Inhabilitar -->
+    <div class="modal fade" id="inhabilitarModal" tabindex="-1" aria-labelledby="inhabilitarModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inhabilitarModalLabel">Inhabilitar Instancia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="inhabilitarForm">
+                    <div class="modal-body">
+                        <p>¿Está seguro de que desea inhabilitar esta instancia?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Inhabilitar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Habilitar -->
     <div class="modal fade" id="habilitarModal" tabindex="-1" aria-labelledby="habilitarModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -77,24 +100,46 @@
 
 {% block scripts %}
 <script>
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
     const csrftoken = getCookie('csrftoken');
 
     $(document).ready(function(){
+        $('.btn-inhabilitar').click(function(e){
+            e.preventDefault();
+            var instancia_id = $(this).data('instancia-id');
+            $('#inhabilitarForm').attr('action', '/Clases/inhabilitarInstancia/' + instancia_id + '/');
+            $('#inhabilitarModal').modal('show');
+        });
+
+        $('#inhabilitarForm').submit(function(e){
+            e.preventDefault();
+            var url = $(this).attr('action');
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    showAlert('Error', data.error, 'error');
+                } else {
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error', 'Ocurrió un error al procesar la solicitud.', 'error');
+            });
+        });
+
         $('.btn-habilitar').click(function(e){
             e.preventDefault();
             var instancia_id = $(this).data('instancia-id');
@@ -109,7 +154,7 @@
             fechaActual.setHours(0, 0, 0, 0); // Eliminar la parte de la hora para comparación
 
             if (fechaFin < fechaActual) {
-                alert('La fecha ingresada es menor a la fecha actual.');
+                showAlert('Error', 'La fecha ingresada es menor a la fecha actual.', 'error');
                 return false;
             }
 
@@ -130,15 +175,40 @@
             })
             .then(data => {
                 if (data.error) {
-                    alert(data.error);
+                    showAlert('Error', data.error, 'error');
                 } else {
                     location.reload();
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                showAlert('Error', 'Ocurrió un error al procesar la solicitud.', 'error');
             });
         });
     });
+
+    function showAlert(title, message, icon) {
+        swal({
+            title: title,
+            text: message,
+            icon: icon,
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
 {% endblock scripts %}
+

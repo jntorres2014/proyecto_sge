@@ -16,7 +16,7 @@ urlpatterns  = [
     path('inasistencias_por_anio/', views.inasistencias_por_anio, name='inasistencias_por_anio'),
     path('inasistencias_por_mes/<int:year>/', views.inasistencias_por_mes, name='inasistencias_por_mes'),
     re_path(r'^verInstancias$', views.instancias_list, name='verInstancias'),
-
+    re_path(r'^inhabilitarInstancia/(?P<instancia_id>\d+)/$', views.inhabilitarInstancia, name='inhabilitarInstancia'),
     re_path(r'^habilitarInstancia$', views.habilitarInstancia, name='habilitarInstancia'),
     # path('Clases/habilitarInstancia/<int:instancia_id>/', views.habilitar_instancia, name='habilitar_instancia'),
     re_path(r'^altaInstancia$', views.instancia_view),
