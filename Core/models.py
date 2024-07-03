@@ -551,7 +551,7 @@ class Calificacion(models.Model):
             espacios_curriculares = EspacioCurricular.objects.filter(plan=plan)
             instancias = Instancia.objects.filter(ciclo=ciclo)
             inscripcion = Inscripcion.objects.filter(ciclo=ciclo)
-
+            
             calificaciones = []
             
             for estudiante in inscripcion:
