@@ -305,7 +305,7 @@ def estudianteView(request):
     else:
         form = forms.EstudianteForm()
 
-    return render(request, 'Core/Persona/EstudianteForm.html', {'form': form})
+    return render(request, 'Core/Persona/EstudianteForm.html', {'form': form, 'edit': True})
 
 @login_required
 def docenteView(request):
@@ -464,7 +464,7 @@ def estudianteEdit(request, id_estudiante):
             form.save()
         messages.success(request, 'El estudiante se modificó correctamente.')
         return HttpResponseRedirect("/Core/estudiante/ver")
-    return render(request, 'Core/Persona/EstudianteForm.html',{'form':form})
+    return render(request, 'Core/Persona/EstudianteForm.html',{'form':form, 'edit': True})
 
 
 class estudianteList(ListView):

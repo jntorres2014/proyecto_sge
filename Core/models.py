@@ -541,6 +541,44 @@ class Calificacion(models.Model):
         # Define la restricción de unicidad para instancia, ciclo y estudiante
         unique_together = ('instancia', 'ciclo', 'estudiante','espacioCurricular')
 
+    def seed_calificacion(quantity):
+        fake = Faker('es_ES')
+
+        ciclos = Ciclo.objects.all()
+
+        for ciclo in ciclos:
+            plan = ciclo.plan
+            espacios_curriculares = EspacioCurricular.objects.filter(plan=plan)
+            instancias = Instancia.objects.filter(ciclo=ciclo)
+            inscripcion = Inscripcion.objects.filter(ciclo=ciclo)
+
+            calificaciones = []
+            
+            for estudiante in inscripcion:
+                    for instancia in instancias:
+                        for espacio_curricular in espacios_curriculares:
+                            if not Calificacion.objects.filter(
+                                ciclo=estudiante.ciclo,
+                                estudiante=estudiante.estudiante,
+                                instancia=instancia,
+                                espacioCurricular=espacio_curricular
+                            ).exists():
+                                calificaciones.append(
+                                    Calificacion(
+                                        ciclo=estudiante.ciclo,
+                                        estudiante=estudiante.estudiante,
+                                        nota=random.randint(1, 10),
+                                        espacioCurricular=espacio_curricular,
+                                        docente=random.choice(Docente.objects.all()),  # Asumiendo que los docentes pueden ser aleatorios
+                                        instancia=instancia,
+                                        tipo=1,
+                                    )
+                                )
+
+            if calificaciones:
+                Calificacion.objects.bulk_create(calificaciones)
+
+
     def generate_calificacion(quantity):
         fake = Faker('es_ES')
         ciclos = Ciclo.objects.all()
