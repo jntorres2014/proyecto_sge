@@ -394,7 +394,7 @@ def docenteEdit(request, id_docente):
             messages.success(request, 'El docente se editó correctamente.')
 
             return HttpResponseRedirect("/Core/docente/ver")
-    return render(request, 'Core/Persona/DocenteForm.html',{'form': form})
+    return render(request, 'Core/Persona/DocenteForm.html',{'form': form, 'edit': True})
 
 @login_required
 def eliminarDocente(request, id_docente):
@@ -464,7 +464,7 @@ def estudianteEdit(request, id_estudiante):
             form.save()
         messages.success(request, 'El estudiante se modificó correctamente.')
         return HttpResponseRedirect("/Core/estudiante/ver")
-    return render(request, 'Core/Persona/EstudianteForm.html',{'form':form})
+    return render(request, 'Core/Persona/EstudianteForm.html',{'form':form,'edit': True})
 
 
 class estudianteList(ListView):

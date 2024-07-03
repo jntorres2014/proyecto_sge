@@ -10,7 +10,11 @@
 {{form.media}}
 
     <div class="container ">
+        {% if edit == True %}
+        <h1> Modificar Docente</h1>
+        {% else %}
         <h1>Alta Docente</h1>
+        {% endif %}
         <div class="container">
             <form class="form" method="post">
                 {% csrf_token %}

@@ -9,8 +9,12 @@
 
 {{form.media}}
 
-    <div class="container ">
-        <h1>Alta Estudiante</h1>
+<div class="container ">
+    {% if edit == True %}
+    <h1> Modificar Estudiante</h1>
+    {% else %}
+    <h1>Alta Estudiante</h1>
+    {% endif %}
         <div class="container">
             <form class="form" method="post">
                 {% csrf_token %}
