@@ -1,9 +1,12 @@
 {% extends 'index.html' %}
 {% block content %}
 {% load bootstrap5 %}
-
     <div class="container contact-form">
-        <h1>Alta Localidad</h1>
+        {% if edit == True %}
+    <h1> Modificar Localidad</h1>
+    {% else %}
+    <h1>Alta Localidad</h1>
+    {% endif %}
         <hr>
         <form class="form" method="post">
             {% csrf_token %}
