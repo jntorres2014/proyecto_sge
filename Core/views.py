@@ -812,6 +812,7 @@ def divisionList(request, id, idCiclo):
     return render(request, 'Core/Plan/verDivision.html', {
         'divisiones': division,
         'id': idCiclo,
+        'ciclo': ciclo,
         'anio': id,
         'cant_estudiantes': len(alumnos),
         'cant_divisiones': len(division),

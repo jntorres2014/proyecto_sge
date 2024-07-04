@@ -9,7 +9,7 @@ class CalificacionForm(forms.ModelForm):
 
     class Meta:
         model = Calificacion
-        fields = ['espacioCurricular', 'estudiante', 'nota', 'tipo', 'instancia']
+        fields = ['espacioCurricular', 'estudiante', 'nota', 'instancia']
         labels={
             'espacioCurricular': 'Espacio Curricular',
             'estudiante': 'Estudiante',
@@ -17,7 +17,7 @@ class CalificacionForm(forms.ModelForm):
         }
         widgets = {
             'espacioCurricular': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
-            'tipo': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
+            # 'tipo': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
             'instancia': forms.Select(attrs={'class': 'form-control input-group mb-3'}),
              'estudiante': autocomplete.ModelSelect2(url='core:estudiantes-autocomplete-aula', forward=['estudiantes'], attrs={'class': 'form-control input-group mb-3'}),
             'estudiante': forms.Select(attrs={'class': 'form-control input-group mb-3' }),

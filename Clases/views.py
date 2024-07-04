@@ -10,6 +10,7 @@ from Clases.forms import CalificacionForm, ConsultaForm, Detalle_HorarioForm, Ha
 from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Docente, EspacioCurricular, Estudiante, Horario, InscripcionDocente, Instancia, PlanDeEstudios, Inscripcion,Division
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.contrib import messages
 # Create your views here.
@@ -603,6 +604,7 @@ def estudiantes_aulas(request, id_division):
                 ciclo = request.ciclo
                 docente_id = Docente.objects.get(dni=request.user.username)
                 calificacion_obj = form.save(commit=False)
+                calificacion_obj.tipo = 1
                 calificacion_obj.ciclo = ciclo
                 calificacion_obj.docente = docente_id
                 calificacion_obj.save()
@@ -692,43 +694,46 @@ def obtener_alumnos(request, idEstudiante):
     return JsonResponse(info_alumnos)
 
 
-def actualizar_relacion(request): 
+@csrf_exempt
+def actualizar_relacion(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('Acceso denegado.')
-    print("entre actualizar relacion")
-    #ciclo_actual = Ciclo.objects.get(esActual=True)
-    ciclo_actual = request.ciclo
-    divisiones = Division.objects.filter(ciclo=ciclo_actual)
-    print(request.method)
-    print('vengo por aca')
+    
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         alumno_id = data.get('estudiante_id')
-        aula_nombre = data.get('aula_nombre')
-        print("recuperados", alumno_id, aula_nombre)
-        estudiante = Estudiante.objects.get(dni=alumno_id)
-        print("estudiantes", estudiante)
-
-        # Obtener el aula específica
-        aula_id = int(aula_nombre)
-        aula = Aula.objects.get(id=aula_id)
-        print("Estudiantes de aulaa*****", aula.estudiantes.all())
-
-        # Asignar al estudiante al aula
-        aula.estudiantes.add(estudiante)
-        print("Estudiantes de aulaa*****", aula.estudiantes.all())
-
-        mensaje_exito = f'Se cargó el alumno {alumno_id} al aula {aula_nombre}'
-
-        contenido_html = "<h1>Mi HTML</h1><p>Este es un párrafo.</p>"
-
-        # Serializar el contenido HTML
-        datos_json = {'contenido_html': contenido_html}
-        return JsonResponse({'success': True, 
-                             'message': mensaje_exito,
-                             'datos': datos_json})
+        aula_nombre = data.get('aula_id')  # Ajuste aquí para coincidir con el nombre del campo en el JSON
+        
+        if not aula_nombre:
+            return JsonResponse({'success': False, 'message': 'Nombre de aula no proporcionado'})
+        
+        try:
+            estudiante = Estudiante.objects.get(dni=alumno_id)
+            aula = Aula.objects.get(id=aula_nombre)
+            
+            aula.estudiantes.add(estudiante)
+            
+            mensaje_exito = f'Se cargó el alumno {alumno_id} al aula {aula_nombre}'
+            
+            # Ejemplo de contenido HTML para respuesta
+            contenido_html = "<h1>Mi HTML</h1><p>Este es un párrafo.</p>"
+            
+            # Serializar el contenido HTML
+            datos_json = {'contenido_html': contenido_html}
+            
+            return JsonResponse({
+                'success': True,
+                'message': mensaje_exito,
+                'datos': datos_json
+            })
+        except Estudiante.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Estudiante no encontrado'})
+        except Aula.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Aula no encontrada'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
     else:
-        return JsonResponse({'success': False})    
+        return JsonResponse({'success': False, 'message': 'Método no permitido'})
 @login_required
 def obtenerHorarios(request):
     print("entre")

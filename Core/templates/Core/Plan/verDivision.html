@@ -25,7 +25,8 @@
                         <td>{{ division.codigo }}</td>
                         <td>{{ division.descripcion }}</td>
                         <td>
-                            {% if request.ciclo.id == id %}
+
+                            {% if request.ciclo == ciclo %}
                             <a type="button" class="btn btn-success" href="/Clases/crear_horario/{{ division.id }}/">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
                                     <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
@@ -44,7 +45,7 @@
                 </tbody>
             </table>
         </div>
-        {% if request.ciclo.id == id %}
+        {% if request.ciclo == ciclo %}
         <div class="d-flex justify-content-end">
             <button id="create-division-btn" class="btn btn-primary mr-2">Nuevo</button>
             <button id="delete-division-btn" class="btn btn-danger">Eliminar</button>
