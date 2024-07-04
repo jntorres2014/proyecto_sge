@@ -1,5 +1,13 @@
 {% extends 'Core/Plan/menuCiclo.html' %}
 
+{% load static %} 
+{% block manual %}
+<div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% static 'Documentacion/Manual Docente.pdf' %}#page=3">
+                    <i class="fa-circle-info text-gray-400"></i>
+                    Ayudas
+                </a>
+{% endblock manual %}
 {% block sidebar %}
 <body id="page-top">
 
@@ -26,8 +34,13 @@
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Menu Principal</span></a>
             </li>
-
-            
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="{% static 'Documentacion/Manual de docente.pdf' %}"></a>
+                
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Ayudas</span></a>
+            </li>
      <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
