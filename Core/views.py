@@ -341,6 +341,8 @@ def ciclo_view(request,id):
             Ciclo.cambiar_actual(request, ciclo.id)
             print('Cambie el ciclo actual')
             pagina = "/Core/verCiclo/" + id
+            plan.implementado = 'True'
+            plan.save()
             #print("la pagina",pagina)
         return HttpResponseRedirect("/Core/verCiclo/" + id)
     else:

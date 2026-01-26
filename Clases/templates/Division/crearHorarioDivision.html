@@ -4,6 +4,7 @@
 <head>
     <title>Crear y Mostrar Horario</title>
 </head>
+
 <body>
     <div class="container">
         <div class="row">
@@ -24,6 +25,8 @@
 
             <!-- Columna para la tabla -->
             <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">
+                <div  class="alert alert-warning" role="alert" id="mensaje"></div>
+                
                 <h1>Mostrar Horario</h1>
                 <table class="table table-bordered">
                     <thead>
@@ -38,6 +41,7 @@
                             <th>Domingo</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {% for modulo in modulos %}
                             <tr>
@@ -46,14 +50,17 @@
                                     <td>
                                         {% for horario in horarios %}
                                             {% if horario.hora == modulo and horario.dia == dia %}
-                                                <h5>{{ horario.espacioCurricular }}</h5>
-                                                
+                                                <h5>{{ horario.espacioCurricular.nombre }}</h5>
+                                                <button class="btn btn-danger btn-sm" onclick="eliminarDetalleHorario({{horario.id}})">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
                                             {% endif %}
                                         {% endfor %}
                                     </td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}
+
                     </tbody>
                 </table>
             </div>
@@ -85,6 +92,44 @@
                         console.log(data.datos_horario);
                     }
                 });
+        }
+    </script>
+    <script>
+
+        function eliminarDetalleHorario(detalleId) {
+            // Realiza una solicitud AJAX para eliminar el detalle de horario
+            $.ajax({
+                type: 'POST',  // Puedes ajustar el método según tu vista de Django
+                url: 'eliminar_detalle_horario/',
+                data: {
+                detalle_id: detalleId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function (data) {
+                    if (data.success) {
+                        // Actualiza el mensaje con éxito
+                        mostrarMensaje("Detalle de horario eliminado con éxito");
+                    } else {
+                        // Actualiza el mensaje con error
+                        mostrarMensaje("Error al eliminar el detalle de horario", true);
+                    }
+                }
+            });
+        }
+
+        function mostrarMensaje(mensaje, esError = false) {
+            // Selecciona el elemento del mensaje
+            var mensajeElemento = $('#mensaje');
+            
+            // Establece el contenido del mensaje
+            mensajeElemento.text(mensaje);
+
+            // Agrega clases de estilo según si es un mensaje de éxito o error
+            if (esError) {
+                mensajeElemento.removeClass('mensaje-exito').addClass('mensaje-error');
+            } else {
+                mensajeElemento.removeClass('mensaje-error').addClass('mensaje-exito');
+            }
         }
     </script>
 </body>

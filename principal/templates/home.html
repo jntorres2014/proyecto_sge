@@ -79,6 +79,7 @@
           <p class="card-text">Gestionar los planes de estudio</p>
       </div>
     </div>
+    {% if hay_plan %}
     <div class="col-md-4">
       <div class="card align-items-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16">
@@ -88,6 +89,7 @@
           <p class="card-text">Gestionar los ciclos</p>
       </div>
     </div>
+    {% if ciclo_activo %}
     <div class="col-md-4">
       <div class="card align-items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-easel" viewBox="0 0 16 16">
@@ -95,9 +97,10 @@
           </svg>
           <a class="card-title" href="Core/menuCursada" >Gestion de Cursada</a>
           <p class="card-text">Gestionar Ciclo Actual</p>
-
       </div>
     </div>
+    {% endif %}
+    {% endif %}
   </div>
 </div>
 

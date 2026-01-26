@@ -24,12 +24,15 @@
                             <h4>{{ plan.anio }}</h4>
                             <h5>{{ plan.orientacion }}</h5>
                             <div class="card-body d-flex flex-column">
-                                <a class="btn btn-primary m-2" href="/Core/verAnio/{{ plan.id }}">Años</a>
+                                {{plan.implementado}}
+                                {% if not plan.implementado %}
                                 <a class="btn btn-primary m-2" href="/Core/modificarPlan/{{ plan.id }}">Editar</a>
+                                {% endif %}
                                 {% if plan.esActual %}
                                 <a class="btn btn-primary m-2" href="/Core/verEspacioCurricularEnPlan/{{ plan.id }}">Espacios curriculares</a>
                                 <a class="btn btn-primary m-2" href="/Core/verCicloEnPlan/{{ plan.id }}">Implementar Plan</a>
                                 {% else %}
+                                <a class="btn btn-primary m-2" href="/Core/verAnio/{{ plan.id }}">Años</a>
                                 <a class="btn btn-primary m-2" href="/Core/cambiar_actual/{{ plan.id }}">Cambiar PlanActual</a>
                                 {% endif %}
                                 <!-- Agrega el siguiente estilo para que los botones siempre se muestren -->

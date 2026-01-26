@@ -21,5 +21,5 @@ urlpatterns  = [
     path('obtener_aulas/', views.obtener_aulas, name='obtener_aulas'),
     path('obtener_alumnos/', views.obtener_alumnos, name='obtener_alumnos'),
     path('actualizar_relacion/', views.actualizar_relacion, name='actualizar_relacion'),
-
+    path('eliminar_detalle_horario/', views.eliminar_detalle_horario, name='eliminar_detalle_horario'),
 ]

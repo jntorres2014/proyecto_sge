@@ -6,7 +6,7 @@ from django.views.generic import ListView
 from Clases.forms import CalificacionForm, Detalle_HorarioForm, InasistenciasForm, Inasistencias
 from Core.models import Aula, Calificacion, Ciclo, Detalle_Horario, Horario, inscripcionEstudianteCiclo,Division
 from django.shortcuts import render, redirect
-
+from django.views.decorators.http import require_POST
 # Create your views here.
 @login_required
 def calificacion_view(request):
@@ -73,6 +73,7 @@ class inasistencia_list(ListView):
 def crear_horario(request):
     print("*******entre aca**** ")
     if request.method == "POST":
+        print("Entre al post")
         form = Detalle_HorarioForm(request.POST)
         if form.is_valid():
             form.save()
@@ -83,15 +84,17 @@ def crear_horario(request):
         if data is None:
             print("entr none")
             horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
+            print(horarios)
         else:
             division = Division.objects.get(id=data)
             print("division",division)
             horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(division=division)) 
+            print(horarios)
     #horarios = Detalle_Horario.objects.filter(horario = Horario.objects.get(id=1))
-    print("aca estoy",horarios[0].hora)
+    #print("aca estoy",horarios[0].hora)
     form = Detalle_HorarioForm()
-    dias = [tupla[0] for tupla in Horario.CHOICES_DIA]
-    modulos = [tupla[0] for tupla in Horario.CHOICES_HORA]
+    dias = [str(tupla[0]) for tupla in Horario.CHOICES_DIA]
+    modulos = [str(tupla[0]) for tupla in Horario.CHOICES_HORA]
     print(dias,modulos)
     
     return render(request, "Division/crearHorarioDivision.html", {"form": form, 
@@ -168,3 +171,17 @@ def obtenerHorarios(request):
     detalles_json = [{'dia': detalle.dia, 'hora': detalle.hora, 'espacioCurricular': detalle.espacioCurricular.nombre} for detalle in detalles]
 
     return JsonResponse({'detalles': detalles_json})
+
+@require_POST
+def eliminar_detalle_horario(request):
+    detalle_id = request.POST.get('detalle_id')
+    print("****ENTREEE", detalle_id)
+    
+    try:
+        detalle = Detalle_Horario.objects.get(id=detalle_id)
+        detalle.delete()
+        success = True
+    except Detalle_Horario.DoesNotExist:
+        success = False
+
+    return JsonResponse({'success': success})

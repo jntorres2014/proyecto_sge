@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout,authenticate
+
+from Core.models import Ciclo, PlanDeEstudios
 from .forms import TaskForm
 from .models import Task
 from django.utils import timezone
@@ -10,7 +12,16 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def home2(request):
-    return render(request, 'home.html')
+    hay_plan=PlanDeEstudios.objects.exists()
+    hay_ciclo = Ciclo.objects.exists()
+    print(hay_ciclo)
+    if hay_ciclo:
+        ciclo_activo = Ciclo.objects.get(esActual= 'True').fechaFin >= timezone.now().date()
+        print("ciclo activo",ciclo_activo)
+    else:
+            ciclo_activo='False'
+    return render(request, 'home.html',{'hay_plan': hay_plan,
+                                        'ciclo_activo': ciclo_activo} )
 @login_required
 def inscripciones(request):
        return render(request, ' inscripciones.html')

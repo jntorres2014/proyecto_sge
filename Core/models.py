@@ -134,6 +134,9 @@ class PlanDeEstudios(models.Model):
     esActual = models.BooleanField(
         default= True
     )
+    implementado = models.BooleanField(
+        default= False
+    )
     
     cantidadAnios = models.PositiveIntegerField()
     
